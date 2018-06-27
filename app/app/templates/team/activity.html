@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_star_picker.html" as macros %}
+{% import "macros/_user_panel.html" as user_macros %}
+{% import "macros/_user_avatar.html" as avatar_macros %}
+{% block title %}{{ activity.name }}{% endblock %}
+
+{% block page_content %}
+ <div class="post">
+<div class="row post-header well">
+    <div class="col-sm-12">
+        <img src="{{ activity.cover_url }}" title="活动封面"/>
+        <div class="post-title">{{ activity.name }}</div>
+    </div>
+</div>
+
+ <div class="row post-details well">
+    <div class="row">
+        <div class="col-sm-12 post-team">
+            <img src="{{ url_for('static', filename='images/icons/team.png') }}" title="团队"/>
+            <a href="{{ url_for('team.team_index', id=activity.belong_to_team) }}">
+                <span>{{ activity.team.name }}</span>
+            </a>
+        </div>
+        {#
+        <div class="col-sm-6">
+            <img src="{{ url_for('static', filename='images/icons/leader.png') }}" title="领队"/>
+            <a href="{{ url_for('user.profile', id=activity.created_by) }}">
+                <span>{{ activity.leader.username }}</span>
+            </a>
+        </div> #}
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <span class="post-text">强度</span>
+            {{ macros.render_star(activity.intensity_index) }}
+        </div>
+        <div class="col-sm-6">
+            <span class="post-text">风景</span>
+            {{ macros.render_star(activity.landscape_index) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <span class="post-text">集合地</span>{{ activity.rally_site }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <span class="post-text">目的地</span>{{ activity.destination }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="post-date"><span class="post-text">开始日期</span>{{ moment(activity.start_date).format('L') }}</div>
+            <div class="post-date"><span class="post-text">结束日期</span>{{ moment(activity.end_date).format('L') }}</div>
+            <div class="post-phone">
+                <img src="{{ url_for('static', filename='images/icons/phone.png') }}" title="咨询电话"/>
+                <span>{{ activity.phone }}</span>
+            </div>
+            {% if not activity.is_following(current_user) %}
+            <div class="post-follow">
+                <a href="{{ url_for('team.follow', id=activity.id) }}" class="btn btn-default">关注</a>
+            </div>
+            {% endif %}
+
+        </div>
+        <div class="col-sm-5">
+            <div class="post-price">
+                <img src="{{ url_for('static', filename='images/icons/money.png') }}" title="价格"/>
+                {{ activity.price }}</div>
+            <div class="post-btn">
+                {% if activity.past %}
+                    <a href="#" class="btn btn-default disabled">活动已结束</a>
+                {% elif activity.joined(current_user) %}
+                    <a href="#" class="btn btn-default disabled">您已报名</a>
+                {% else %}
+                    <a href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-primary">报名</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+ <ul class="nav nav-tabs" id="myTab">
+     <li class="active">
+         <a href="#introduce" data-toggle="tab">活动介绍</a>
+     </li>
+     <li>
+         <a href="#join" data-toggle="tab">出行人员</a>
+     </li>
+     <li>
+         <a href="#ask" data-toggle="tab">提问</a>
+     </li>
+ </ul>
+<div class="tab-content" id="myTabContent">
+    <div id="introduce" class="tab-pane active fade in">
+        {{ activity.introduce | safe }}
+    </div>
+    <div id="join" class="tab-pane fade list-avatar">
+        {{ user_macros.render_user_panel(activity.users_joined) }}
+    </div>
+    <div id="ask" class="tab-pane fade">
+        {{ wtf.quick_form(form) }}
+        <ul class="list-group">
+            {% for question in activity.counsel_reverse %}
+            <li class="list-group-item row">
+                <div class="col-sm-3">
+                    {{ avatar_macros.render_user_avatar(question.user) }}
+                </div>
+                <div class="col-sm-9 well">
+                    {{ question.question }}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<!--
+ <div class="row post-body well">
+    <div class="col-sm-12">
+        {activity.introduce | safe }}
+    </div>
+</div>
+-->
+<div class="row post-footer well">
+    <div class="col-sm-12">
+
+    </div>
+</div>
+</div>
+{% endblock %}

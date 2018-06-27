@@ -1,0 +1,18 @@
+{% import "macros/_team_avatar.html" as macros %}
+{% macro render_team_details_cube(team) %}
+<div class="well team-cube">
+    <div class="team-cube-header row">
+        <div class="col-sm-3 middle-img">
+            {{ macros.render_team_avatar(team) }}
+        </div>
+
+        <div class="col-sm-9">
+            <p class="cube-heading"><a href="{{ url_for('team.team_index', id=team.id) }}"> {{ team.name }}</a></p>
+            <p>{{ team.description }}</p>
+        </div>
+    </div>
+    <div class="row team-cube-show">
+
+    </div>
+</div>
+{% endmacro %}

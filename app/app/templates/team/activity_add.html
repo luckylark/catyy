@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}发布活动{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    {{ ckeditor.load(custom_url=url_for('static', filename='ck/ckeditor/ckeditor.js')) }}
+{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h3>发布活动</h3>
+    </div>
+
+    <div>
+        {{ wtf.quick_form(form) }}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}{{ user.username }}的主页{% endblock %}
+
+{% block page_content %}
+ {# header:头像、用户名、封面、关注等统计信息 #}
+<div class="row text-center cover">
+<img class="cover_img" src="{{ url_for('static',filename='images/cover_user/default.jpg') }}"/>
+<div class="abs_position">
+{% if user == current_user %}
+    <p>
+        <a title="更换头像" href="{{ url_for('user.modify_avatar') }}">
+    {% if user.avatar %}
+        <img class="avatar" src="{{ user.avatar_url }}" title="用户头像" />
+    {% else %}
+       <img class="avatar" src="{{ url_for('static', filename='images/avatar_user/default.jpg') }}"/>
+    {% endif %}
+    </a></p>
+{% else %}
+    {% if user.avatar %}
+        <p>
+            <img src="{{ user.avatar_url }}" title="用户头像" class="avatar"  /> </p>
+    {% else %}
+        <p><img class="avatar"  src="{{ url_for('static', filename='images/avatar_user/default.jpg') }}"/></p>
+    {% endif %}
+{% endif %}
+<p class="name">{{ user.username }}</p>
+<div class="info-bar"></div>
+</div>
+</div>
+
+ {# contain:签名 #}
+ {% if user.about_me %}
+ <div class="row">
+ <div class="col-sm-12 text-center">
+     <p>{{ user.about_me }}</p>
+ </div>
+</div>
+
+ {# 列表组 #}
+ <ul class="list-group">
+    <li class="list-group-item">
+        {% if current_user.leader_count %}<a href="{{ url_for('team.my_teams', id=user.id) }}">创建的团队</a>{% endif %}
+    </li>
+    <li class="list-group-item">
+        {% if current_user.joined_team_count %}<a href="{{ url_for('team.joined_teams', id=user.id) }}">加入的团队</a>{% endif %}
+    </li>
+    <li class="list-group-item">
+        <a href="{{ url_for('team.activities_follow', id=user.id) }}">关注的活动</a>
+    </li>
+    <li class="list-group-item">
+        <a href="{{ url_for('team.activities_joined', id=user.id) }}">报名的活动</a>
+    </li>
+ </ul>
+ {% endif %}
+{% endblock %}

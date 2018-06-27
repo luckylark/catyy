@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}{{ t.name }}下的团队{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h3>{{ t.name }}下的团队</h3>
+    </div>
+
+    <div>
+
+
+        {% include 'include/_team_list.html' %}
+    </div>
+
+{% endblock %}

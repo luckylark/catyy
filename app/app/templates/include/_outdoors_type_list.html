@@ -1,0 +1,24 @@
+<div class="row">
+    {% for t in collection %}
+    <div class="col-sm-4 text-center">
+    <a href="{{ url_for(urlpoint, id=t.id) }}">
+        <img src="{{ t.image_url }}" title="分类图片"/>
+        <p>{{ t.name }}</p>
+    </a>
+
+    {% if admin %}
+    <p>
+        <a href="{{ url_for('admin.edit_outdoor_type', id=t.id) }}">编辑</a>
+        {% if t.disabled %}
+            <a>显示</a>
+        {% else %}
+            <a>禁用</a>
+        {% endif %}
+
+    </p>
+    {% endif %}
+
+
+    </div>
+    {% endfor %}
+</div>

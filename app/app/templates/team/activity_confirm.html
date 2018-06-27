@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}确认出行信息{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h3>确认出行信息</h3>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            出行信息
+        </div>
+        <div class="panel-body span-bold">
+        <ul class="list-group">
+            <li class="list-group-item">
+                <span>报名活动</span>
+                {{ join.activity.name }}
+            </li>
+            <li class="list-group-item">
+                <span>活动时间</span>
+                {{ moment(join.activity.start_date).format('L') }}-{{ moment(join.activity.end_date).format('L') }}
+            </li>
+            <li class="list-group-item">
+                <span>报名人</span>
+                {{ join.user.username }}
+            </li>
+            <li class="list-group-item">
+                <span>报名电话</span>
+                {{ join.user.phone }}
+            </li>
+            <li class="list-group-item">
+                <span>出行人信息</span>
+            </li>
+            {% for contact in join.contacts %}
+                <li class="list-group-item">
+                {{ contact.name }}-{{ contact.identity }}
+                </li>
+            {% endfor %}
+        </ul>
+        </div>
+    </div>
+    <div class="panel panel-primary">
+    <div class="panel-heading">
+        选择付款方式
+    </div>
+    <div class="panel-body">
+        <div class="well"> <a href="#" class="btn btn-warning">自费付款</a></div>
+        {# 后续添加微信 支付宝支付方式 #}
+        <div class="divider"></div>
+        <div class="well">
+            <h4>众筹付款</h4>
+            {{ wtf.quick_form(form) }}
+        </div>
+    </div>
+    </div>
+
+{% endblock %}

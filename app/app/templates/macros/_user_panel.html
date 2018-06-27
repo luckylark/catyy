@@ -1,0 +1,17 @@
+{% macro render_user_panel(user_list) %}
+<div>
+<ul class="list-inline list-unstyled">
+{% for user in user_list %}
+    <li class="text-center">
+     <a href="{{ url_for('user.profile', id=user.id) }}" title="{{ user.usernamee }}">
+
+        <img src="{{ user.avatar_url }}" title="用户头像" class="avatar img-circle"  />
+        <p>{{ user.username }}</p>
+
+    </a>
+
+    </li>
+{% endfor %}
+</ul>
+</div>
+{% endmacro %}

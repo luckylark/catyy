@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_user_panel.html" as macros %}
+{% block title %}{{ team.name }}下的成员{% endblock %}
+
+{% block page_content %}
+    <div class="page-headeer">
+        <h3><a href="{{ url_for('team.team_index', id=team.id) }}">{{ team.name }}</a>下的成员</h3>
+    </div>
+
+    <div class="panel panel-default">
+    <h3 class="panel-heading">所有成员</h3>
+    <div class="panel-body little-img">
+        {{ macros.render_user_panel(team.members) }}
+    </div>
+    </div>
+{% endblock %}

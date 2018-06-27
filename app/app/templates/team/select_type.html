@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}选择一个户外分类{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h3>选择一个户外分类</h3>
+    </div>
+
+    <div>
+        {% with urlpoint = 'team.team_list' %}
+        {% include 'include/_outdoors_type_list.html' %}
+        {% endwith %}
+    </div>
+
+{% endblock %}

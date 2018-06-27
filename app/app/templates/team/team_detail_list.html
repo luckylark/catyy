@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_team_details_cube.html" as macros %}
+{% block title %}团队列表{% endblock %}
+
+{% block page_content %}
+    <div>
+    {% for team in teams %}
+        {{ macros.render_team_details_cube(team) }}
+    {% endfor %}
+    </div>
+
+{% endblock %}

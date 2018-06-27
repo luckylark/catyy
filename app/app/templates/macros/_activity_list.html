@@ -1,0 +1,38 @@
+{% macro render_activity_list_vertical(activities) %}
+<div class="list">
+<ul class="list-unstyled activity-list">
+    {% for activity in activities %}
+        <li class="activity-item well">
+            <div class="row">
+                <div class="col-sm-5">
+                    <a href="{{ url_for('team.activity', id=activity.id) }}">
+                        <img src="{{ activity.cover_url }}" alt="活动封面" class="img-flex"/>
+                    </a>
+                </div>
+                <div class="col-sm-7">
+                    {# 活动分类 #}
+                <ul class="list-unstyled list-inline">
+                    {% for item in activity.types %}
+                        <li><a href="{{ url_for('team.team_list', id=item.id) }}" class="badge">
+                            {{ item.name }}
+                        </a> </li>
+                    {% endfor %}
+                </ul>
+                    <h4><a href="{{ url_for('team.activity', id=activity.id) }}">{{ activity.name }}</a></h4>
+                <div class="activity-details">
+                    <div class="activity-date">
+                        {{ moment(activity.start_date).format('L') }}-
+                        {{ moment(activity.end_date).format('L') }}
+                    </div>
+                </div>
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+</div>
+{% endmacro %}
+
+{% macro render_activity_list_horizontal(activities) %}
+
+{% endmacro %}

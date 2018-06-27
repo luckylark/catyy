@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import 'macros/_user_avatar.html' as macros %}
+{% import 'macros/_activity_list.html' as act_macros with context %}
+{% block title %}{{ team.name }}{% endblock %}
+
+{% block page_content %}
+ {# header:头像、用户名、封面、关注等统计信息 #}
+<div class="row text-center cover">
+<img class="cover_img" src="{{ url_for('static',filename='images/cover_team/default.jpg') }}"/>
+<div class="abs_position">
+    {% if team.avatar %}
+        <p>
+            <img src="{{ team.avatar_url }}" title="team icon" class="avatar"  /> </p>
+    {% else %}
+        <p><img class="avatar"  src="{{ url_for('static', filename='images/avatar_team/default.jpg') }}"/></p>
+    {% endif %}
+<p class="name">{{ team.name }}</p>
+</div>
+</div>
+
+ {# contain:签名 #}
+ {% if team.description %}
+ <div class="row">
+ <div class="col-sm-12 text-center">
+ <div class="info-bar">
+     {% if not team.is_member(current_user) %}
+        <a class="btn btn-warning" href="{{ url_for('team.join', id = team.id) }}">加入团队</a>
+     {% endif %}
+     {% if team.is_leader(current_user) %}
+         <a class="btn btn-primary" href="{{ url_for('team.create_activity', id=team.id) }}">发布新活动</a>
+     {% endif %}
+ </div>
+
+        <div class="panal panel-default">
+        <div class="panel-heading">
+            <a href="{{ url_for('team.members', id = team.id) }}" title="点击查看所有成员"> 团队成员({{ team.member_count }}人）</a>
+        </div>
+        <div class="panel-body">
+        <ul class="list-avatar list-unstyled list-inline">
+        <li class="little-img" title=" 队长">{{ macros.render_user_avatar(team.leader) }}</li>
+            {% for item in team.get_top_members() %}
+                <li class="little-img">{{ macros.render_user_avatar(item) }}</li>
+            {% endfor %}
+        </ul>
+        </div>
+        </div>
+ </div>
+</div>
+
+<div class="panel panel-default">
+<div class="panel-heading">
+    <a href="{{ url_for('team.activities_team', id=team.id) }}">团队的活动</a>
+</div>
+<div class="row panel-body">
+    {{ act_macros.render_activity_list_vertical(team.get_top_activities()) }}
+</div>
+</div>
+ {% endif %}
+{% endblock %}
