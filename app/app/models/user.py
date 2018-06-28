@@ -38,6 +38,7 @@ class User(db.Model, UserMixin):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     last_seen = db.Column(db.DateTime)
     lock = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default=False)
     #role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
     #info:profile
