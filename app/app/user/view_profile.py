@@ -41,6 +41,6 @@ def profile(id):
 @login_required
 @user.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
-    pass
+    return render_template('edit_profile.html')
 
 

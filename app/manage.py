@@ -35,6 +35,7 @@ def createdb():
     #create fake user
     from app.forgery import gene_users
     gene_users()
+    #添加户外分类
 
 if __name__ == '__main__':
     manager.run()

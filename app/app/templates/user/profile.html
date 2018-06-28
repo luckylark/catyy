@@ -37,7 +37,8 @@
  </div>
 </div>
 
- {# 列表组 #}
+ {# 团队活动列表组 #}
+
  <ul class="list-group">
     <li class="list-group-item">
         {% if current_user.leader_count %}<a href="{{ url_for('team.my_teams', id=user.id) }}">创建的团队</a>{% endif %}

@@ -10,6 +10,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user
 from .team import Team
 
+class Follow(db.Model):
+    __tablename__ = 'follows'
+
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -77,6 +84,32 @@ class User(db.Model, UserMixin):
         filename = self.cover if self.cover else 'default.jpg'
         return coverUser.url(filename)
 
+    #--------------关注----------------------
+    followed = db.relationship('Follow', foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               cascade='all, delete-orphan', lazy='dynamic')
+    followers = db.relationship('Follow', foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                cascade='all, delete-orphan', lazy='dynamic')
+
+    def is_following(self, user):
+        return self.followed.filter_by(followed_id=user.id).first() is not None
+
+    def is_followed(self, user):
+        return self.followers.filter_by(follower_id=user.id).first() is not None
+
+    def follow(self, user):
+        if not self.is_following(user):
+            follow = Follow(follower=self, followed=user)
+            db.session.add(follow)
+            db.session.commit()
+
+    def unfollow(self, user):
+        follow = self.followed.filter_by(followed_id=user.id).first()
+        if follow:
+            db.session.delete(follow)
+            db.session.commit()
+
     #各种relationship------------团队---------------------------------
     leader_teams = db.relationship('Team', backref='leader', lazy='dynamic', foreign_keys=[Team.leader_id])
     user_teams = db.relationship('TeamUser', backref=db.backref('user', lazy='joined'),
@@ -116,6 +149,9 @@ class User(db.Model, UserMixin):
 
     def activities_join(self):
         return [join.activity for join in self.joins_activity.order_by('join_activities.timestamp desc').all()]
+
+
+
 
 
 

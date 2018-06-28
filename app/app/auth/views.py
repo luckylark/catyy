@@ -4,10 +4,11 @@ login()
 logout()
 """
 from . import auth
-from ..forms.login import LoginForm
+from ..forms.login import LoginForm, RegisterForm, ChangePasswordForm
 from flask import render_template, flash, redirect, request, url_for
 from flask_login import login_user, logout_user, current_user, login_required
 from ..models.user import User
+from .. import db
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -43,3 +44,31 @@ def logout():
     logout_user()
     flash('您已退出登陆')
     return redirect(url_for('index'))
+
+
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        user = User(email=form.email.data, username=form.username.data, password=form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        user.follow(user)  # 关注自己
+        db.session.add(user)
+        flash('注册成功，您现在可以登陆了')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/register.html', form= form)
+
+
+@login_required
+@auth.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        current_user.password = form.password.data
+        db.session.add(current_user)
+        flash('密码修改成功')
+        return redirect(url_for('user.profile', id=current_user.id))
+    return render_template('change_password.html', form=form)
+
+

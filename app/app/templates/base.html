@@ -27,7 +27,7 @@
              <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> 注销</a></li>
              <li><a href="{{ url_for('user.edit_profile') }}"><span class="glyphicon glyphicon-pencil"></span> 编辑</a></li>
             {% else %}
-             <li><a href="#"><span class="glyphicon glyphicon-user"></span> 注册</a></li>
+             <li><a href="{{ url_for('auth.register') }}"><span class="glyphicon glyphicon-user"></span> 注册</a></li>
              <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
             {% endif %}
         </ul>
