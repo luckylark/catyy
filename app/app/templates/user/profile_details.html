@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}{{ user.username }}的个人资料{% endblock %}
+
+{% block page_content %}
+    <h3>个人资料</h3>
+ <ul class="list-group span-bold">
+    <li class="list-group-item">
+        <span>用户名：</span>{{ user.username }}
+    </li>
+    <li class="list-group-item">
+        <span>性别：</span>{{ user.gender }}
+    </li>
+    <li class="list-group-item">
+        <span>出生年月：</span>{{ moment(user.birthday).format('L') }}
+    </li>
+    <li class="list-group-item">
+        <span>个人签名：</span>{{ user.about_me }}
+    </li>
+ </ul>
+{% endblock %}

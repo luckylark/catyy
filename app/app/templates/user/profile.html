@@ -41,11 +41,18 @@
 
  <ul class="list-group">
     <li class="list-group-item">
-        {% if current_user.leader_count %}<a href="{{ url_for('team.my_teams', id=user.id) }}">创建的团队</a>{% endif %}
+        <a href="{{ url_for('user.profile_details', id=user.id) }}">个人资料</a>
     </li>
+    {% if current_user.leader_count %}
     <li class="list-group-item">
-        {% if current_user.joined_team_count %}<a href="{{ url_for('team.joined_teams', id=user.id) }}">加入的团队</a>{% endif %}
+        <a href="{{ url_for('team.my_teams', id=user.id) }}">创建的团队</a>
     </li>
+    {% endif %}
+    {% if current_user.joined_team_count %}
+    <li class="list-group-item">
+        <a href="{{ url_for('team.joined_teams', id=user.id) }}">加入的团队</a>
+    </li>
+    {% endif %}
     <li class="list-group-item">
         <a href="{{ url_for('team.activities_follow', id=user.id) }}">关注的活动</a>
     </li>

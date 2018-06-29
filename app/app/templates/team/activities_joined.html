@@ -4,5 +4,11 @@
 {% block title %}参加的活动列表{% endblock %}
 
 {% block page_content %}
-{% include "include/_activity_list.html" %}
+{% if activities %}
+    {% include "include/_activity_list.html" %}
+{% else %}
+    <div class="well">
+    它还没有参加过任何活动~
+    </div>
+{% endif %}
 {% endblock %}
