@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}管理首页{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h3>管理首页</h3>
+    </div>
+
+    <div class="list-group">
+    <li class="list-group-item">
+        <a href="{{ url_for('admin.edit_outdoor_type') }}">管理户外分类</a>
+    </li>
+    <li class="list-group-item">
+        <a href=""></a>
+    </li>
+    <li class="list-group-item">
+        <a href=""></a>
+    </li>
+    <li class="list-group-item">
+        <a href=""></a>
+    </li>
+    <li class="list-group-item">
+        <a href=""></a>
+    </li>
+    </div>
+
+{% endblock %}

@@ -1,16 +1,21 @@
 from . import admin
 from flask_login import current_user, login_required
 from ..forms.outdoor import CreateOutdoorTypeForm
-from flask import flash, render_template, redirect, url_for, request
+from flask import flash, render_template, redirect, url_for, request, abort
 from ..models.outdoorType import OutdoorType
 from ..extentions import commonImage, db
 from ..tools.string_tools import get_md5_filename
+from ..decorators import admin_required
 
 
 @login_required
+@admin_required
 @admin.route('/edit_outdoor_type', methods=['GET', 'POST'])
 @admin.route('/edit_outdoor_type/<int:id>', methods=['GET', 'POST'])
 def edit_outdoor_type(id=0):
+    #TODO 装饰器
+    if not current_user.is_admin:
+        abort(403)
     form = CreateOutdoorTypeForm()
     collection = OutdoorType.admin_list()
     item = OutdoorType()

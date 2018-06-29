@@ -49,10 +49,15 @@
 	        <div class="container-fluid">
 	        <div>
 		        <ul class="nav navbar-nav">
-                    <li class="text-center col-xs-3" style="font-size:20px"><a href="/" title="主页"><span class="glyphicon glyphicon-home"/></a></li>
-			        <li class="text-center col-xs-3" style="font-size:20px"><a href="#" title="团队"><span class="glyphicon glyphicon-flag"/></a></li>
-			        <li class="text-center col-xs-3" style="font-size:20px;"><a href="#" title="户外商城"><span class="glyphicon glyphicon-shopping-cart"/></a></li>
-                    {% if current_user.is_authenticated %}<li class="text-center col-xs-3" style="font-size:20px;"><a href="{{ url_for('user.profile', id=current_user.id) }}" title="我的主页"><span class="glyphicon glyphicon-user"/></a></li>{% endif %}
+                    <li class="text-center col-xs-2" style="font-size:20px"><a href="/" title="主页"><span class="glyphicon glyphicon-home"/></a></li>
+			        <li class="text-center col-xs-2" style="font-size:20px"><a href="#" title="团队"><span class="glyphicon glyphicon-flag"/></a></li>
+			        <li class="text-center col-xs-2" style="font-size:20px;"><a href="#" title="户外商城"><span class="glyphicon glyphicon-shopping-cart"/></a></li>
+                    {% if current_user.is_authenticated %}<li class="text-center col-xs-2" style="font-size:20px;">
+                        <a href="{{ url_for('user.profile', id=current_user.id) }}" title="我的主页"><span class="glyphicon glyphicon-user"/></a></li>
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.is_admin %}<li class="text-center col-xs-2" style="font-size:20px;">
+                        <a href="{{ url_for('admin.index') }}" title="管理页面"><span class="glyphicon glyphicon-edit"/></a></li>
+                    {% endif %}
 		        </ul>
 	        </div>
 	        </div>
