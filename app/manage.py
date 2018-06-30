@@ -54,8 +54,5 @@ def createdb():
         db.session.add(outdoor_type)
         db.session.commit
 
-
-
-
 if __name__ == '__main__':
     manager.run()
