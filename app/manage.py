@@ -21,7 +21,8 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Team=Team, OutdoorType=OutdoorType, TeamUser=TeamUser, Activity=Activity)
 manager.add_command('db', MigrateCommand)
 
-@Command
+
+@manager.command
 def createdb():
     db.create_all()
     #create admin
@@ -35,6 +36,10 @@ def createdb():
     #create fake user
     from app.forgery import gene_users
     gene_users()
+
+
+@manager.command
+def create_outdoor():
     #添加户外分类
     types = [['南太行', 100, 'outdoor_type/nantaihang.gif'],
              ['户外登山', 90, 'outdoor_type/huwaidengshan.jpg'],

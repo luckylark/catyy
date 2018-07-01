@@ -78,13 +78,13 @@ def gene_members(member_count=50):
 def test_outdoor():
     admin = User.query.filter_by(username='admin').first()
     types = [['南太行', 100, 'outdoor_type/nantaihang.gif'],
-             ['户外登山', '90', 'outdoor_type/huwaidengshan.jpg'],
-             ['攀岩', '80', 'outdoor_type/panyan.jpg'],
-             ['骑行', '70', 'outdoor_type/qixing.jpg'],
-             ['健步走', '60', 'outdoor_type/jianbuzou.jpg'],
-             ['垂钓', '50', 'outdoor_type/chuidiao.jpg'],
-             ['漂流', '40', 'outdoor_type/piaoliu.jpg'],
-             ['跑步', '30', 'outdoor_type/paobu.jpg']
+             ['户外登山', 90, 'outdoor_type/huwaidengshan.jpg'],
+             ['攀岩', 80, 'outdoor_type/panyan.jpg'],
+             ['骑行', 70, 'outdoor_type/qixing.jpg'],
+             ['健步走',60, 'outdoor_type/jianbuzou.jpg'],
+             ['垂钓', 50, 'outdoor_type/chuidiao.jpg'],
+             ['漂流', 40, 'outdoor_type/piaoliu.jpg'],
+             ['跑步', 30, 'outdoor_type/paobu.jpg']
              ]
     for t in types:
         outdoor_type = OutdoorType()
