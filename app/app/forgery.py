@@ -77,7 +77,7 @@ def gene_members(member_count=50):
 
 def test_outdoor():
     admin = User.query.filter_by(username='admin').first()
-    types = [['南太行', '100', 'outdoor_type/nantaihang.gif'],
+    types = [['南太行', 100, 'outdoor_type/nantaihang.gif'],
              ['户外登山', '90', 'outdoor_type/huwaidengshan.jpg'],
              ['攀岩', '80', 'outdoor_type/panyan.jpg'],
              ['骑行', '70', 'outdoor_type/qixing.jpg'],
