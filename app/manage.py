@@ -40,6 +40,7 @@ def createdb():
 
 @manager.command
 def create_outdoor():
+    admin = User.query.filter_by(username='admin').first()
     #添加户外分类
     types = [['南太行', 100, 'outdoor_type/nantaihang.gif'],
              ['户外登山', 90, 'outdoor_type/huwaidengshan.jpg'],
