@@ -27,7 +27,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost/CatDevDB'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:40710044@localhost/CatDevDB'
 
 
 class ProductionConfig(Config):

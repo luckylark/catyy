@@ -5,5 +5,5 @@ import os
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
-server=WSGIServer(('', 80), app)
+server = WSGIServer(('', 80), app)
 server.serve_forever()
