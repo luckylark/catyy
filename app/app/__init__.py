@@ -13,7 +13,7 @@ from .extentions import (
 )
 from flask_uploads import patch_request_class, configure_uploads
 from .config import config
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template
 
 
 def create_app(config_name):
@@ -52,6 +52,8 @@ def create_app(config_name):
     #add main router
     @app.route('/')
     def index():
-        return redirect(url_for('team.select_outdoor'))
+        from .models.activity import Activity
+        carousel_items = Activity.query.order_by(Activity.timestamp.desc()).limit(5).all()
+        return render_template('home.html', carousel_items = carousel_items)
 
     return  app

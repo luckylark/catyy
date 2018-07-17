@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/home.css') }}" />
+{% endblock %}
+{% block title %}小猫游园户外资源平台{% endblock %}
+
+{% block page_content %}
+{# 轮播 #}
+<div id="homepage-carousel" class="carousel slide">
+    <ol class="carousel-indicators">
+        <li class="active" data-target="#homepage-carousel" data-slide-to="0"></li>
+        <li data-target="#homepage-carousel" data-slide-to="1"></li>
+        <li data-target="#homepage-carousel" data-slide-to="2"></li>
+        <li data-target="#homepage-carousel" data-slide-to="3"></li>
+        <li data-target="#homepage-carousel" data-slide-to="4"></li>
+    </ol>
+
+    <div class="carousel-inner">
+        {% for item in carousel_items %}
+            <div class="item {% if loop.index == 1 %}active{% endif %}">
+                <a href="{{ url_for('team.activity', id=item.id) }}">
+                    <img src="{{ item.cover_url }}" alt="{{ item.name }}" />
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <a class="left carousel-control" href="#homepage-carousel" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+    </a>
+    <a class="right carousel-control" href="#homepage-carousel" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+</div>
+
+{# 选择活动分类 #}
+
+
+
+{# 最新活动 团队 地接模块 #}
+
+{% endblock %}

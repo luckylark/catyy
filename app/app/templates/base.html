@@ -6,22 +6,41 @@
 {{ moment.lang('zh-CN') }}
 {% endblock %}
 
-{% block title %}小猫游园户外平台{% endblock %}
+{% block title %}小猫游园户外资源平台{% endblock %}
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/main.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/base.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/common.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/main.css') }}" />
 {% endblock %}
 
 {% block content %}
+<header role="banner">
+    <div class="container">
+    <!--logo-->
 
-    <div class="container col-xs-4 col-xs-offset-4" id="fixed-container">
     <!--顶部固定导航-->
-    <nav class="navbar navbar-inverse navbar-fixed-top col-xs-4 col-xs-offset-4" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-        <a class="navbar-brand" href="#">小猫游园户外平台</a>
-     </div>
+    <nav role="navigation" class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">小猫游园</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">出行</a> </li>
+                <li><a href="#"></a>社区</li>
+                <li><a href="#"></a>商城</li>
+                <li><a href="#"></a>住宿</li>
+                <li><a href="#"></a>保险</li>
+            </ul>
+        </div>
+    </nav>
+    </div>
+</header>
+
+
+
+<main role="main">
         <ul class="nav navbar-nav navbar-right">
             {% if current_user.is_authenticated %}
              <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> 注销</a></li>
@@ -31,8 +50,7 @@
              <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
             {% endif %}
         </ul>
-    </div>
-    </nav>
+
 
     <!--flash-->
         {%  for msg in get_flashed_messages() %}
@@ -45,9 +63,7 @@
         {% block page_content  %}{% endblock %}
 
     <!--底部固定导航-->
-        <nav class="navbar navbar-inverse navbar-fixed-bottom col-xs-4 col-xs-offset-4" role="navigation">
-	        <div class="container-fluid">
-	        <div>
+
 		        <ul class="nav navbar-nav">
                     <li class="text-center col-xs-2" style="font-size:20px"><a href="/" title="主页"><span class="glyphicon glyphicon-home"/></a></li>
 			        <li class="text-center col-xs-2" style="font-size:20px"><a href="#" title="团队"><span class="glyphicon glyphicon-flag"/></a></li>
@@ -59,8 +75,9 @@
                         <a href="{{ url_for('admin.index') }}" title="管理页面"><span class="glyphicon glyphicon-edit"/></a></li>
                     {% endif %}
 		        </ul>
-	        </div>
-	        </div>
-        </nav>
-    </div>
+</main>
+
+<footer role="contentinfo">
+<p><small>Copyright &copy; 小猫游园</small></p>
+</footer>
 {% endblock %}
