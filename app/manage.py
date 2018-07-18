@@ -1,6 +1,6 @@
 import os
-import pymysql
-pymysql.install_as_MySQLdb()
+"""import pymysql
+pymysql.install_as_MySQLdb()"""
 
 from app import create_app
 from flask_script import Manager, Shell, Command

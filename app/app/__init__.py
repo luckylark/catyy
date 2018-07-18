@@ -9,7 +9,8 @@ from .extentions import (
     coverTeam,
     coverUser,
     commonImage,
-    ckeditor
+    ckeditor,
+    nav
 )
 from flask_uploads import patch_request_class, configure_uploads
 from .config import config
@@ -35,6 +36,7 @@ def create_app(config_name):
     bootstrap.init_app(app)
     login_manager.init_app(app)
     ckeditor.init_app(app)
+    nav.init_app(app)
     #image upload config
     configure_uploads(app, (avatarUser, avatarTeam, coverPost, coverTeam, coverUser, commonImage))
     patch_request_class(app, 5*1024*1024)
