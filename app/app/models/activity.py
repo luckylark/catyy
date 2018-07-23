@@ -57,6 +57,11 @@ class Activity(db.Model):
     def past(self):
         return self.start_date < datetime.now()
 
+    #------------------获取各种活动集合--------------------------
+    @staticmethod
+    def get_activities_latest(count=5):
+        return Activity.query.order_by('activities.timestamp DESC').limit(count).all()
+
 #--------------------------活动类型---------------------------
     types = db.relationship('OutdoorType', secondary=activity_types, backref=db.backref('activities', lazy='dynamic'))
 

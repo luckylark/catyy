@@ -12,7 +12,6 @@
 {{ super() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/base.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/common.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/main.css') }}" />
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css">
  {% endblock %}
@@ -44,15 +43,7 @@
 
 
 <main role="main">
-        <ul class="nav navbar-nav navbar-right">
-            {% if current_user.is_authenticated %}
-             <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> 注销</a></li>
-             <li><a href="{{ url_for('user.edit_profile') }}"><span class="glyphicon glyphicon-pencil"></span> 编辑</a></li>
-            {% else %}
-             <li><a href="{{ url_for('auth.register') }}"><span class="glyphicon glyphicon-user"></span> 注册</a></li>
-             <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
-            {% endif %}
-        </ul>
+
 
 
     <!--flash-->
@@ -62,11 +53,17 @@
             {{ msg }}
             </div>
         {% endfor %}
+
     <!--子内容块-->
         {% block page_content  %}{% endblock %}
 
-    <!--底部固定导航-->
 
+</main>
+
+<footer role="contentinfo">
+<!--底部固定导航-->
+<div class="row">
+    <div class="col-sm-offset-1 col-sm-10">
 		        <ul class="nav navbar-nav">
                     <li class="text-center col-xs-2" style="font-size:20px"><a href="/" title="主页"><span class="glyphicon glyphicon-home"/></a></li>
 			        <li class="text-center col-xs-2" style="font-size:20px"><a href="#" title="团队"><span class="glyphicon glyphicon-flag"/></a></li>
@@ -78,9 +75,18 @@
                         <a href="{{ url_for('admin.index') }}" title="管理页面"><span class="glyphicon glyphicon-edit"/></a></li>
                     {% endif %}
 		        </ul>
-</main>
 
-<footer role="contentinfo">
-<p><small>Copyright &copy; 小猫游园</small></p>
+        <ul class="nav navbar-nav navbar-right">
+            {% if current_user.is_authenticated %}
+             <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> 注销</a></li>
+             <li><a href="{{ url_for('user.edit_profile') }}"><span class="glyphicon glyphicon-pencil"></span> 编辑</a></li>
+            {% else %}
+             <li><a href="{{ url_for('auth.register') }}"><span class="glyphicon glyphicon-user"></span> 注册</a></li>
+             <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
+            {% endif %}
+        </ul>
+        <p class="copyright"><small>Copyright &copy; 小猫游园</small></p>
+    </div>
+</div>
 </footer>
 {% endblock %}

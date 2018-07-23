@@ -1,0 +1,24 @@
+{% extends "user_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_team_details_cube.html" as macros with context %}
+{% block title %}{{ user.username }}关注的活动{% endblock %}
+
+{% block user_content %}
+    <div class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">{{ user.username }}关注的活动</h2>
+    </div>
+    <div class="panel-body">
+    {% if activities %}
+        {% include "include/_activity_list.html" %}
+    {% else %}
+        <div class="well">
+        它还没有关注过任何活动~
+        </div>
+    {% endif %}
+    </div>
+
+    </div>
+    </div>
+
+{% endblock %}

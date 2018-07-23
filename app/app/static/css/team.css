@@ -1,0 +1,26 @@
+/*活动列表*/
+.activity-item h3 {
+    line-height: 1em;
+}
+.activity-item h3 a {
+    color:olivedrab;
+}
+
+
+/*team-detail*/
+.team-icon {
+    background: url('../images/icons/team.png') no-repeat;
+    padding: 5px 0 5px 35px;
+    line-height: 30px;
+}
+.team_cube_simple li {
+    width:19%;
+}
+.team_cube_simple a h4 {
+    color:olivedrab;
+    font-size:12px;
+    witdh:100%;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+}

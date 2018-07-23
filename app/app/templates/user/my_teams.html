@@ -1,0 +1,25 @@
+{% extends "user_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_team_details_cube.html" as macros with context %}
+{% block title %}{{ user.username }}创建的团队{% endblock %}
+
+{% block user_content %}
+    <div class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">{{ user.username }}创建的团队</h2>
+    </div>
+    <div class="panel-body">
+     <div>
+     {% if not teams %}
+     <p><a href="{{ url_for('team.create_team') }}">
+           它好没有创建俱乐部哦~，点击创建自己的俱乐部</a></p>
+     {%  else %}
+    {% for team in teams %}
+        {{ macros.render_team_details_cube(team) }}
+    {% endfor %}
+     {% endif %}
+    </div>
+    </div>
+    </div>
+
+{% endblock %}

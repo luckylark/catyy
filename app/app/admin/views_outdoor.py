@@ -35,3 +35,22 @@ def edit_outdoor_type(id=0):
         db.session.add(item)
         return redirect(url_for('.edit_outdoor_type'))
     return render_template('edit_outdoor_type.html', form=form, collection=collection)
+
+
+@login_required
+@admin_required
+@admin.route('/disable_outdoor/<int:id>')
+def disable_outdoor(id):
+    t = OutdoorType.query.get_or_404(id)
+    t.disable()
+    return redirect(url_for('.edit_outdoor_type'))
+
+
+@login_required
+@admin_required
+@admin.route('/disable_outdoor/<int:id>')
+def show_outdoor(id):
+    t = OutdoorType.query.get_or_404(id)
+    t.show()
+    return redirect(url_for('.edit_outdoor_type'))
+

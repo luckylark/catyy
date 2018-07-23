@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_activity_list.html" as act_list %}
+{% import "macros/_team_details_cube.html" as team_macros %}
 {% block head %}
 {{ super() }}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/home.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/homepage.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/team.css') }}" />
 {% endblock %}
 {% block title %}小猫游园户外资源平台{% endblock %}
 
@@ -35,11 +38,48 @@
         <span class="glyphicon glyphicon-chevron-right"></span>
     </a>
 </div>
+{# 主内容块排版占10个gird #}
 
-{# 选择活动分类 #}
+ <div class="row">
+     <div class="col-sm-offset-1 col-sm-10">
 
+{# 选择活动分类 ----全布局#}
 
+    <h1 class="banner banner-long text-center text-border top-space">找活动</h1>
+    {% set urlpoint = 'team.activities_outdoor' %}
+    {% include 'include/_outdoors_type_list.html' %}
 
-{# 最新活动 团队 地接模块 #}
+{# 景区 ---全布局#}
+     {# <h1 class="banner banner-long text-center text-border">景区</h1>
+     <div>这里是待填充的景区模块</div> #}
 
+{# 最新活动最新帖子 团队 论坛地接模块  --- 布局1-6-4-1#}
+     <div class="row top-space">
+         {# 左侧主内容区 #}
+         <div class="col-sm-7">
+             <div class="catyy-panel panel panel-success">
+                 <div class="panel-heading">
+                     <h1 class="panel-title banner-small">最新活动</h1>
+                 </div>
+                <div class="panel-body">
+                    {% include "include/_activity_list.html" %}
+                </div>
+
+             </div>
+         </div>
+         {# 右侧栏 #}
+         <div class="col-sm-5">
+            <div class="catyy-panel panel panel-success">
+                <div class="panel-heading">
+                     <h1 class="panel-title banner-small">活跃俱乐部</h1>
+                 </div>
+                <div class="panel-body">
+                    {{ team_macros.render_team_list_simple(teams) }}
+                </div>
+            </div>
+         </div>
+     </div>
+
+    </div>
+</div>
 {% endblock %}

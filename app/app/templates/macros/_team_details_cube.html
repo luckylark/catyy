@@ -1,18 +1,36 @@
 {% import "macros/_team_avatar.html" as macros %}
 {% macro render_team_details_cube(team) %}
-<div class="well team-cube">
-    <div class="team-cube-header row">
-        <div class="col-sm-3 middle-img">
+<div class="well card-square">
+    <div class="row">
+        <div class="col-sm-3">
             {{ macros.render_team_avatar(team) }}
         </div>
 
         <div class="col-sm-9">
-            <p class="cube-heading"><a href="{{ url_for('team.team_index', id=team.id) }}"> {{ team.name }}</a></p>
-            <p>{{ team.description }}</p>
+            <p class="card-square-title"><a href="{{ url_for('team.team_index', id=team.id) }}"> {{ team.name }}</a></p>
+            <p class="card-square-body">{{ team.description }}</p>
+            <a href="{{ url_for('team.team_index', id=team.id) }}" >活动:
+            <span class="badge"> {{ team.activity_count }}</span></a> |
+            <a href="{{ url_for('team.members', id=team.id) }}">队员:
+                <span class="badge">{{ team.member_count }}</span></a> |
+            <span class="card-square-details">{{ moment(team.timestamp).fromNow() }}成立</span>
         </div>
     </div>
     <div class="row team-cube-show">
 
     </div>
 </div>
+{% endmacro %}
+
+{% macro render_team_list_simple(team_list) %}
+<ul class="list-unstyled list-inline team_cube_simple">
+    {% for item in team_list %}
+        <li>
+            <a href="{{ url_for('team.team_index', id=item.id) }}" title="点击头像进入团队首页">
+                <img class="img-circle img-responsive"  src="{{ item.avatar_url }}"/>
+                <h4>{{ item.name }}</h4>
+            </a>
+        </li>
+    {% endfor %}
+</ul>
 {% endmacro %}

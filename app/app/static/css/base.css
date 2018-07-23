@@ -1,0 +1,8 @@
+footer {
+    border-top: cornflowerblue 10px solid;
+    height: 100px;
+    background-color: lightgray;
+}
+.copyright {
+    font-size: 20px;
+}

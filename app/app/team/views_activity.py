@@ -199,6 +199,9 @@ def crowd_funding_support(id):
         return redirect(url_for('team.crowd_funding_index', id=join.id))
     return render_template('crowd_funding_support.html', form=form, join=join)
 
+'''
+取得各种活动列表
+'''
 
 @team.route('/activities/team/<int:id>')
 def activities_team(id):
@@ -207,13 +210,16 @@ def activities_team(id):
     return render_template('activities_team.html', activities=activities, team=team)
 
 
-@login_required
-@team.route('/activities/joined/')
-@team.route('/activities/joined/<int:id>')
-def activities_joined(id=0):
-    user = User.get_user(id)
-    activities = user.activities_join()
-    return render_template('activities_joined.html', activities=activities)
+@team.route('/activities/outdoor/<int:id>')
+def activities_outdoor(id):
+    outdoor = OutdoorType.query.get_or_404(id)
+    activities = outdoor.activities.order_by(Activity.timestamp.desc()).all()
+    return render_template('activities_outdoor.html', activities=activities)
+
+
+
+
+
 
 
 

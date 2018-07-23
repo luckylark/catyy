@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}{{ team.name }}的主页{% endblock %}
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/profile.css') }}" />
+{% endblock %}
+{% block page_content %}
+<div class="row team-cover">
+<div class="col-sm-offset-1 col-sm-10">
+ {# header:头像、用户名、封面、关注等统计信息 #}
+
+    <div class="text-center profile-header">
+    {# <img class="img-responsive" src="{{ url_for('static',filename='images/cover_user/default.jpg') }}"/> #}
+    <div class="profile-avatar">
+        {# 当前用户-点击头像可以修改头像 #}
+    <div>
+
+        {% if team.leader == current_user %}
+                <a title="更换头像" href="#">
+                    <img class="img-rounded" src="{{ team.avatar_url }}" title="俱乐部logo" />
+                </a>
+        {% else %}
+         {# 其他用户 #}
+            <img src="{{ team.avatar_url }}" title="俱乐部logo" class="img-rounded"  />
+        {% endif %}
+    </div>
+    </div>
+    <p class="profile-name"><a href="{{ url_for('team.team_index', id=team.id) }}">{{ team.name }}</a> </p>
+    {# contain:签名 #}
+    <p class="profile-description">
+     {% if team.description %}
+         {{ team.description }}
+      {% else %}
+         这个家伙很懒~什么也没介绍
+     {% endif %}
+    </p>
+    <div class="profile-bar">
+        {% if team.is_leader(current_user) %}
+             <a class="btn btn-primary" href="{{ url_for('team.create_activity', id=team.id) }}">发布新活动</a>
+         {% endif %}
+        {% if team.is_member(current_user) %}
+            <a href="#" class="btn btn-primary">退出俱乐部</a>
+        {% else %}
+            <a href="{{ url_for('team.join', id=user.id) }}" class="btn btn-primary">加入俱乐部</a>
+        {% endif %}
+        <a href="{{ url_for('team.team_index', id=team.id) }}" >活动:
+        <span class="badge"> {{ team.activity_count }}</span></a> |
+        <a href="{{ url_for('team.members', id=team.id) }}">队员:
+        <span class="badge">{{ team.member_count }}</span></a> |
+        <span class="card-square-details">{{ moment(team.timestamp).fromNow() }}成立</span>
+
+    </div>
+
+    </div>
+    {# 子类内容块 #}
+    <div class="row top-space">
+        <div class="col-sm-offset-1 col-sm-7">
+            {% block team_content %}
+
+            {% endblock %}
+        </div>
+        <div class="col-sm-3">
+            {# 团队活动列表组 #}
+         <ul class="list-group">
+            <li class="list-group-item">
+                <a href="#">个人资料</a>
+            </li>
+
+         </ul>
+        </div>
+    </div>
+
+    </div>
+</div>
+{% endblock %}

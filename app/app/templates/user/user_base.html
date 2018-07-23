@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}{{ user.username }}的主页{% endblock %}
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/profile.css') }}" />
+{% endblock %}
+{% block page_content %}
+<div class="row user-cover">
+<div class="col-sm-offset-1 col-sm-10">
+ {# header:头像、用户名、封面、关注等统计信息 #}
+
+    <div class="text-center profile-header">
+    {# <img class="img-responsive" src="{{ url_for('static',filename='images/cover_user/default.jpg') }}"/> #}
+    <div class="profile-avatar">
+        {# 当前用户-点击头像可以修改头像 #}
+    <div>
+        {% if user == current_user %}
+                <a title="更换头像" href="{{ url_for('user.modify_avatar') }}">
+                    <img class="avatar img-rounded" src="{{ user.avatar_url }}" title="用户头像" />
+                </a>
+        {% else %}
+         {# 其他用户 #}
+            <img src="{{ user.avatar_url }}" title="用户头像" class="img-rounded"  />
+        {% endif %}
+    </div>
+    </div>
+    <p class="profile-name"><a href="{{ url_for('user.profile', id=user.id) }}">{{ user.username }}</a> </p>
+    {# contain:签名 #}
+    <p class="profile-description">
+     {% if user.about_me %}
+         {{ user.about_me }}
+      {% else %}
+         这个家伙很懒~什么也没介绍
+     {% endif %}
+    </p>
+    <div class="profile-bar">
+        {% if current_user.is_following(user) %}
+            <a href="{{ url_for('user.unfollow', id=user.id) }}" class="btn btn-primary">取关</a>
+        {% else %}
+            <a href="{{ url_for('user.follow', id=user.id) }}" class="btn btn-primary">关注</a>
+        {% endif %}
+        <a href="{{ url_for('user.followed', id=user.id) }}" >关注:
+            <span class="badge"> {{ user.followed_count }}</span></a> |
+        <a href="{{ url_for('user.followers', id=user.id) }}">粉丝:
+            <span class="badge">{{ user.follower_count }}</span></a> |
+        {% if user.is_following(current_user) %}
+            <span class="label label-default">关注了你</span>
+        {% endif %}
+
+    </div>
+
+    </div>
+    {# 子类内容块 #}
+    <div class="row top-space">
+        <div class="col-sm-offset-1 col-sm-7">
+            {% block user_content %}
+
+            {% endblock %}
+        </div>
+        <div class="col-sm-3">
+            {# 团队活动列表组 #}
+         <ul class="list-group">
+            <li class="list-group-item">
+                <a href="{{ url_for('user.profile_details', id=user.id) }}">个人资料</a>
+            </li>
+            {% if current_user.leader_count %}
+            <li class="list-group-item">
+                <a href="{{ url_for('user.my_teams', id=user.id) }}">创建的团队:
+                    <span class="badge">{{ user.leader_count }}</span></a>
+            </li>
+            {% endif %}
+            {% if current_user.joined_team_count %}
+            <li class="list-group-item">
+                <a href="{{ url_for('user.joined_teams', id=user.id) }}">加入的团队:
+                    <span class="badge">{{ user.joined_team_count }}</span></a>
+            </li>
+            {% endif %}
+            <li class="list-group-item">
+                <a href="{{ url_for('user.activities_follow', id=user.id) }}">关注的活动:
+                    <span class="badge">{{ user.activity_follow_count }}</span></a>
+            </li>
+            <li class="list-group-item">
+                <a href="{{ url_for('user.activities_joined', id=user.id) }}">报名的活动:
+                    <span class="badge">{{ user.activity_join_count }}</span></a>
+            </li>
+         </ul>
+        </div>
+    </div>
+
+    </div>
+</div>
+{% endblock %}

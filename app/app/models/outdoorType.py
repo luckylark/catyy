@@ -28,6 +28,10 @@ class OutdoorType(db.Model):
         self.disabled = True
         db.session.add(self)
 
+    def show(self):
+        self.disabled = False
+        db.session.add(self)
+
     @property
     def image_url(self):
         return commonImage.url(filename=self.image)

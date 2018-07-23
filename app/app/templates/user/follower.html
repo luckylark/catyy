@@ -1,0 +1,17 @@
+{% extends "user_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_user_panel.html" as user_list with context %}
+{% import "macros/_tools.html" as tool_macros %}
+{% block title %}{{ user.username }}的关注列表{% endblock %}
+
+{% block user_content %}
+    <div class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">关注它的人</h2>
+    </div>
+    <div class="panel-body">
+        {{ user_list.render_user_panel_timestamp(users) }}
+    </div>
+    </div>
+    {{ tool_macros.render_pagination(pagination, 'user.followers', id=user.id) }}
+{% endblock %}

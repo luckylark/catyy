@@ -10,6 +10,11 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     #SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+    #分页
+    PAGECOUNT_USER = 20
+    PAGECOUNT_ACTIVITY = 20
+    PAGECOUNT_POST = 20
+
     @staticmethod
     def init_app(app):
         pass

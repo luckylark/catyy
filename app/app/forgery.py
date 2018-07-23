@@ -10,6 +10,8 @@ from .models.team import Team
 from .models.outdoorType import OutdoorType
 from .models.user import User
 from .extentions import db
+from random import seed, randint, sample
+from sqlalchemy.exc import IntegrityError
 
 
 def gene_users(count=100):
@@ -62,9 +64,6 @@ def gene_teams(count=100):
 
 
 def gene_members(member_count=50):
-    from random import seed, randint, sample
-    from sqlalchemy.exc import IntegrityError
-
     seed()
     teams = Team.query.all()
     users = User.query.all()
@@ -73,6 +72,16 @@ def gene_members(member_count=50):
             if not team.is_member(user):
                 team.join(user)
     db.session.commit()
+
+
+def fake_follow():
+    seed()
+    users = User.query.all()
+    follow = User.query.all()
+    for user in users:
+        for f in sample(follow, 2):
+            print(f.username)
+            user.follow(f)
 
 
 def test_outdoor():
@@ -94,6 +103,10 @@ def test_outdoor():
         outdoor_type.created_by = admin.id
         db.session.add(outdoor_type)
         db.session.commit()
+
+
+
+
 
 
 

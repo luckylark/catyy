@@ -1,11 +1,11 @@
 <div class="list">
 <ul class="list-unstyled activity-list">
     {% for activity in activities %}
-        <li class="activity-item well">
+        <li class="activity-item thumbnail">
             <div class="row">
                 <div class="col-sm-5">
                     <a href="{{ url_for('team.activity', id=activity.id) }}">
-                        <img src="{{ activity.cover_url }}" alt="活动封面" class="img-flex"/>
+                        <img src="{{ activity.cover_url }}" alt="活动封面" />
                     </a>
                 </div>
                 <div class="col-sm-7">
@@ -17,10 +17,10 @@
                         </a> </li>
                     {% endfor %}
                 </ul>
-                    <h4><a href="{{ url_for('team.activity', id=activity.id) }}">{{ activity.name }}</a></h4>
+
+                <h3><a href="{{ url_for('team.activity', id=activity.id) }}">{{ activity.name }}</a></h3>
                 <div class="activity-details">
-                    <img src="{{ url_for('static', filename='images/icons/team.png') }}" alt="俱乐部"/>
-                    <a href="{{ url_for('team.team_index', id=activity.belong_to_team) }}">
+                    <a class="team-icon" href="{{ url_for('team.team_index', id=activity.belong_to_team) }}">
                         {{ activity.team.name }}
                     </a>
                     <div class="activity-date">
@@ -36,6 +36,7 @@
                 </div>
             </div>
         </li>
+
     {% endfor %}
 </ul>
 </div>

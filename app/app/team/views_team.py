@@ -68,20 +68,7 @@ def members(id):
     return render_template('members.html', team=t)
 
 
-@team.route('/my')
-@team.route('/my/<int:id>')
-def my_teams(id=0):
-    user = User.get_user(id)
-    teams = user.leader_teams
-    return render_template('team_detail_list.html', teams=teams)
 
-
-@team.route('/joined')
-@team.route('/joined/<int:id>')
-def joined_teams(id=0):
-    user = User.get_user(id)
-    teams = user.teams_joined
-    return render_template('team_detail_list.html', teams=teams)
 
 
 

@@ -7,10 +7,14 @@ class & function list:
 from ..extentions import db, login_manager, avatarUser, coverUser
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, current_user
+from flask_login import UserMixin, current_user, AnonymousUserMixin
 from .team import Team
+from flask import current_app
 
 class Follow(db.Model):
+    """
+    follower关注了followed
+    """
     __tablename__ = 'follows'
 
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
@@ -21,6 +25,17 @@ class Follow(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class AnonymousUser(AnonymousUserMixin):
+    """
+    匿名用户
+    重写一些User里面不需要login_required的方法的默认返回值
+    """
+    def is_following(self):
+        return False
+
+login_manager.anonymous_user = AnonymousUser
 
 
 class User(db.Model, UserMixin):
@@ -85,12 +100,28 @@ class User(db.Model, UserMixin):
         return coverUser.url(filename)
 
     #--------------关注----------------------
+    #我关注的人
     followed = db.relationship('Follow', foreign_keys=[Follow.follower_id],
                                backref=db.backref('follower', lazy='joined'),
                                cascade='all, delete-orphan', lazy='dynamic')
+    #粉丝-关注我的人
     followers = db.relationship('Follow', foreign_keys=[Follow.followed_id],
                                 backref=db.backref('followed', lazy='joined'),
                                 cascade='all, delete-orphan', lazy='dynamic')
+
+    #分页排序获取-我关注的人
+    def follow_list(self, page=1):
+        pagination = self.followed.order_by(Follow.timestamp.desc()).paginate(page, per_page=current_app.config[
+            'PAGECOUNT_USER'], error_out=False)
+        followed_list = [{'user': item.followed, 'timestamp': item.timestamp} for item in pagination.items]
+        return pagination, followed_list
+
+    #分页排序获取-关注我的人
+    def fans_list(self, page=1):
+        pagination = self.followers.order_by(Follow.timestamp.desc()).paginate(page, per_page=current_app.config[
+            'PAGECOUNT_USER'], error_out=False)
+        follower_list = [{'user': item.follower, 'timestamp': item.timestamp} for item in pagination.items]
+        return pagination, follower_list
 
     def is_following(self, user):
         return self.followed.filter_by(followed_id=user.id).first() is not None
@@ -110,13 +141,21 @@ class User(db.Model, UserMixin):
             db.session.delete(follow)
             db.session.commit()
 
+    @property
+    def follower_count(self):
+        return self.followers.count()
+
+    @property
+    def followed_count(self):
+        return self.followed.count()
+
     #各种relationship------------团队---------------------------------
     leader_teams = db.relationship('Team', backref='leader', lazy='dynamic', foreign_keys=[Team.leader_id])
     user_teams = db.relationship('TeamUser', backref=db.backref('user', lazy='joined'),
                                  lazy = 'dynamic', cascade='all, delete-orphan')
     @property
     def teams_joined(self):
-        return [item.team for item in self.user_teams.order_by('timestamp desc').all()]
+        return [item.team for item in self.user_teams.order_by('team_users.timestamp desc').all()]
 
     @property
     def leader_count(self):
@@ -150,6 +189,13 @@ class User(db.Model, UserMixin):
     def activities_join(self):
         return [join.activity for join in self.joins_activity.order_by('join_activities.timestamp desc').all()]
 
+    @property
+    def activity_join_count(self):
+        return self.joins_activity.count()
+
+    @property
+    def activity_follow_count(self):
+        return self.activities_followed.count()
 
 
 

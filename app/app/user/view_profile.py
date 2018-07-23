@@ -71,5 +71,84 @@ def edit_profile():
         return redirect(url_for('user.profile_details', id=current_user.id))
     return render_template('edit_profile.html', form=form)
 
+'''
+---------------------关注-----------------------------
+'''
+@user.route('/followers/<int:id>')
+def followers(id):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.get_or_404(id)
+    pagination, users = user.fans_list(page)
+    return render_template('follower.html',
+                           users=users,
+                           user=user,
+                           pagination=pagination)
+
+
+#我关注的人
+@user.route('/followed/<int:id>')
+def followed(id):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.get_or_404(id)
+    pagination, users = user.follow_list(page)
+    return render_template('followed.html',
+                           users=users,
+                           user=user,
+                           pagination=pagination)
+
+
+@login_required
+@user.route('/follow/<int:id>')
+def follow(id):
+    user = User.query.get_or_404(id)
+    current_user.follow(user)
+    flash('关注成功')
+    return redirect(url_for('.profile', id=id))
+
+
+@login_required
+@user.route('/unfollow/<int:id>')
+def unfollow(id):
+    user = User.query.get_or_404(id)
+    current_user.unfollow(user)
+    flash('取消关注成功')
+    return redirect(url_for('.profile', id=id))
+
+#-------------团队-------------
+@user.route('/teams/my/<int:id>')
+def my_teams(id):
+    user = User.query.get_or_404(id)
+    teams = user.leader_teams
+    return render_template('my_teams.html',
+                           user=user,
+                           teams=teams)
+
+
+@user.route('/teams/joined/<int:id>')
+def joined_teams(id):
+    user = User.query.get_or_404(id)
+    teams = user.teams_joined
+    return render_template('teams_joined.html',
+                           user=user,
+                           teams=teams)
+
+#---------------活动-------------------
+@user.route('/activities/joined/<int:id>')
+def activities_joined(id):
+    user = User.query.get_or_404(id)
+    activities = user.activities_join()
+    return render_template('activities_join.html',
+                           user=user,
+                           activities=activities)
+
+
+@user.route('/activities/follow/<int:id>')
+def activities_follow(id):
+    user = User.query.get_or_404(id)
+    activities = user.activities_follow()
+    return render_template('activities_followed.html',
+                           user=user,
+                           activities=activities)
+
 
 

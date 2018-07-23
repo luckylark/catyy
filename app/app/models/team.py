@@ -71,6 +71,10 @@ class Team(db.Model):
     #---------------------------活动-------------------------------------
     activities = db.relationship('Activity', lazy='dynamic', backref= db.backref('team', lazy='joined'))
 
+    @property
+    def activity_count(self):
+        return self.activities.count()
+
     def get_top_activities(self, top=5):
         return self.activities.order_by(Activity.timestamp.desc()).limit(top).all()
 

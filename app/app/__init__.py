@@ -55,7 +55,16 @@ def create_app(config_name):
     @app.route('/')
     def index():
         from .models.activity import Activity
+        from .models.outdoorType import OutdoorType
         carousel_items = Activity.query.order_by(Activity.timestamp.desc()).limit(5).all()
-        return render_template('home.html', carousel_items = carousel_items)
+        collection = OutdoorType.show_list()
+        activities = Activity.get_activities_latest()
+        from .models.team import Team
+        teams = Team.query.limit(20).all()
+        return render_template('home.html',
+                               carousel_items = carousel_items,
+                               collection=collection,
+                               activities=activities,
+                               teams=teams)
 
     return  app
