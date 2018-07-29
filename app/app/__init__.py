@@ -53,9 +53,9 @@ def create_app(config_name):
 
     @app.context_processor
     def inject_vars():
-        from .models.activity import registration_way, volunteer_type
+        from .models.activity import registration_way, volunteer_type, RegistrationWay
         from .models.tools import province
-        return dict(RegistrationWay=registration_way, Province=province, VolunteerType=volunteer_type)
+        return dict(RegistrationWay=registration_way, Province=province, VolunteerType=volunteer_type,Registration_Way=RegistrationWay)
 
     #add main router
     @app.route('/')

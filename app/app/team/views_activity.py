@@ -107,12 +107,12 @@ def edit_activity(id):
     return render_template('activity_add.html', form=form)
 
 
-
 @team.route('/activity/sln/<int:id>', methods=['GET', 'POST'])
 @login_required
 def activity_add_sln(id):
     activity = Activity.query.get_or_404(id)
     form = ActivitySolutionForm()
+    flash(activity.registration)
     if form.validate_on_submit():
         if form.sln_id.data:
             #更新

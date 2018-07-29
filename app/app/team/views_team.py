@@ -26,6 +26,10 @@ def create_team():
         club = Team()
         assign_club(club, form)
         db.session.add(club)
+        #将队长列入管理员和会员
+        club.join(current_user, is_admin=True)
+        db.session.add(current_user)
+        db.session.commit()
         flash('创建团队成功，请等待审核')
         return redirect(url_for('.team_index', id=club.id))
     return render_template('create_team.html', form=form)

@@ -97,13 +97,13 @@
                                 {% if activity.full %}
                                     <a href="#" class="btn btn-default">参与人数已达上限，不能报名了哦</a>
                                 {% else %}
-                                    {% if activity.register(RegistrationWay.PERSION)  %}
+                                    {% if activity.register(Registration_Way.PERSION)  %}
                                         <a href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-warning">个人报名</a>
                                     {% endif %}
-                                    {% if activity.register(RegistrationWay.TEAM) and current_user.is_leader  %}
+                                    {% if activity.register(Registration_Way.TEAM) and current_user.is_leader  %}
                                         <a href="{{ url_for('team.activity_join_team', id= activity.id) }}" class="btn btn-info">团队报名</a>
                                     {% endif %}
-                                    {% if activity.register(RegistrationWay.VOLUNTEER)  %}
+                                    {% if activity.register(Registration_Way.VOLUNTEER)  %}
                                         <a href="{{ url_for('team.activity_join_volunteer', id= activity.id) }}" class="btn btn-success">志愿者报名</a>
                                     {% endif %}
                                  {% endif %}
