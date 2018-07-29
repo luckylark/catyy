@@ -4,6 +4,15 @@
 {{ super() }}
 {{ moment.include_moment() }}
 {{ moment.lang('zh-CN') }}
+    <script>
+    $(document).ready(function(){
+        $(".delete").click(function(event){
+            if(!confirm('是否确认删除？')) {
+                event.preventDefault();}
+        });
+    });
+
+    </script>
 {% endblock %}
 
 {% block title %}小猫游园户外资源平台{% endblock %}
@@ -14,8 +23,8 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/common.css') }}" />
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css">
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
  {% endblock %}
-
 
 
 {% block content %}

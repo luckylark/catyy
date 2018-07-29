@@ -1,17 +1,20 @@
-{% extends "base.html" %}
+{% extends "team_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "macros/_user_panel.html" as macros %}
+{% import "macros/_tools.html" as pager %}
 {% block title %}{{ team.name }}下的成员{% endblock %}
 
-{% block page_content %}
-    <div class="page-headeer">
-        <h3><a href="{{ url_for('team.team_index', id=team.id) }}">{{ team.name }}</a>下的成员</h3>
-    </div>
+{% block team_content %}
+     <ul class="nav nav-tabs nav-justified">
+        <li><a href="{{ url_for('team.team_index', id=team.id) }}">活动</a></li>
+        <li class="active"><a href="{{ url_for('team.activitys_team_join', id=team.id) }}">团队报名的活动</a></li>
+        {# <li><a href="#">讨论区</a></li>
+        <li><a href="#">攻略</a></li> #}
+        <li><a href="{{ url_for('team.members', id=team.id) }}">会员</a></li>
+    </ul>
 
-    <div class="panel panel-default">
-    <h3 class="panel-heading">所有成员</h3>
-    <div class="panel-body little-img">
-        {{ macros.render_user_panel(team.members) }}
-    </div>
+    <div class="tabs-panel">
+        {{ macros.render_user_panel(members) }}
+        {{ pager.render_pagination(pagination, 'team.members', id=team.id) }}
     </div>
 {% endblock %}

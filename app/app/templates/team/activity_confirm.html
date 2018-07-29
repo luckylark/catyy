@@ -3,7 +3,9 @@
 {% block title %}确认出行信息{% endblock %}
 
 {% block page_content %}
-    <div class="page-header">
+    <div class="row">
+    <div class="col-sm-offset-2 col-sm-8">
+        <div class="page-header">
         <h3>确认出行信息</h3>
     </div>
 
@@ -14,39 +16,80 @@
         <div class="panel-body span-bold">
         <ul class="list-group">
             <li class="list-group-item">
-                <span>报名活动</span>
-                {{ join.activity.name }}
+                <span class="highlight">报名序列号</span>
+                {{ join.id }} |
+                <span class="highlight">请记住您的序列号，凭序列号参加活动</span>
             </li>
             <li class="list-group-item">
-                <span>活动时间</span>
+                <span class="highlight">报名活动</span>
+                <a href="{{ url_for('team.activity', id=join.activity_id) }}"> {{ join.activity.name }}</a>
+            </li>
+            {% if join.solotion_count %}
+            <li class="list-group-item">
+                <span class="highlight">选择方案</span>
+                {{ join.solution_obj.name }}
+            </li>
+            {% endif %}
+            {% if join.volunteer %}
+            <li class="list-group-item">
+                <span class="highlight">志愿者类型</span>
+                {{ VolunteerType[join.volunteer] }}
+            </li>
+            {% endif %}
+            <li class="list-group-item">
+                <span class="highlight">报名类型</span>
+                {{ RegistrationWay[join.registration] }}
+            </li>
+            <li class="list-group-item">
+                <span class="highlight">活动时间</span>
                 {{ moment(join.activity.start_date).format('L') }}-{{ moment(join.activity.end_date).format('L') }}
             </li>
             <li class="list-group-item">
-                <span>报名人</span>
+                <span class="highlight">报名人</span>
                 {{ join.user.username }}
             </li>
             <li class="list-group-item">
-                <span>报名电话</span>
+                <span class="highlight">报名电话</span>
                 {{ join.user.phone }}
             </li>
             <li class="list-group-item">
-                <span>出行人信息</span>
+                <span class="highlight">省份</span>
+                {{ Province[join.province] }}
+            </li>
+            <li class="list-group-item">
+                <span class="highlight">备注</span>
+                {{ join.comment }}
+            </li>
+            <li class="list-group-item">
+                <span class="highlight">出行人信息</span>
             </li>
             {% for contact in join.contacts %}
                 <li class="list-group-item">
-                {{ contact.name }}-{{ contact.identity }}
+                {{ contact.name }}-{{ contact.identity }}-{{ contact.age }}-{{ contact.phone }}
                 </li>
             {% endfor %}
+            {% if not join.state %}
+            <li class="list-group-item">
+                    <a href="#" class="btn btn-success">确认无误，去付款</a> |
+                    <a href="{{ url_for('team.activity_join_edit',id=join.id) }}" class="btn btn-default">信息有误，去修改</a> |
+                    <a href="{{ url_for('team.activity_cancel',id=join.id) }}" class="btn btn-default delete">取消报名</a>
+            </li>
+            {% endif %}
         </ul>
         </div>
     </div>
-    <div class="panel panel-primary">
+    {# 团队报名 #}
+    {% if team %}
+    <p>活动以挂到您的团队首页，点击<a href="#">这里</a>查看您自己的活动首页 </p>
+    {% endif %}
+    {#
+    这里保留了众筹付款的接口
+     <div class="panel panel-primary">
     <div class="panel-heading">
         选择付款方式
     </div>
     <div class="panel-body">
         <div class="well"> <a href="#" class="btn btn-warning">自费付款</a></div>
-        {# 后续添加微信 支付宝支付方式 #}
         <div class="divider"></div>
         <div class="well">
             <h4>众筹付款</h4>
@@ -54,5 +97,9 @@
         </div>
     </div>
     </div>
+    #}
+    </div>
+    </div>
+
 
 {% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "macros/_star_picker.html" as macros %}
+{% import "macros/_user_panel.html" as user_macros %}
+{% import "macros/_user_avatar.html" as avatar_macros %}
+{% import "macros/_team_details_cube.html" as team_macros with context %}
+{% block title %}{{ activity.name }}{% endblock %}
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/post.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/team.css') }}" />
+{% endblock %}
+
+{% block page_content %}
+    <div class="row top-space">
+    {# 团队信息+报名栏 #}
+    <div class="col-sm-offset-1 col-sm-3">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">团队名片</h3>
+        </div>
+        <div class="panel-body">
+            {{ team_macros.render_team_vertical(team) }}
+        </div>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item active">联系方式</li>
+        <li class="list-group-item">
+            <span class="highlight">队长</span>
+            <a href="{{ url_for('user.profile',id=team.leader_id) }}">{{ team.leader.username }}</a>
+        </li>
+        <li class="list-group-item">
+            <span class="highlight">联系电话</span>
+            {{ team.leader.phone }}
+        </li>
+    </ul>
+    {% if team_content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">队长有话说</h3>
+        </div>
+        <div class="panel-body">
+            {{ team_content }}
+        </div>
+    </div>
+    {% endif %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">以团队形式报名</h3>
+        </div>
+        <div class="panel-body">
+            <div class="well signup">
+                        <div class="post-btn">
+                            <span class="price">
+                            {{ activity.price }}</span>
+                            {% if activity.past %}
+                                <a href="#" class="btn btn-default disabled">活动已结束</a>
+                            {% elif activity.joined(current_user) %}
+                                {% if activity.paid(current_user) %}
+                                    <a href="#" class="btn btn-default disabled">您已报名</a>
+                                 {% else %}
+                                    <a href="{{ url_for('team.activity_confirm', id=activity.unpaid_id) }}" class="btn btn-success">您已报名,去付款</a>
+                                 {% endif %}
+                            {% else %}
+                                {% if activity.full %}
+                                    <a href="#" class="btn btn-default">参与人数已达上限，不能报名了哦</a>
+                                {% else %}
+                                    <span>出行人数：</span>
+                                    <form action="" method="post">
+                                        <input type="number" name="count"/>
+                                        <button type="submit">报名</button>
+                                    </form>
+                                 {% endif %}
+                            {% endif %}
+                        </div>
+
+                    </div>
+        </div>
+    </div>
+
+    </div>
+    {# 右侧活动详情#}
+    <div class="col-sm-7">
+        <h1><a href="{{ url_for('team.activity',id=activity.id) }}">{{ activity.name }}</a> </h1>
+        <div class="post" >{{ activity.introduce | safe }}</div>
+        {% if solutions %}
+            <h3>有以下几个活动行程方案可以选择</h3>
+            {% include 'include/_activity_solutions.html' %}
+        {% endif %}
+    </div>
+    </div>
+{% endblock %}

@@ -22,3 +22,6 @@ def cut(image, path, scale=0.6):
         h = w * scale
         img = img.crop((0, 0, w, h))
     img.save(path)
+
+
+

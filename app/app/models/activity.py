@@ -4,9 +4,56 @@ CLASS Activity
 """
 from ..extentions import db
 from datetime import datetime
-from .outdoorType import activity_types
+from .outdoorType import activity_types, OutdoorType
 from ..extentions import coverPost
 from flask_login import current_user
+from sqlalchemy.sql.expression import and_, or_
+from sqlalchemy.sql import func
+from flask import current_app, flash, session
+
+
+
+"""
+报名方式&志愿者类型
+"""
+
+
+#报名类
+class RegistrationWay:
+    PERSION = 0x01   #个人报名
+    TEAM = 0x02      #团队报名
+    VOLUNTEER = 0x04 #志愿者报名
+
+#界面显示用
+registration_way = {
+    RegistrationWay.PERSION: '个人报名',
+    RegistrationWay.TEAM: '团队报名',
+    RegistrationWay.VOLUNTEER:  '志愿者报名'
+}
+
+
+class Volunteer:
+    Server = 0x01
+    Photographer = 0x02
+    Orienteering = 0x04
+    Judge = 0x08
+    Leader = 0x10
+    Guide = 0x20
+    Entertainment = 0x40
+
+volunteer_type = {
+    Volunteer.Server: '服务志愿者',
+    Volunteer.Photographer : '摄影志愿者',
+    Volunteer.Orienteering : '定向越野志愿者',
+    Volunteer.Judge : '徒步裁判志愿者',
+    Volunteer.Leader : '户外领队志愿者',
+    Volunteer.Guide : '导游志愿者',
+    Volunteer.Entertainment : '文娱志愿者'
+  }
+
+"""
+活动类
+"""
 
 
 class Activity(db.Model):
@@ -47,6 +94,29 @@ class Activity(db.Model):
     landscape_index = db.Column(db.SmallInteger, nullable=False)
     introduce = db.Column(db.Text, nullable=False)
     view_count = db.Column(db.Integer, default=0)
+    registration = db.Column(db.SmallInteger, default=1) #默认仅接受个人报名
+    #admin-property
+    top = db.Column(db.Boolean, default=False) #全站置顶
+    top_team = db.Column(db.Boolean, default=False) #团内内置顶
+
+    # --------------------------活动类型---------------------------
+    types = db.relationship('OutdoorType', secondary=activity_types, backref=db.backref('activities', lazy='dynamic'))
+    teams_joind = db.relationship("TeamJoinActivity", lazy='dynamic', backref=db.backref('activity', lazy='joined'))
+
+    def view(self):
+        if session.get('activity_viewcount'):
+            return
+        session['activity_viewcount'] = True
+        self.view_count += 1
+        db.session.add(self)
+
+    solutions = db.relationship('ActivitySolution',
+                                lazy='dynamic',
+                                backref=db.backref('activity', lazy='joined'),
+                                )
+    @property
+    def solotion_count(self):
+        return self.solutions.count()
 
     @property
     def cover_url(self):
@@ -57,17 +127,52 @@ class Activity(db.Model):
     def past(self):
         return self.start_date < datetime.now()
 
+    def register(self, way):
+        return self.registration & way
+
+    #满员-未填写maximuam为不限人数
+    @property
+    def full(self):
+        if self.maximum:
+            return self.paid_member_count >= self.maximum
+        return False
+
     #------------------获取各种活动集合--------------------------
     @staticmethod
     def get_activities_latest(count=5):
         return Activity.query.order_by('activities.timestamp DESC').limit(count).all()
 
-#--------------------------活动类型---------------------------
-    types = db.relationship('OutdoorType', secondary=activity_types, backref=db.backref('activities', lazy='dynamic'))
-
-    def view(self):
-        self.view_count += 1
-        db.session.add(self)
+    @staticmethod
+    def get_activities_search(keyword, outdoor, days, sort, page=1):
+        activities = Activity.query
+        if outdoor != 'None': #户外类型
+            t = OutdoorType.query.get(int(outdoor))
+            activities = t.activities
+        if keyword:#允许多个空格分隔的搜索关键字
+            keywords = keyword.split()
+            for k in keywords:
+                activities = activities.filter(Activity.name.like('%'+k+'%'))
+        if days != 'None': #出行天数
+            if days == '1':
+                activities = activities.filter(Activity.days == 1)
+            elif days == '3':
+                activities = activities.filter(or_(Activity.days == 2, Activity.days == 3))
+            elif days == '7':
+                activities = activities.filter(and_(Activity.days > 3, Activity.days < 8))
+            elif days == '15':
+                activities = activities.filter(and_(Activity.days > 7, Activity.days < 16))
+            else:
+                activities = activities.filter(Activity.days > 15)
+        if sort != 'None':#排序
+            if sort == '1':
+                activities = activities.order_by(Activity.view_count.desc())
+            elif sort == '2':
+                activities = activities.order_by(Activity.price.asc())
+            elif sort == '3':
+                activities = activities.order_by(Activity.price.desc())
+            else:
+                activities = activities.order_by(Activity.timestamp.desc())
+        return activities.paginate(page, current_app.config['PAGECOUNT_ACTIVITY'], error_out=False)
 
     #-----------------关注收藏-----------------
     followers = db.relationship('FollowActivity', lazy='dynamic', backref=db.backref('activity', lazy='joined'),
@@ -83,7 +188,7 @@ class Activity(db.Model):
         return [follow.user for follow in self.followers.order_by(FollowActivity.timestamp.desc()).all()]
 
     def is_following(self, user):
-        return self.followers.filter_by(user_id=user.id).first() is not None
+        return user.is_authenticated and (self.followers.filter_by(user_id=user.id).first() is not None)
 
     def follow(self, user):
         if not self.is_following(user):
@@ -98,12 +203,190 @@ class Activity(db.Model):
     #---------------报名----------
     joins = db.relationship('JoinActivity', lazy='dynamic', backref=db.backref('activity', lazy='joined'))
 
+    @property
+    def paid_member_count(self):
+        count = db.session.query(func.sum(JoinActivity.count)).filter_by(activity_id=self.id, state=True).scalar()
+        return count if count else 0
+
     def joined(self, user):
-        return self.joins.filter_by(user_id=user.id).count == 1
+        return self.joins.filter_by(user_id=user.id).count()
+
+    def paid(self, user):
+        return self.joins.filter(and_(JoinActivity.state==True, JoinActivity.user_id==user.id)).count()
+
+    @property
+    def unpaid_id(self, user=current_user):
+        return self.joins.filter_by(user_id=user.id, state=False).first().id
 
     @property
     def users_joined(self):
         return [join.user for join in self.joins.filter_by(state=1).all()] #仅筛选付费用户
+
+    #个人报名
+    def join_person(self, contacts, sln, comment, province, team_id):
+        self.members += len(contacts)
+        #创建报名信息
+        join_info = JoinActivity()
+        join_info.user_id = current_user.id
+        join_info.activity_id = self.id
+        join_info.count = len(contacts)
+        join_info.price = self.price * join_info.count
+        join_info.state = False
+        if team_id:
+            join_info.registration = RegistrationWay.TEAM
+            join_info.team_id = team_id
+        else:
+            join_info.registration = RegistrationWay.PERSION
+        if sln:
+            join_info.solution = sln
+        join_info.comment = comment
+        join_info.province = province
+        db.session.add(join_info)
+        db.session.commit()
+        # --创建出行人信息--
+        for contact in contacts:
+            db.session.add(ActivityContact(
+                join_id=join_info.id,
+                name=contact['real_name'],
+                identity=contact['identity'],
+                phone=contact['phone'],
+                gender=contact['gender'],
+                age=contact['age']))
+        db.session.commit()
+        return join_info
+
+    def join_person_edit(self, contacts, sln, comment, province, join_info):
+        #修改报名信息
+        if sln:
+            join_info.solution = sln
+        join_info.comment = comment
+        join_info.province = province
+        join_info.contacts = []
+        db.session.add(join_info)
+        db.session.commit()
+        # --修改出行人信息--
+        for contact in contacts:
+            db.session.add(ActivityContact(
+                join_id=join_info.id,
+                name=contact['real_name'],
+                identity=contact['identity'],
+                phone=contact['phone'],
+                gender=contact['gender'],
+                age=contact['age']))
+        db.session.commit()
+        return join_info
+
+    #志愿者报名
+    def join_volunteer(self, form):
+        #创建Join数据
+        join_info = JoinActivity()
+        join_info.user_id = current_user.id
+        join_info.activity_id = self.id
+        join_info.count = 1
+        join_info.price = self.price
+        join_info.state = False
+        join_info.registration = RegistrationWay.VOLUNTEER
+        if form.solution.data:
+            join_info.solution = form.solution.data
+        join_info.comment = form.comment.data
+        join_info.province = form.province.data
+        join_info.volunteer = form.volunteer.data
+        db.session.add(join_info)
+        db.session.commit()
+        # --创建出行人信息--
+        contact = ActivityContact(
+                join_id=join_info.id,
+                name=form.real_name.data,
+                identity=form.identity.data,
+                phone=form.real_phone.data,
+                gender=form.gender.data,
+                age=form.age.data)
+        db.session.add(contact)
+        db.session.commit()
+        # 更新个人信息
+        if current_user.phone != form.real_phone.data or (current_user.volunteer & join_info.volunteer):
+            current_user.phone = form.real_phone.data
+            #TODO 这里只是调试用，之后上线可以删除
+            if not current_user.volunteer:
+                current_user.volunteer = 0
+            current_user.volunteer = current_user.volunteer | join_info.volunteer
+            db.session.add(current_user)
+        #TODO 拉入响应的志愿者团队
+        return join_info
+
+    def join_team(self, form):
+        from .team import TeamJoinActivity
+        #创建Join数据
+        join_info = JoinActivity()
+        join_info.user_id = current_user.id
+        join_info.team_id = current_user.leader_team.id
+        #join_info.team_content = form.team_content.data
+        join_info.activity_id = self.id
+        join_info.price = self.price
+        join_info.count = 1
+        join_info.state = False
+        join_info.registration = RegistrationWay.TEAM
+        if form.solution.data:
+            join_info.solution = form.solution.data
+        join_info.comment = form.comment.data
+        join_info.province = form.province.data
+        db.session.add(join_info)
+        # --创建出行人信息--
+        contact = ActivityContact(
+            join_id=join_info.id,
+            name=form.real_name.data,
+            identity=form.identity.data,
+            phone=form.real_phone.data,
+            gender=form.gender.data,
+            age=form.age.data)
+        db.session.add(contact)
+        tool = TeamJoinActivity(activity_id=self.id,
+                                team_id = join_info.team_id,
+                                team_content= form.team_content.data)
+        db.session.add(tool)
+        if current_user.phone != contact.phone:
+            current_user.phone = contact.phone
+            db.session.add(current_user)
+        db.session.commit()
+        return join_info
+
+
+    def get_team_content(self, team_id):
+        from .team import TeamJoinActivity
+        l = db.session.query(TeamJoinActivity.team_content
+                         ).filter(TeamJoinActivity.team_id==team_id,TeamJoinActivity.activity_id==self.id).scalar()
+        return l[0]
+
+    #获取所有报名信息
+    #TODO 分页
+    @staticmethod
+    def get_registration_details(activity_id):
+        from .user import User
+        from .team import Team
+        result = db.session.query(JoinActivity, ActivityContact).filter(
+            JoinActivity.id==ActivityContact.join_id, JoinActivity.activity_id==activity_id).all()
+        details = []
+        for item in result:
+            info = {
+                'serial_number' : item.ActivityContact.id,
+                'timestamp': item.JoinActivity.timestamp,
+                'user_id' : item.JoinActivity.user_id,
+                'username' : User.get_username_by_id(item.JoinActivity.user_id),
+                'state' : item.JoinActivity.state,
+                'province': item.JoinActivity.province,
+                'solution_id' : item.JoinActivity.solution,
+                'solution' : ActivitySolution.get_sln_name_by_id(item.JoinActivity.solution),
+                'volunteer': item.JoinActivity.volunteer,
+                'team_id' : item.JoinActivity.team_id,
+                'team_name': Team.get_team_name_by_id(item.JoinActivity.team_id),
+                'name' : item.ActivityContact.name,
+                'identity': item.ActivityContact.identity,
+                'age': item.ActivityContact.age,
+                'gender': item.ActivityContact.gender,
+                'phone': item.ActivityContact.phone
+            }
+            details.append(info)
+        return details
 
     #------------------咨询-----------------
     counsel = db.relationship('ActivityQuestion', lazy='dynamic', backref=db.backref('activity', lazy='joined'))
@@ -112,6 +395,41 @@ class Activity(db.Model):
     def counsel_reverse(self):
         return self.counsel.order_by('activity_questions.timestamp desc').all()
     #TODO  分页
+
+
+class ActivitySolution(db.Model):
+    __tablename__ = 'activity_solutions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
+    name = db.Column(db.String(20), nullable=False)
+    detail = db.Column(db.String(500), nullable=False)
+
+    @staticmethod
+    def add_solution(activity, name, detail):
+        sln = ActivitySolution(activity_id=activity.id,
+                               name=name,
+                               detail=detail)
+        db.session.add(sln)
+
+    @staticmethod
+    def add_solution_list(activity, solutions):
+        for sln in solutions:
+            ActivitySolution.add_solution(activity, sln['name'], sln['detail'])
+
+    def edit(self, name, detail):
+        self.name=name
+        self.detail=detail
+        db.session.add(self)
+
+    @staticmethod
+    def delete(id):
+        sln = ActivitySolution.query.get_or_404(id)
+        db.session.delete(sln)
+
+    @staticmethod
+    def get_sln_name_by_id(sln_id):
+        return db.session.query(ActivitySolution.name).filter(ActivitySolution.id==sln_id).scalar()
 
 
 class JoinActivity(db.Model):
@@ -124,12 +442,25 @@ class JoinActivity(db.Model):
     count = db.Column(db.Integer, nullable=False) #订单几人
     price = db.Column(db.Integer) #订单总价钱
     state = db.Column(db.Boolean, default=False) #0-未付款 1-已付款
+    registration = db.Column(db.SmallInteger) #报名的三种类型
+    team_id = db.Column(db.Integer, db.ForeignKey('teams.id')) #团队报名
+    team_content = db.Column(db.String(500)) #队长有话说
+    solution = db.Column(db.SmallInteger)
+    volunteer = db.Column(db.SmallInteger) #志愿者报名
+    province = db.Column(db.SmallInteger)  # province_list 的 index
+    comment = db.Column(db.String(100)) #备注信息
+    #众筹property
     payment = db.Column(db.Boolean, default=False) #F自付 T-众筹
     crowd_funding_amount = db.Column(db.Integer, default=0) #众筹金额
     crowd_funding_number = db.Column(db.Integer, default=0)  # 众筹人数
     crowd_funding_text = db.Column(db.String(500)) #众筹宣言
+    supports = db.relationship('CrowdFunding', lazy='dynamic', backref=db.backref('join', lazy='joined'))  # queryd对象
+    #---出行人---relationship--
     contacts = db.relationship('ActivityContact', lazy='dynamic', backref=db.backref('join', lazy='joined'))
-    supports = db.relationship('CrowdFunding', lazy='dynamic', backref=db.backref('join', lazy='joined')) #queryd对象
+
+    @property
+    def solution_obj(self):
+        return ActivitySolution.query.get_or_404(self.solution)
 
     @property
     def support_count(self):
@@ -138,6 +469,18 @@ class JoinActivity(db.Model):
     @property
     def supports_by_money(self):
         return self.supports.order_by('crowd_funding_details.money desc').all()
+
+
+class ActivityContact(db.Model):
+    __tablename__ = 'activity_contacts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    join_id = db.Column(db.Integer, db.ForeignKey('join_activities.id'))
+    name = db.Column(db.String(10), nullable=False)
+    identity = db.Column(db.String(18), nullable=False)
+    phone = db.Column(db.String(15))
+    gender = db.Column(db.SmallInteger) #性别：0-男-1-女
+    age = db.Column(db.SmallInteger)
 
 
 class CrowdFunding(db.Model):
@@ -150,15 +493,6 @@ class CrowdFunding(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     money = db.Column(db.Integer) #支持金额
     text = db.Column(db.String(500)) #支持宣言
-
-
-class ActivityContact(db.Model):
-    __tablename__ = 'activity_contacts'
-
-    id = db.Column(db.Integer, primary_key=True)
-    join_id = db.Column(db.Integer, db.ForeignKey('join_activities.id'))
-    name = db.Column(db.String(10), nullable=False)
-    identity = db.Column(db.String(18), nullable=False)
 
 
 class FollowActivity(db.Model):

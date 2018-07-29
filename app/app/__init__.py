@@ -6,7 +6,7 @@ from .extentions import (
     avatarTeam,
     avatarUser,
     coverPost,
-    coverTeam,
+    imgTeam,
     coverUser,
     commonImage,
     ckeditor,
@@ -38,7 +38,7 @@ def create_app(config_name):
     ckeditor.init_app(app)
     nav.init_app(app)
     #image upload config
-    configure_uploads(app, (avatarUser, avatarTeam, coverPost, coverTeam, coverUser, commonImage))
+    configure_uploads(app, (avatarUser, avatarTeam, coverPost, imgTeam, coverUser, commonImage))
     patch_request_class(app, 5*1024*1024)
 
     #register blueprint
@@ -50,6 +50,12 @@ def create_app(config_name):
     app.register_blueprint(admin)
     from .team import team
     app.register_blueprint(team)
+
+    @app.context_processor
+    def inject_vars():
+        from .models.activity import registration_way, volunteer_type
+        from .models.tools import province
+        return dict(RegistrationWay=registration_way, Province=province, VolunteerType=volunteer_type)
 
     #add main router
     @app.route('/')
@@ -66,5 +72,40 @@ def create_app(config_name):
                                collection=collection,
                                activities=activities,
                                teams=teams)
+
+    # -----------------ckeditor图片上传-----------
+
+    @app.route('/ckupload/', methods=['POST'])
+    def ckupload():
+        from flask import request, make_response
+        from .tools.string_tools import get_rnd_filename_w_ext
+        import os
+        error = ''
+        url = ''
+        callback = request.args.get("CKEditorFuncNum")
+        if request.method == 'POST' and 'upload' in request.files:
+            fileobj = request.files['upload']
+            rnd_name = get_rnd_filename_w_ext(fileobj.filename)
+            filepath = os.path.join(app.static_folder,'images', 'upload', rnd_name)
+            # 检查路径是否存在，不存在则创建
+            dirname = os.path.dirname(filepath)
+            if not os.path.exists(dirname):
+                try:
+                    os.makedirs(dirname)
+                except:
+                    error = 'ERROR_CREATE_DIR'
+            elif not os.access(dirname, os.W_OK):
+                error = 'ERROR_DIR_NOT_WRITEABLE'
+            if not error:
+                fileobj.save(filepath)
+                url = url_for('static', filename='%s/%s' % ('images/upload/', rnd_name))
+        else:
+            error = 'post error'
+        res = """<script type="text/javascript">
+              window.parent.CKEDITOR.tools.callFunction(%s, '%s', '%s');
+            </script>""" % (callback, url, error)
+        response = make_response(res)
+        response.headers["Content-Type"] = "text/html"
+        return response
 
     return  app

@@ -70,7 +70,7 @@
 .card-square {
 
 }
-.card-square-title a {
+.card-square-title {
     font-size: 20px;
     color: dodgerblue;
     background: url(../images/icons/flower.png) no-repeat;
@@ -86,4 +86,74 @@ main {
 }
 .top-space {
     margin-top: 50px;
+}
+pre {
+    white-space: pre-wrap!important;
+    word-wrap: break-word!important;
+    *white-space:normal!important;
+}
+/*标签样式导航*/
+.tabs-panel {
+    border-left: solid 1px gainsboro;
+    border-right: solid 1px gainsboro;
+    border-bottom: solid 1px gainsboro;
+    padding: 20px;
+}
+/*form表单*/
+.radio-list-inline {
+    list-style: none;
+    padding:0;
+}
+.radio-list-inline li {
+    float: left;
+    margin-right: 2em;
+}
+/*细节*/
+.highlight {
+    color: dodgerblue;
+    font-weight: bold;
+}
+.vertical-center td {
+    vertical-align: middle !important;
+}
+.list-item {
+    margin:7px;
+    text-align: center;
+}
+.list-item a {
+    font-size: 18px;
+}
+/*----------------复选框组-------------*/
+#registration_way, #travel_type {
+    list-style: none;
+}
+#registration_way li, #travel_type li {
+    display: inline-block;
+    margin-right: 20px;
+}
+/*----editor---------*/
+.post table {
+    width:80%;
+}
+.post td {
+    padding:10px;
+}
+
+.post table, .post th, .post td {
+    border:solid 1px lightgray;
+}
+.marker {
+    background: yellow;
+}
+.price {
+    background: url(../images/icons/money.png) no-repeat;
+    padding:7px 7px 7px 40px;
+    border-bottom: dashed 5px dodgerblue;
+    font-size: 28px;
+    color:orangered;
+    font-weight:bold;
+}
+.separator {
+    margin:20px;
+    border-bottom:dotted 1px dodgerblue;
 }

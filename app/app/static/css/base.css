@@ -2,6 +2,7 @@ footer {
     border-top: cornflowerblue 10px solid;
     height: 100px;
     background-color: lightgray;
+    margin-top:50px;
 }
 .copyright {
     font-size: 20px;

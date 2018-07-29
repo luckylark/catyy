@@ -5,7 +5,19 @@
 .activity-item h3 a {
     color:olivedrab;
 }
-
+.activity-list-horizontal {
+    list-style: none;
+    padding: 0;
+}
+.activity-list-horizontal li {
+    width:31%;
+    margin: 5px;
+    float: left;
+}
+.activity-details {
+    line-height: 1.8em;
+    font-size: 20px;
+}
 
 /*team-detail*/
 .team-icon {
@@ -23,4 +35,9 @@
     white-space: nowrap;
     overflow:hidden;
     text-overflow: ellipsis;
+}
+
+/*细节*/
+.signup a {
+    margin-left: 10px;
 }

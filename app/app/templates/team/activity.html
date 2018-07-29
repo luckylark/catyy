@@ -4,133 +4,173 @@
 {% import "macros/_user_panel.html" as user_macros %}
 {% import "macros/_user_avatar.html" as avatar_macros %}
 {% block title %}{{ activity.name }}{% endblock %}
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/post.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/team.css') }}" />
+{% endblock %}
 
 {% block page_content %}
- <div class="post">
-<div class="row post-header well">
-    <div class="col-sm-12">
-        <img src="{{ activity.cover_url }}" title="活动封面"/>
-        <div class="post-title">{{ activity.name }}</div>
-    </div>
-</div>
-
- <div class="row post-details well">
     <div class="row">
-        <div class="col-sm-12 post-team">
-            <img src="{{ url_for('static', filename='images/icons/team.png') }}" title="团队"/>
-            <a href="{{ url_for('team.team_index', id=activity.belong_to_team) }}">
-                <span>{{ activity.team.name }}</span>
-            </a>
-        </div>
-        {#
-        <div class="col-sm-6">
-            <img src="{{ url_for('static', filename='images/icons/leader.png') }}" title="领队"/>
-            <a href="{{ url_for('user.profile', id=activity.created_by) }}">
-                <span>{{ activity.leader.username }}</span>
-            </a>
-        </div> #}
-    </div>
+    <div class="col-sm-offset-1 col-sm-10">
+        <div class="activity">
+        <h1 class="activity-title">{{ activity.name }}</h1>
 
-    <div class="row">
-        <div class="col-sm-6">
-            <span class="post-text">强度</span>
-            {{ macros.render_star(activity.intensity_index) }}
-        </div>
-        <div class="col-sm-6">
-            <span class="post-text">风景</span>
-            {{ macros.render_star(activity.landscape_index) }}
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-12">
-            <span class="post-text">集合地</span>{{ activity.rally_site }}
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-12">
-            <span class="post-text">目的地</span>{{ activity.destination }}
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-7">
-            <div class="post-date"><span class="post-text">开始日期</span>{{ moment(activity.start_date).format('L') }}</div>
-            <div class="post-date"><span class="post-text">结束日期</span>{{ moment(activity.end_date).format('L') }}</div>
-            <div class="post-phone">
-                <img src="{{ url_for('static', filename='images/icons/phone.png') }}" title="咨询电话"/>
-                <span>{{ activity.phone }}</span>
+        <div class="row">
+        {# 左侧活动封面 #}
+            <div class="col-sm-7">
+                <div class="thumbnail">
+                <div class="activity-cover">
+                    <img src="{{ activity.cover_url }}" title="活动封面" class="img-responsive"/>
+                </div>
             </div>
-            {% if not activity.is_following(current_user) %}
-            <div class="post-follow">
-                <a href="{{ url_for('team.follow', id=activity.id) }}" class="btn btn-default">关注</a>
+            </div>
+        {# 右侧活动明细框 #}
+            <div class="col-sm-5">
+                <div class="activity-details well">
+                <div class=" post-team">
+                    <a href="{{ url_for('team.team_index', id=activity.belong_to_team) }}" class="team-icon">
+                        <span>{{ activity.team.name }}</span>
+                    </a>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <span class="post-text">强度</span>
+                        {{ macros.render_star(activity.intensity_index) }}
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="post-text">风景</span>
+                        {{ macros.render_star(activity.landscape_index) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <span class="post-text">集合地：</span>{{ activity.rally_site }}
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="post-text">目的地：</span>{{ activity.destination }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div><span class="post-text">开始日期：</span>{{ moment(activity.start_date).format('L') }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div><span class="post-text">结束日期：</span>{{ moment(activity.end_date).format('L') }}</div>
+                    </div>
+                </div>
+                <div>
+                      <img src="{{ url_for('static', filename='images/icons/phone.png') }}" title="咨询电话"/>
+                      <span>{{ activity.phone }}</span>
+                </div>
+
+                <div class="post-text">
+                    <div><span class="label label-default">参与人数：{{ activity.paid_member_count }}</span> /
+                    <span class="label label-default">报名上限：{% if activity.maximum %}{{ activity.maximum }}
+                {% else %}不限人数{% endif %}</span></div>
+                     {% if not activity.is_following(current_user) %}
+                     <a href="{{ url_for('team.follow', id=activity.id) }}" class="btn btn-info">
+                     关注活动（{{ activity.follow_count }}人已关注）</a>
+                     {% else %}
+                        <span class="label label-warning">{{ activity.follow_count }}人已关注</span>
+                      {% endif %}
+                      | <span class="label label-warning">阅读量：{{ activity.view_count }}</span> |
+
+                 </div>
+                </div>
+            <div class="well signup">
+                        <div class="post-btn">
+                            <span class="price">
+                            {{ activity.price }}</span>
+                            {% if activity.past %}
+                                <a href="#" class="btn btn-default disabled">活动已结束</a>
+                            {% elif activity.joined(current_user) %}
+                                {% if activity.paid(current_user) %}
+                                    <a href="#" class="btn btn-default disabled">您已报名</a>
+                                 {% else %}
+                                    <a href="{{ url_for('team.activity_confirm', id=activity.unpaid_id) }}" class="btn btn-success">您已报名,去付款</a>
+                                 {% endif %}
+                            {% else %}
+                                {% if activity.full %}
+                                    <a href="#" class="btn btn-default">参与人数已达上限，不能报名了哦</a>
+                                {% else %}
+                                    {% if activity.register(RegistrationWay.PERSION)  %}
+                                        <a href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-warning">个人报名</a>
+                                    {% endif %}
+                                    {% if activity.register(RegistrationWay.TEAM) and current_user.is_leader  %}
+                                        <a href="{{ url_for('team.activity_join_team', id= activity.id) }}" class="btn btn-info">团队报名</a>
+                                    {% endif %}
+                                    {% if activity.register(RegistrationWay.VOLUNTEER)  %}
+                                        <a href="{{ url_for('team.activity_join_volunteer', id= activity.id) }}" class="btn btn-success">志愿者报名</a>
+                                    {% endif %}
+                                 {% endif %}
+                            {% endif %}
+                        </div>
+
+                </div>
+            {% if not activity.past and activity.team.is_admin(current_user) %}
+            <div class="well">
+                    <h4>管理活动</h4>
+                    <a href="{{ url_for('team.edit_activity', id= activity.id) }}" class="btn btn-primary">修改活动</a>
+                    <a href="{{ url_for('team.activity_add_sln', id= activity.id) }}" class="btn btn-primary">修改活动方案</a>
+                    <a href="{{ url_for('team.delete_activity', id= activity.id) }}" class="btn btn-primary delete">删除活动</a>
+                    <a href="{{ url_for('team.activity_join_details', id= activity.id) }}" class="btn btn-default">查看报名情况</a>
             </div>
             {% endif %}
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('team.activity_join_details', id= activity.id) }}" class="btn btn-default">查看报名情况</a>
+            {% endif %}
+            </div>
 
         </div>
-        <div class="col-sm-5">
-            <div class="post-price">
-                <img src="{{ url_for('static', filename='images/icons/money.png') }}" title="价格"/>
-                {{ activity.price }}</div>
-            <div class="post-btn">
-                {% if activity.past %}
-                    <a href="#" class="btn btn-default disabled">活动已结束</a>
-                {% elif activity.joined(current_user) %}
-                    <a href="#" class="btn btn-default disabled">您已报名</a>
-                {% else %}
-                    <a href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-primary">报名</a>
+    {# 标签页面板 #}
+         <ul class="nav nav-tabs" id="myTab">
+             <li class="active">
+                 <a href="#introduce" data-toggle="tab">活动介绍</a>
+             </li>
+             <li>
+                 <a href="#join" data-toggle="tab">出行人员</a>
+             </li>
+             <li>
+                 <a href="#ask" data-toggle="tab">提问</a>
+             </li>
+         </ul>
+
+        <div id="myTabContent" class="tab-content tabs-panel">
+            <div id="introduce" class="tab-pane active fade in">
+                <div class="post" >{{ activity.introduce | safe }}</div>
+                {% if solutions %}
+                    <h3>有以下几个活动行程方案可以选择</h3>
+                    {% include 'include/_activity_solutions.html' %}
                 {% endif %}
             </div>
+
+            <div id="join" class="tab-pane fade list-avatar">
+                {{ user_macros.render_user_panel(activity.users_joined) }}
+            </div>
+
+            <div id="ask" class="tab-pane fade">
+                {{ wtf.quick_form(form) }}
+
+                <ul class="list-group">
+                    {% for question in activity.counsel_reverse %}
+                    <li class="list-group-item row">
+                        <div class="col-sm-3">
+                            {{ avatar_macros.render_user_avatar(question.user) }}
+                        </div>
+                        <div class="col-sm-9 well">
+                            {{ question.question }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
-</div>
 
- <ul class="nav nav-tabs" id="myTab">
-     <li class="active">
-         <a href="#introduce" data-toggle="tab">活动介绍</a>
-     </li>
-     <li>
-         <a href="#join" data-toggle="tab">出行人员</a>
-     </li>
-     <li>
-         <a href="#ask" data-toggle="tab">提问</a>
-     </li>
- </ul>
-<div class="tab-content" id="myTabContent">
-    <div id="introduce" class="tab-pane active fade in">
-        {{ activity.introduce | safe }}
-    </div>
-    <div id="join" class="tab-pane fade list-avatar">
-        {{ user_macros.render_user_panel(activity.users_joined) }}
-    </div>
-    <div id="ask" class="tab-pane fade">
-        {{ wtf.quick_form(form) }}
-        <ul class="list-group">
-            {% for question in activity.counsel_reverse %}
-            <li class="list-group-item row">
-                <div class="col-sm-3">
-                    {{ avatar_macros.render_user_avatar(question.user) }}
-                </div>
-                <div class="col-sm-9 well">
-                    {{ question.question }}
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
 </div>
-<!--
- <div class="row post-body well">
-    <div class="col-sm-12">
-        {activity.introduce | safe }}
-    </div>
-</div>
--->
-<div class="row post-footer well">
-    <div class="col-sm-12">
-
-    </div>
 </div>
 </div>
 {% endblock %}

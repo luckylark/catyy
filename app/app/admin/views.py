@@ -6,6 +6,7 @@ from ..models.outdoorType import OutdoorType
 from ..extentions import commonImage, db
 from ..tools.string_tools import get_md5_filename
 from ..decorators import admin_required
+from ..models.team import Team
 
 
 @login_required
@@ -16,6 +17,7 @@ def index():
     if not current_user.is_admin:
         abort(403)
     return render_template('admin_index.html')
+
 
 
 

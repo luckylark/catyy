@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user, AnonymousUserMixin
 from .team import Team
 from flask import current_app
+from .activity import JoinActivity
 
 class Follow(db.Model):
     """
@@ -33,6 +34,14 @@ class AnonymousUser(AnonymousUserMixin):
     重写一些User里面不需要login_required的方法的默认返回值
     """
     def is_following(self):
+        return False
+
+    @property
+    def is_leader(self):
+        return False
+
+    @property
+    def is_admin(self):
         return False
 
 login_manager.anonymous_user = AnonymousUser
@@ -69,12 +78,17 @@ class User(db.Model, UserMixin):
     gender = db.Column(db.String(8), default='不告诉你')
     birthday = db.Column(db.DateTime)
     about_me = db.Column(db.String(100))
+    volunteer = db.Column(db.SmallInteger, default=0) #参与志愿者活动，即为志愿者，可以叠加多种志愿者
 
     #info:real identity
     name = db.Column(db.String(64))
     id_number = db.Column(db.String(18))
     phone = db.Column(db.String(15))
     address = db.Column(db.String(64))
+
+    @property
+    def is_leader(self):
+        return self.leader_team is not None
 
     # password
     @property
@@ -98,6 +112,10 @@ class User(db.Model, UserMixin):
     def cover_url(self):
         filename = self.cover if self.cover else 'default.jpg'
         return coverUser.url(filename)
+
+    @staticmethod
+    def get_username_by_id(user_id):
+        return db.session.query(User.username).filter(User.id==user_id).scalar()
 
     #--------------关注----------------------
     #我关注的人
@@ -150,16 +168,12 @@ class User(db.Model, UserMixin):
         return self.followed.count()
 
     #各种relationship------------团队---------------------------------
-    leader_teams = db.relationship('Team', backref='leader', lazy='dynamic', foreign_keys=[Team.leader_id])
+    leader_team = db.relationship('Team', backref='leader',foreign_keys=[Team.leader_id], uselist=False)
     user_teams = db.relationship('TeamUser', backref=db.backref('user', lazy='joined'),
                                  lazy = 'dynamic', cascade='all, delete-orphan')
     @property
     def teams_joined(self):
         return [item.team for item in self.user_teams.order_by('team_users.timestamp desc').all()]
-
-    @property
-    def leader_count(self):
-        return self.leader_teams.count()
 
     @property
     def joined_team_count(self):
@@ -187,7 +201,10 @@ class User(db.Model, UserMixin):
         return [follow.activity for follow in self.activities_followed.order_by('follow_activities.timestamp desc').all()]
 
     def activities_join(self):
-        return [join.activity for join in self.joins_activity.order_by('join_activities.timestamp desc').all()]
+        return [join.activity for join in self.joins_activity.order_by(JoinActivity.timestamp.desc()).all()]
+
+    def activities_join_unpay(self):
+        return [join.activity for join in self.joins_activity.filter(JoinActivity.state==False).order_by(JoinActivity.timestamp.desc()).all()]
 
     @property
     def activity_join_count(self):
@@ -197,6 +214,9 @@ class User(db.Model, UserMixin):
     def activity_follow_count(self):
         return self.activities_followed.count()
 
+    @property
+    def activity_join_unpay_count(self):
+        return self.joins_activity.filter(JoinActivity.state==False).count()
 
 
 

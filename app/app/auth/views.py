@@ -34,8 +34,8 @@ def login():
     return render_template('login.html', form=form)
 
 
-@login_required
 @auth.route('/logout')
+@login_required
 def logout():
     """
     用户注销
@@ -60,8 +60,8 @@ def register():
     return render_template('auth/register.html', form= form)
 
 
-@login_required
 @auth.route('/change_password', methods=['GET', 'POST'])
+@login_required
 def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():

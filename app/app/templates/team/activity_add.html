@@ -3,16 +3,29 @@
 {% block title %}发布活动{% endblock %}
 {% block scripts %}
     {{ super() }}
-    {{ ckeditor.load(custom_url=url_for('static', filename='ck/ckeditor/ckeditor.js')) }}
+    <script>
+    CKEDITOR.replace('introduce', {
+        filebrowserImageUploadUrl: '/ckupload/',
+    });
+    </script>
 {% endblock %}
-
+{% block head %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='ck/ckeditor/ckeditor.js') }}"></script>
+{% endblock %}
+{# {{ ckeditor.load(custom_url=url_for('static', filename='ck/ckeditor/ckeditor.js')) }}CKEDITOR.replace('ckeditor'); #}
 {% block page_content %}
-    <div class="page-header">
-        <h3>发布活动</h3>
+    <div class="row top-space">
+    <div class="col-sm-offset-2 col-sm-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">发布活动</h2>
+            </div>
+            <div class="panel-body">
+                {{ wtf.quick_form(form) }}
+            </div>
+        </div>
     </div>
-
-    <div>
-        {{ wtf.quick_form(form) }}
     </div>
 
 {% endblock %}

@@ -3,11 +3,17 @@
 {% block title %}修改头像{% endblock %}
 
 {% block page_content %}
-         <div class="page-header">
+    <div class="row">
+    <div class="col-sm-offset-2 col-sm-8">
+        <div class="page-header">
             <h3>修改头像</h3>
          </div>
         <div>
              {{ wtf.quick_form(form) }}
          </div>
+    </div>
+    </div>
+
+
 
 {% endblock %}

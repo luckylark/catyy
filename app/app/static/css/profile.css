@@ -22,11 +22,11 @@
 }
 .profile-bar a {
     font-size: 14px;
-    margin-right: 10px;
+    padding-right: 10px;
 }
 
 .user-panel-default li {
     width: 18%;
-    margin:5px;
+    padding:5px;
 }
 

@@ -8,8 +8,8 @@ from ..extentions import avatarUser, db
 from ..tools.photo import resize
 
 
-@login_required
 @user.route('/modify_avatar', methods=['GET', 'POST'])
+@login_required
 def modify_avatar():
     """
     提交新头像：
@@ -34,8 +34,14 @@ def modify_avatar():
 
 @user.route('/profile/<int:id>')
 def profile(id):
-    user = User.query.get_or_404(id)
+    user = User.get_user(id)
     return render_template('profile.html', user = user)
+
+
+@user.route('/profile/me')
+@login_required
+def profile_me():
+    return redirect(url_for('.profile', id=current_user.id))
 
 
 @user.route('/profile/details/<int:id>')
@@ -44,8 +50,8 @@ def profile_details(id):
     return render_template('profile_details.html', user = user)
 
 
-@login_required
 @user.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
 def edit_profile():
     form = EditProfileForm()
     if request.method == 'GET':
@@ -97,8 +103,8 @@ def followed(id):
                            pagination=pagination)
 
 
-@login_required
 @user.route('/follow/<int:id>')
+@login_required
 def follow(id):
     user = User.query.get_or_404(id)
     current_user.follow(user)
@@ -106,8 +112,8 @@ def follow(id):
     return redirect(url_for('.profile', id=id))
 
 
-@login_required
 @user.route('/unfollow/<int:id>')
+@login_required
 def unfollow(id):
     user = User.query.get_or_404(id)
     current_user.unfollow(user)
@@ -139,6 +145,14 @@ def activities_joined(id):
     activities = user.activities_join()
     return render_template('activities_join.html',
                            user=user,
+                           activities=activities)
+
+@user.route('/activities/joined/unpay')
+@login_required
+def activities_joined_unpay():
+    activities = current_user.activities_join_unpay()
+    return render_template('activities_join.html',
+                           user=current_user,
                            activities=activities)
 
 

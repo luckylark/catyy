@@ -2,10 +2,10 @@
     <div>
     <ul class="list-inline list-unstyled user-panel-default">
     {% for user in user_list %}
-        <li class="text-center">
+        <li class="list-item">
          <a href="{{ url_for('user.profile', id=user.id) }}" title="{{ user.usernamee }}">
 
-            <img src="{{ user.avatar_url }}" title="点击进入用户主页" class="img-responsive img-circle"  />
+            <img src="{{ user.avatar_url }}" title="点击进入用户主页" class="img-responsive thumbnail"  />
             <p>{{ user.username }}</p>
 
         </a>

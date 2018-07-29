@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Length, ValidationError
 from wtforms.fields.html5 import DateField, IntegerField
 from ..tools.photo import resize
 from ..models.user import User
+from flask_login import current_user
 
 
 class PhotoForm(Form):
@@ -24,6 +25,8 @@ class EditProfileForm(Form):
     address = StringField('地址', validators=[Length(0, 64, '地址只能是64字以内')])
     submit = SubmitField('保存')
 
+
     def validate_username(self, field):
-        if User.query.filter_by(username=field.data).first():
+        if self.username != current_user.username and User.query.filter_by(username=field.data).first():
             raise ValidationError('该用户名已注册，你可以换个其他的用户名')
+

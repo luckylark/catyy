@@ -1,12 +1,12 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
-{% block title %}编辑户外分类{% endblock %}
 
-{% block page_content %}
-    <div class="page-header">
-        <h3>编辑户外分类</h3>
-    </div>
 
+{% block admin_title %}
+管理户外分类
+{% endblock %}
+
+{% block admin_content %}
     {# type list & edit +　禁用
     显示模板根据admin参数决定是否显示编辑条#}
     {% set admin=True %}
@@ -17,5 +17,4 @@
     <div>
         {{ wtf.quick_form(form) }}
     </div>
-
 {% endblock %}

@@ -18,24 +18,18 @@ nav = Nav()
 @nav.navigation()
 def top_nav():
     return Navbar('小猫游园',
-                  Subgroup('出行',
-                           View('活动', 'index'),
-                           View('俱乐部', 'index'),
-                           View('景区', 'index'),
-                           View('约伴', 'index'),
-                           View('攻略', 'index'),
-                           View('地接', 'index')),
-                  View('社区', 'index'),
-                  View('商城', 'index'),
-                  View('住宿', 'index'),
-                  View('保险', 'index')
+                  View('活动', 'team.activities_search_home'),
+                  View('团队', 'team.teams_search_home'),
+                  View('申请俱乐部', 'team.create_team'),
+                  View('我的主页', 'user.profile_me'),
+                  View('我的俱乐部', 'team.team_me')
                   )
 
 #头像上传
 avatarUser = UploadSet('avatarUser', IMAGES)
 avatarTeam = UploadSet('avatarTeam', IMAGES)
 coverUser = UploadSet('coverUser', IMAGES)
-coverTeam = UploadSet('coverTeam', IMAGES)
+imgTeam = UploadSet('imgTeam', IMAGES)
 coverPost = UploadSet('coverPost', IMAGES)
 commonImage = UploadSet('commonImage', IMAGES)
 
@@ -43,3 +37,5 @@ login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 login_manager.login_message = '您需要登陆访问该资源哦'
+
+

@@ -12,6 +12,7 @@ class Config:
 
     #分页
     PAGECOUNT_USER = 20
+    PAGECOUNT_TEAM = 20
     PAGECOUNT_ACTIVITY = 20
     PAGECOUNT_POST = 20
 
@@ -24,7 +25,7 @@ class Config:
     UPLOADED_AVATARTEAM_DEST = path.join(path.dirname(__file__), 'static', 'images', 'avatar_team')
     # cover:target directery
     UPLOADED_COVERUSER_DEST = path.join(path.dirname(__file__), 'static', 'images', 'cover_user')
-    UPLOADED_COVERTEAM_DEST = path.join(path.dirname(__file__), 'static', 'images', 'cover_team')
+    UPLOADED_IMGTEAM_DEST = path.join(path.dirname(__file__), 'static', 'images', 'cover_team')
     UPLOADED_COVERPOST_DEST = path.join(path.dirname(__file__), 'static', 'images', 'cover_post')
     UPLOADED_COMMONIMAGE_DEST = path.join(path.dirname(__file__), 'static', 'images')
     CKEDITOR_FILE_UPLOADER = '/ckupload/'

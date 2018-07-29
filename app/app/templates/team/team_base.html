@@ -4,6 +4,7 @@
 {% block head %}
 {{ super() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/profile.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/team.css') }}" />
 {% endblock %}
 {% block page_content %}
 <div class="row team-cover">
@@ -26,7 +27,12 @@
         {% endif %}
     </div>
     </div>
-    <p class="profile-name"><a href="{{ url_for('team.team_index', id=team.id) }}">{{ team.name }}</a> </p>
+    <p class="profile-name">
+        <a href="{{ url_for('team.team_index', id=team.id) }}">{{ team.name }}</a>
+        {% if not team.approved %}
+        (审核中，请稍后，暂时不能进行任何操作)
+        {% endif %}
+    </p>
     {# contain:签名 #}
     <p class="profile-description">
      {% if team.description %}
@@ -35,19 +41,23 @@
          这个家伙很懒~什么也没介绍
      {% endif %}
     </p>
+
     <div class="profile-bar">
-        {% if team.is_leader(current_user) %}
+        {% if team.is_admin(current_user) and team.available %}
              <a class="btn btn-primary" href="{{ url_for('team.create_activity', id=team.id) }}">发布新活动</a>
          {% endif %}
         {% if team.is_member(current_user) %}
             <a href="#" class="btn btn-primary">退出俱乐部</a>
         {% else %}
-            <a href="{{ url_for('team.join', id=user.id) }}" class="btn btn-primary">加入俱乐部</a>
+            <a href="{{ url_for('team.join', id=current_user.id) }}" class="btn btn-primary">加入俱乐部</a>
         {% endif %}
         <a href="{{ url_for('team.team_index', id=team.id) }}" >活动:
         <span class="badge"> {{ team.activity_count }}</span></a> |
         <a href="{{ url_for('team.members', id=team.id) }}">队员:
         <span class="badge">{{ team.member_count }}</span></a> |
+        {% if team.phone_show %}
+            <span>联系电话：{{ team.phone }}</span></a> |
+        {% endif %}
         <span class="card-square-details">{{ moment(team.timestamp).fromNow() }}成立</span>
 
     </div>
@@ -55,19 +65,11 @@
     </div>
     {# 子类内容块 #}
     <div class="row top-space">
-        <div class="col-sm-offset-1 col-sm-7">
+        <div class="col-sm-offset-1 col-sm-10">
+
             {% block team_content %}
 
             {% endblock %}
-        </div>
-        <div class="col-sm-3">
-            {# 团队活动列表组 #}
-         <ul class="list-group">
-            <li class="list-group-item">
-                <a href="#">个人资料</a>
-            </li>
-
-         </ul>
         </div>
     </div>
 
