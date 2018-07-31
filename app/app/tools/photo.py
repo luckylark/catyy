@@ -15,6 +15,23 @@ def resize(image, path, width=200):
     img.save(path)
 
 
+#主要用于剪裁团队个人头像，不管图片多大都固定高度200
+def resize_fix_height(image, path, height=200):
+    img = Image.open(image)
+    original_w, original_h = img.size
+    width = int(original_w*height/original_h)
+    img = img.resize((width, height))
+    img.save(path)
+
+
+def resize_fix_width(image, path, width=200):
+    img = Image.open(image)
+    original_w, original_h = img.size
+    height = int(original_h*width/original_w)
+    img = img.resize((width, height))
+    img.save(path)
+
+
 def cut(image, path, scale=0.6):
     img = Image.open(image)
     w, h = img.size

@@ -6,6 +6,7 @@ from wtforms import (
 from wtforms.validators import DataRequired, Length, ValidationError
 from ..models.outdoorType import OutdoorType
 from ..models.team import Team, team_type
+from ..tools.field_widget import MultiCheckboxField
 
 
 class TeamForm(Form):
@@ -14,7 +15,7 @@ class TeamForm(Form):
     phone_show = RadioField('联系电话是否显示在团队首页（默认显示）', coerce=int, default=1)
     description = TextAreaField('口号（选填）', [Length(max=100, message='请输入<100字的口号')])
     image = FileField('头像（选填）')
-    types = SelectMultipleField('团队活动类型（必填，按住shift键可以选择多个类型),不要忘记选择下面的团队类型',
+    types = MultiCheckboxField('团队活动类型（必填，按住shift键可以选择多个类型),不要忘记选择下面的团队类型',
                                 [DataRequired('请选择团队类型')], coerce=int)
     classify = RadioField('团队类型', coerce=int, default=0)
 
@@ -25,12 +26,13 @@ class TeamForm(Form):
         self.phone_show.choices = [(0, '不显示在团队首页'), (1, '显示在团队首页')]
 
 
+
 class CreateTeamForm(TeamForm):
     document = FileField('营业执照或身份证等有效证件的扫描图片（必填）', [DataRequired('必须上传有效证件图片')])
     submit = SubmitField('创建俱乐部，半小时内审核')
 
     def validate_name(self, field):
-        if Team.query.filter_by(name=field.data).first():
+        if Team.exist(field.data):
             raise ValidationError('该俱乐部名称已注册，请修改俱乐部名称')
 
 
@@ -43,7 +45,7 @@ class ModifyTeamForm(TeamForm):
         self.team=team
 
     def validate_name(self, field):
-        if field.data != self.team.name and Team.query.filter_by(name=field.data).first():
+        if field.data != self.team.name and Team.exist(field.data):
             raise ValidationError('该俱乐部名称已注册，请修改俱乐部名称')
 
 

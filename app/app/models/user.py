@@ -11,6 +11,7 @@ from flask_login import UserMixin, current_user, AnonymousUserMixin
 from .team import Team
 from flask import current_app
 from .activity import JoinActivity
+import re
 
 class Follow(db.Model):
     """
@@ -43,6 +44,10 @@ class AnonymousUser(AnonymousUserMixin):
     @property
     def is_admin(self):
         return False
+
+    @property
+    def id(self):
+        return 0
 
 login_manager.anonymous_user = AnonymousUser
 
@@ -85,6 +90,18 @@ class User(db.Model, UserMixin):
     id_number = db.Column(db.String(18))
     phone = db.Column(db.String(15))
     address = db.Column(db.String(64))
+
+    #----------------信息脱敏---------------------
+    @property
+    def phone_show(self):
+        reg = re.compile(r'(\d\d\d)(.*)(\d\d\d)')
+        return reg.sub(r'\1*****\3' , self.phone)
+
+
+    @property
+    def id_number_show(self):
+        reg = re.compile(r'(\d\d\d)(\d*)(\d\d\d)')
+        return reg.sub(r'\1*****\3', self.id_number)
 
     @property
     def is_leader(self):

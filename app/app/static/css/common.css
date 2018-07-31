@@ -100,7 +100,7 @@ pre {
     padding: 20px;
 }
 /*form表单*/
-.radio-list-inline {
+.radio-list-inline, .radio-list-inline ul {
     list-style: none;
     padding:0;
 }
@@ -138,7 +138,9 @@ pre {
 .post td {
     padding:10px;
 }
-
+.post img {
+    width:100%;
+}
 .post table, .post th, .post td {
     border:solid 1px lightgray;
 }
@@ -156,4 +158,17 @@ pre {
 .separator {
     margin:20px;
     border-bottom:dotted 1px dodgerblue;
+}
+.nav-box {
+    position: absolute;
+    top:10px;
+    right:10px;
+    color:whitesmoke;
+}
+.nav-box a {
+    color:whitesmoke;
+}
+.copyright {
+    height: 100px;
+    line-height: 100px;
 }

@@ -56,6 +56,9 @@
                 为期<span class="highlight" >{{ activity.days }}</span>天，价格
             <span class="highlight" >{{ activity.price }}</span>元</p>
         </li>
+        {% if not loop.index % 3  %}
+            <div class="clearfix"></div>
+        {% endif %}
     {% endfor %}
 </ul>
     <div class="clearfix"></div>
@@ -75,6 +78,9 @@
                 为期<span class="highlight" >{{ activity.days }}</span>天，价格
             <span class="highlight" >{{ activity.price }}</span>元</p>
         </li>
+        {% if not loop.index % 3  %}
+            <div class="clearfix"></div>
+        {% endif %}
     {% endfor %}
 </ul>
     <div class="clearfix"></div>

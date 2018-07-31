@@ -10,6 +10,7 @@ from flask_login import current_user
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql import func
 from flask import current_app, flash, session
+import re
 
 
 
@@ -209,9 +210,13 @@ class Activity(db.Model):
         return count if count else 0
 
     def joined(self, user):
+        if user.is_anonymous:
+            return False
         return self.joins.filter_by(user_id=user.id).count()
 
     def paid(self, user):
+        if user.is_anonymous:
+            return False
         return self.joins.filter(and_(JoinActivity.state==True, JoinActivity.user_id==user.id)).count()
 
     @property
@@ -481,6 +486,17 @@ class ActivityContact(db.Model):
     phone = db.Column(db.String(15))
     gender = db.Column(db.SmallInteger) #性别：0-男-1-女
     age = db.Column(db.SmallInteger)
+
+    # ----------------信息脱敏---------------------
+    @property
+    def phone_show(self):
+        reg = re.compile(r'(\d\d\d)(.*)(\d\d\d)')
+        return reg.sub(r'\1*****\3', self.phone)
+
+    @property
+    def identity_show(self):
+        reg = re.compile(r'(\d\d\d)(\d*)(\d\d\d)')
+        return reg.sub(r'\1*****\3', self.identity)
 
 
 class CrowdFunding(db.Model):

@@ -101,6 +101,10 @@ class Team(db.Model):
         db.session.add(self)
 
     @staticmethod
+    def exist(team_name):
+        return Team.query.filter_by(name=team_name).count()
+
+    @staticmethod
     def access(id):
         return Team.query.filter_by(and_(id=id, approved=True, disabled=False)).count()
 
@@ -138,10 +142,12 @@ class Team(db.Model):
         db.session.add(relation)
 
     def is_member(self, user):
-        return self.team_members.filter_by(user_id=user.id).count()
+        if user.is_anonymous:
+            return False
+        return user.is_authenticated and  self.team_members.filter_by(user_id=user.id).count()
 
     def is_leader(self, user):
-        return user.id == self.leader_id
+        return user.is_authenticated and  user.id == self.leader_id
 
     # -------------------------------各种获取团队的方法---分页-----------------------------------------------
     @staticmethod

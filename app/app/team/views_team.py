@@ -6,19 +6,21 @@ from ..models.outdoorType import OutdoorType
 from ..models.team import Team
 from ..models.user import User
 from ..extentions import commonImage, db, avatarTeam, imgTeam
-from ..tools.photo import resize
-from ..tools.string_tools import get_md5_filename_w_ext, get_filename_w_ext
+from ..tools.photo import resize, resize_fix_width
+from ..tools.string_tools import get_md5_filename_w_ext, get_filename_w_ext, get_rnd_filename_w_ext
 from ..decorators import admin_required
+import os
+from ..tools.permissions import only_team_admin, only_team_available
 
 
 """
 创建和修改团队
 """
-@login_required
 @team.route('/create_team', methods=['GET', 'POST'])
+@login_required
 def create_team():
     #每个用户只能创建一个俱乐部
-    if current_user.leader_team:
+    if current_user.is_leader:
         flash('您已经创建了俱乐部，每个用户只能创建一个俱乐部，您不能再创建了哦')
         return redirect(url_for('index'))
     form = CreateTeamForm()
@@ -35,13 +37,11 @@ def create_team():
     return render_template('create_team.html', form=form)
 
 
-@login_required
 @team.route('/modify_team/<int:id>', methods=['GET', 'POST'])
+@login_required
 def modify_team(id):
     club = Team.query.get_or_404(id)
-    if club.approved:
-        flash('您的俱乐部已经审批通过，不能再修改申请信息')
-        return redirect(url_for('index'))
+    only_team_admin(club, current_user)
     form = ModifyTeamForm(club)
     if request.method == 'GET':
         form.name.data = club.name
@@ -54,11 +54,9 @@ def modify_team(id):
         assign_club(club, form)
         db.session.add(club)
         db.session.commit()
-        #将队长作为管理员加入
-        club.join(current_user, is_admin=True)
-        flash('修改申请信息成功，请等待重新审核')
+        flash('团队资料已编辑')
         return redirect(url_for('.team_index', id=club.id))
-    return render_template('create_team.html', form=form)
+    return render_template('create_team.html', form=form, team=club)
 
 
 def assign_club(club, form):
@@ -72,14 +70,18 @@ def assign_club(club, form):
     club.phone_show = form.phone_show.data
     image = form.image.data
     if image:
-        f_name = get_md5_filename_w_ext(current_user.username, image.filename)
-        resize(image, avatarTeam.path(f_name))
+        #删除原图像
+        if club.avatar:
+            os.remove(avatarTeam.path(club.avatar))
+        f_name = get_rnd_filename_w_ext(image.filename)
+        resize_fix_width(image, avatarTeam.path(f_name))
         club.avatar = f_name
     # TODO cover save code
     document_image = form.document.data
     if document_image:
-        d_name = get_filename_w_ext(club.name, document_image.filename)
-        resize(document_image, imgTeam.path(d_name), 1000)
+        #这里设置证件信息不删除
+        d_name = get_rnd_filename_w_ext(document_image.filename)
+        resize_fix_width(document_image, imgTeam.path(d_name), 700)
         club.document = d_name
     return club
 
@@ -157,8 +159,8 @@ def team_list(id):
 """
 加入+会员
 """
-@login_required
 @team.route('/join/<int:id>')
+@login_required
 def join(id):
     club = Team.query.get_or_404(id)
     club.join(current_user._get_current_object())

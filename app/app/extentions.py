@@ -1,12 +1,12 @@
-from flask import Flask
+from flask import Flask, url_for
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_uploads import UploadSet, IMAGES
 from flask_ckeditor import CKEditor
 from flask_nav import Nav
-from flask_nav.elements import Navbar, View, Separator, Subgroup
+from flask_nav.elements import Navbar, View, Separator, Subgroup, Link
 
 
 bootstrap = Bootstrap()
@@ -18,12 +18,14 @@ nav = Nav()
 @nav.navigation()
 def top_nav():
     return Navbar('小猫游园',
+                  View('主页', 'index'),
                   View('活动', 'team.activities_search_home'),
                   View('团队', 'team.teams_search_home'),
                   View('申请俱乐部', 'team.create_team'),
                   View('我的主页', 'user.profile_me'),
                   View('我的俱乐部', 'team.team_me')
                   )
+
 
 #头像上传
 avatarUser = UploadSet('avatarUser', IMAGES)

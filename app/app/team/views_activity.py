@@ -30,6 +30,7 @@ from ..tools.string_tools import get_md5_filename_w_ext, trans_html
 from ..tools.photo import cut
 from ..extentions import coverPost, db
 import datetime
+from ..tools.permissions import only_team_admin, only_team_available, only_self, only_user_id
 
 
 """
@@ -67,6 +68,8 @@ def fill_activity(activity, form, new=False, club=None):
 @login_required
 def create_activity(id):
     group = Team.query.get_or_404(id)
+    only_team_available(group)
+    only_team_admin(group, current_user)
     form = CreateActivityForm()
     if form.validate_on_submit():
         activity = Activity()
@@ -82,6 +85,8 @@ def create_activity(id):
 @login_required
 def edit_activity(id):
     activity = Activity.query.get_or_404(id)
+    only_team_available(activity.team)
+    only_team_admin(activity.team, current_user)
     form = CreateActivityForm()
     if request.method == 'GET':
         #填充数据
@@ -111,8 +116,8 @@ def edit_activity(id):
 @login_required
 def activity_add_sln(id):
     activity = Activity.query.get_or_404(id)
+    only_team_admin(activity.team, current_user)
     form = ActivitySolutionForm()
-    flash(activity.registration)
     if form.validate_on_submit():
         if form.sln_id.data:
             #更新
@@ -141,6 +146,8 @@ def delete_sln(id):
 @login_required
 def delete_activity(id):
     activity = Activity.query.get_or_404(id)
+    only_team_available(activity.team)
+    only_team_admin(activity.team, current_user)
     db.session.delete(activity)
     flash('活动已删除')
     return redirect(url_for('.team_index', id=current_user.leader_team.id))
@@ -185,10 +192,11 @@ def activities_follow(id=0):
 """
 报名
 """
-@login_required
+
+
 @team.route('/activity/join/<int:id>', methods=['GET', 'POST'])
+@login_required
 def activity_join(id):
-    activity = Activity.query.get_or_404(id)
     form = ActivityJoinForm()
     if request.method == 'GET' and current_user.phone:
         session['phone'] = current_user.phone
@@ -230,6 +238,7 @@ def activity_join_contact(id):
 @login_required
 def activity_join_edit(id):
     join = JoinActivity.query.get_or_404(id)
+    only_user_id(join.user_id)
     activity = join.activity
     if activity.past:
         flash('活动已结束，不能修改')

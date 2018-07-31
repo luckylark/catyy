@@ -5,7 +5,8 @@ from flask_login import login_required, current_user
 from ..forms.profile import PhotoForm, EditProfileForm
 import os
 from ..extentions import avatarUser, db
-from ..tools.photo import resize
+from ..tools.photo import resize, resize_fix_width
+from ..tools.string_tools import get_rnd_filename_w_ext
 
 
 @user.route('/modify_avatar', methods=['GET', 'POST'])
@@ -23,9 +24,9 @@ def modify_avatar():
         if current_user.avatar:
             os.remove(avatarUser.path(filename=current_user.avatar))
         image = form.avatar.data
-        imagename = str(current_user.id) + '.' + image.filename.rsplit('.')[1]
+        imagename = get_rnd_filename_w_ext(image.filename)
         imagepath = avatarUser.path(filename=imagename)
-        resize(image, imagepath)
+        resize_fix_width(image, imagepath)
         current_user.avatar = imagename
         db.session.add(current_user)
         return redirect(url_for('.profile', id=current_user.id))

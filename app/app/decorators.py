@@ -12,13 +12,11 @@ def admin_required(func):
     def wrapper(*args, **kwargs):
         if not current_user.is_admin:
             abort(403)
-        else:
-            flash("欢迎管理员")
         return func(*args, **kwargs)
     return wrapper
 
 
-#只允许正常团队使用该功能
+#只允许正常团队使用该功能------有问题未启用
 def team_available(id):
     def decorator(func):
         @wraps(func)

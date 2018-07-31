@@ -50,7 +50,7 @@
             </li>
             <li class="list-group-item">
                 <span class="highlight">报名电话</span>
-                {{ join.user.phone }}
+                {{ join.user.phone_show }}
             </li>
             <li class="list-group-item">
                 <span class="highlight">省份</span>
@@ -61,11 +61,11 @@
                 {{ join.comment }}
             </li>
             <li class="list-group-item">
-                <span class="highlight">出行人信息</span>
+                <span class="highlight">出行人信息(出于个人信息安全考虑，私密信息已在服务器做脱敏处理)</span>
             </li>
             {% for contact in join.contacts %}
                 <li class="list-group-item">
-                {{ contact.name }}-{{ contact.identity }}-{{ contact.age }}-{{ contact.phone }}
+                {{ contact.name }}-{{ contact.identity_show }}-{{ contact.age }}-{{ contact.phone_show }}
                 </li>
             {% endfor %}
             {% if not join.state %}
