@@ -45,14 +45,15 @@
               <td>{{ item.age }}</td>
               <td>{{ Province[item.province] }}</td>
               <td>{% if item.state %}已缴费{% else %}未交费{% endif %}</td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td>{{ item.registration }}</td>
+              <td>{% if item.team_id %}
+              <a href="{{ url_for('team.team_index', id=item.team_id) }}">{{ item.team_name }}</a>
+              {% endif %}</td>
+              <td>{{ item.volunteer_name }}</td>
             </tr>
           {% endfor %}
           </tbody>
         </table>
-
         </div>
     </div>
     </div>

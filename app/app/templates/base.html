@@ -15,7 +15,7 @@
     </script>
 {% endblock %}
 
-{% block title %}小猫游园户外资源平台{% endblock %}
+{% block title %}小猫游园--南太行户外运动俱乐部{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -31,20 +31,9 @@
 <header role="banner">
 
     <!--logo-->
-{{ nav.top_nav.render() }}
-        <ul class="nav navbar-nav navbar-right nav-box">
-            {% if current_user.is_authenticated %}
-             <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> 注销</a></li>
-             <li><a href="{{ url_for('user.edit_profile') }}"><span class="glyphicon glyphicon-pencil"></span> 编辑</a></li>
-            {% else %}
-             <li><a href="{{ url_for('auth.register') }}"><span class="glyphicon glyphicon-user"></span> 注册</a></li>
-             <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
-                    {% if current_user.is_admin %}<li class="text-center col-xs-2" style="font-size:20px;">
-                        <a href="{{ url_for('admin.index') }}" title="管理页面"><span class="glyphicon glyphicon-edit"/>管理主页</a></li>
-                    {% endif %}
-            {% endif %}
+{#  nav.top_nav.render()  #}
+{% include 'include/_nav.html' %}
 
-        </ul>
     <!--顶部固定导航-->
     <!--<nav role="navigation" class="navbar navbar-default navbar-fixed-top">
         <div class="container">

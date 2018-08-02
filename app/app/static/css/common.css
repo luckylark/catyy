@@ -46,7 +46,7 @@
 /*panel=home*/
 .catyy-panel h1 {
     font-size:30px;
-    color: white;
+    color: dimgray;
     line-height: 1.5em;
     letter-spacing: 0.3em;
 }
@@ -150,7 +150,6 @@ pre {
 .price {
     background: url(../images/icons/money.png) no-repeat;
     padding:7px 7px 7px 40px;
-    border-bottom: dashed 5px dodgerblue;
     font-size: 28px;
     color:orangered;
     font-weight:bold;
@@ -171,4 +170,17 @@ pre {
 .copyright {
     height: 100px;
     line-height: 100px;
+}
+.invest {
+
+}
+.invest p {
+    font-size:18px;
+    line-height: 2em;
+}
+.invest .title {
+    color:dimgray;
+}
+.invest h1 {
+    text-align: center;
 }

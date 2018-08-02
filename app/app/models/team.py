@@ -51,6 +51,7 @@ class Team(db.Model):
     cover = db.Column(db.String(128)) #TODO 暂时不用，日后扩展
     avatar = db.Column(db.String(128))
     document = db.Column(db.String(128)) #营业执照 身份证等有效证件
+    qrcode = db.Column(db.String(128))
 
     #property:type
     types = db.relationship('OutdoorType', secondary=team_types, backref=db.backref('teams', lazy='dynamic'))
@@ -105,6 +106,10 @@ class Team(db.Model):
         return Team.query.filter_by(name=team_name).count()
 
     @staticmethod
+    def exist_id(id):
+        return Team.query.filter_by(id=id).count()
+
+    @staticmethod
     def access(id):
         return Team.query.filter_by(and_(id=id, approved=True, disabled=False)).count()
 
@@ -138,8 +143,16 @@ class Team(db.Model):
         return [item.user for item in self.team_members.limit(count).all()]
 
     def join(self, user, is_admin=False):
-        relation = TeamUser(team=self, user=user, is_admin=is_admin)
-        db.session.add(relation)
+        if not self.is_member(user):
+            relation = TeamUser(team=self, user=user, is_admin=is_admin)
+            db.session.add(relation)
+
+    @staticmethod
+    def join_team(user_id, team_id, is_admin=False):
+        if Team.exist_id(team_id) and (not TeamUser.query.filter(team_id=team_id, user_id=user_id).count()):
+            relation = TeamUser(team_id=team_id, user_id=user_id, is_admin=is_admin)
+            db.session.add(relation)
+
 
     def is_member(self, user):
         if user.is_anonymous:
@@ -236,7 +249,43 @@ class TeamJoinActivity(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'))
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+    team_price = db.Column(db.Integer)
+    phone = db.Column(db.String(15))
     team_content = db.Column(db.String(500))
+    qrcode = db.Column(db.String(128))
+
+    @staticmethod
+    def get_item(team_id, activity_id):
+        return TeamJoinActivity.query.filter_by(team_id=team_id, activity_id=activity_id).first()
+
+    @staticmethod
+    def get_price(team_id, activity_id):
+        return db.session.query(TeamJoinActivity.team_price).filter(TeamJoinActivity.team_id==team_id,
+                                                                    TeamJoinActivity.activity_id==activity_id).scalar()
+
+    #TODO 分页
+    def members(self):
+        from .activity import JoinActivity
+        return JoinActivity.query.filter_by(team_id=self.team_id, activity_id=self.activity_id).all()
+
+    @property
+    def member_count(self):
+        from .activity import JoinActivity
+        return JoinActivity.query.filter_by(team_id=self.team_id, activity_id=self.activity_id).count()
+
+    @staticmethod
+    def get_member_count(team_id, activity_id):
+        from .activity import JoinActivity
+        return JoinActivity.query.filter_by(team_id=team_id, activity_id=activity_id).count()
+
+    @staticmethod
+    def get_id(team_id, activity_id):
+        return TeamJoinActivity.query.filter_by(team_id=team_id, activity_id=activity_id).first()
+
+    @staticmethod
+    def get_qrcode(team_id, activity_id):
+        return db.session.query(TeamJoinActivity.qrcode).filter(TeamJoinActivity.team_id==team_id, TeamJoinActivity.activity_id==activity_id).scalar()
+
 
 
 

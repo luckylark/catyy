@@ -14,7 +14,8 @@ from .extentions import (
 )
 from flask_uploads import patch_request_class, configure_uploads
 from .config import config
-from flask import Flask, redirect, url_for, render_template
+from flask import Flask, redirect, url_for, render_template, flash
+from flask_login import current_user
 
 
 def create_app(config_name):
@@ -72,6 +73,27 @@ def create_app(config_name):
                                collection=collection,
                                activities=activities,
                                teams=teams)
+
+    @app.route('/invest', methods=['GET', 'POST'])
+    def invest():
+        from .models.demand import Demand
+        from .forms.demand import DemandForm
+        form = DemandForm()
+        if form.validate_on_submit():
+            demand = Demand(company=form.company.data,
+                            contact = form.contact.data,
+                            phone = form.phone.data,
+                            image = form.image.data,
+                            brand = form.brand.data,
+                            product = form.product.data,
+                            market = form.market.data,
+                            other = form.other.data)
+            if current_user.is_authenticated:
+                demand.user_id = current_user.id
+            db.session.add(demand)
+            flash('您已经提交了您的需求，稍后会与您联系')
+            return redirect(url_for('invest'))
+        return render_template('invest.html', form=form)
 
     # -----------------ckeditor图片上传-----------
 

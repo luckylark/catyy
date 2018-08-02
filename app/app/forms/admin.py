@@ -11,5 +11,5 @@ from datetime import datetime, date
 
 
 class ApproveTeamForm(Form):
-    cause = TextAreaField('审核不通过的原因', [DataRequired(), Length(max=100, message="最多只能输入100个字")])
+    cause = TextAreaField('审核不通过的原因', [DataRequired('必填项'), Length(max=100, message="最多只能输入100个字")])
     submit = SubmitField('审核不通过')

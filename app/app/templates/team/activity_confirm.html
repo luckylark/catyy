@@ -8,6 +8,16 @@
         <div class="page-header">
         <h3>确认出行信息</h3>
     </div>
+    {# 团队报名 #}
+    {% if team %}
+        <div class="well">
+            <p>活动已挂到您的团队首页，点击<a href="{{ url_for('team.activity_index_team',id=join.activity_id,team_id=join.team_id) }}">
+                这里</a>查看您自己的活动首页 </p>
+            <p>下图是属于您的活动图片，保存并分享图片，朋友可以通过识别二维码进入活动</p>
+            <img src="{{ url_for('static',filename= 'images/qrcode/'+ qrcode) }}"/>
+        </div>
+    {% endif %}
+
 
     <div class="panel panel-primary">
         <div class="panel-heading">
@@ -49,10 +59,6 @@
                 {{ join.user.username }}
             </li>
             <li class="list-group-item">
-                <span class="highlight">报名电话</span>
-                {{ join.user.phone_show }}
-            </li>
-            <li class="list-group-item">
                 <span class="highlight">省份</span>
                 {{ Province[join.province] }}
             </li>
@@ -70,7 +76,7 @@
             {% endfor %}
             {% if not join.state %}
             <li class="list-group-item">
-                    <a href="#" class="btn btn-success">确认无误，去付款</a> |
+                    <a href="#" class="btn btn-success">确认无误，去付款({{ join.price }}元）</a> |
                     <a href="{{ url_for('team.activity_join_edit',id=join.id) }}" class="btn btn-default">信息有误，去修改</a> |
                     <a href="{{ url_for('team.activity_cancel',id=join.id) }}" class="btn btn-default delete">取消报名</a>
             </li>
@@ -78,10 +84,7 @@
         </ul>
         </div>
     </div>
-    {# 团队报名 #}
-    {% if team %}
-    <p>活动以挂到您的团队首页，点击<a href="#">这里</a>查看您自己的活动首页 </p>
-    {% endif %}
+
     {#
     这里保留了众筹付款的接口
      <div class="panel panel-primary">

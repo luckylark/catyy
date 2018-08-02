@@ -95,17 +95,22 @@ class User(db.Model, UserMixin):
     @property
     def phone_show(self):
         reg = re.compile(r'(\d\d\d)(.*)(\d\d\d)')
-        return reg.sub(r'\1*****\3' , self.phone)
+        if self.phone:
+            return reg.sub(r'\1*****\3' , self.phone)
 
 
     @property
     def id_number_show(self):
         reg = re.compile(r'(\d\d\d)(\d*)(\d\d\d)')
-        return reg.sub(r'\1*****\3', self.id_number)
+        if self.id_number:
+            return reg.sub(r'\1*****\3', self.id_number)
 
     @property
     def is_leader(self):
         return self.leader_team is not None
+
+    def is_team_leader(self, team_id):
+        return Team.query.filter_by(id=team_id, leader_id=self.id).count()
 
     # password
     @property

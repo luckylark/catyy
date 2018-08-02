@@ -4,7 +4,7 @@
 {% import "macros/_user_panel.html" as user_macros %}
 {% import "macros/_user_avatar.html" as avatar_macros %}
 {% import "macros/_team_details_cube.html" as team_macros with context %}
-{% block title %}{{ activity.name }}{% endblock %}
+{% block title %}{{ join.activity.name }}{% endblock %}
 {% block head %}
 {{ super() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/post.css') }}" />
@@ -20,30 +20,34 @@
             <h3 class="panel-title">团队名片</h3>
         </div>
         <div class="panel-body">
-            {{ team_macros.render_team_vertical(team) }}
+            {{ team_macros.render_team_vertical(join.team) }}
         </div>
     </div>
     <ul class="list-group">
         <li class="list-group-item active">联系方式</li>
         <li class="list-group-item">
             <span class="highlight">队长</span>
-            <a href="{{ url_for('user.profile',id=team.leader_id) }}">{{ team.leader.username }}</a>
+            <a href="{{ url_for('user.profile',id=join.team.leader_id) }}">{{ join.team.leader.username }}</a>
         </li>
         <li class="list-group-item">
             <span class="highlight">联系电话</span>
-            {{ team.leader.phone }}
+            {{ join.phone }}
         </li>
     </ul>
-    {% if team_content %}
+
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">队长有话说</h3>
         </div>
         <div class="panel-body">
-            {{ team_content }}
+            <span class="price">
+            {{ join.team_price }}</span>
+            {% if join.team_content %}
+            <div class="well">{{ join.team_content }}</div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
+
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">以团队形式报名</h3>
@@ -51,18 +55,16 @@
         <div class="panel-body">
             <div class="well signup">
                         <div class="post-btn">
-                            <span class="price">
-                            {{ activity.price }}</span>
-                            {% if activity.past %}
+                            {% if join.activity.past %}
                                 <a href="#" class="btn btn-default disabled">活动已结束</a>
-                            {% elif activity.joined(current_user) %}
-                                {% if activity.paid(current_user) %}
+                            {% elif join.activity.joined(current_user) %}
+                                {% if join.activity.paid(current_user) %}
                                     <a href="#" class="btn btn-default disabled">您已报名</a>
                                  {% else %}
-                                    <a href="{{ url_for('team.activity_confirm', id=activity.unpaid_id) }}" class="btn btn-success">您已报名,去付款</a>
+                                    <a href="{{ url_for('team.activity_confirm', id=join.activity.unpaid_id) }}" class="btn btn-success">您已报名,去付款</a>
                                  {% endif %}
                             {% else %}
-                                {% if activity.full %}
+                                {% if join.activity.full %}
                                     <a href="#" class="btn btn-default">参与人数已达上限，不能报名了哦</a>
                                 {% else %}
                                     <span>出行人数：</span>
@@ -81,8 +83,8 @@
     </div>
     {# 右侧活动详情#}
     <div class="col-sm-7">
-        <h1><a href="{{ url_for('team.activity',id=activity.id) }}">{{ activity.name }}</a> </h1>
-        <div class="post" >{{ activity.introduce | safe }}</div>
+        <h1><a href="{{ url_for('team.activity',id=join.activity.id) }}">{{ join.activity.name }}</a> </h1>
+        <div class="post" >{{ join.activity.introduce | safe }}</div>
         {% if solutions %}
             <h3>有以下几个活动行程方案可以选择</h3>
             {% include 'include/_activity_solutions.html' %}

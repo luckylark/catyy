@@ -11,7 +11,7 @@ from ..models.activity import (
     Volunteer,
     registration_way,
     volunteer_type)
-from ..models.team import Team
+from ..models.team import Team, TeamJoinActivity
 from ..models.outdoorType import OutdoorType
 from ..models.user import User
 from flask_login import login_required, current_user
@@ -27,7 +27,7 @@ from ..forms.activity import (
     ActivityVolunteerJoinForm,
     ActivityTeamJoinForm)
 from ..tools.string_tools import get_md5_filename_w_ext, trans_html
-from ..tools.photo import cut
+from ..tools.photo import cut, qrcode_img
 from ..extentions import coverPost, db
 import datetime
 from ..tools.permissions import only_team_admin, only_team_available, only_self, only_user_id
@@ -76,6 +76,10 @@ def create_activity(id):
         activity = fill_activity(activity, form, True, group)
         db.session.add(activity)
         db.session.commit()
+        #添加二维码
+        qrcode = qrcode_img(url_for('team.activity',id=activity.id, _external=True))
+        activity.qrcode = qrcode
+        db.session.add(activity)
         flash('活动发布成功，您可以选择添加多个活动方案')
         return redirect(url_for('.activity_add_sln', id = activity.id))
     return render_template('activity_add.html', form=form)
@@ -87,7 +91,7 @@ def edit_activity(id):
     activity = Activity.query.get_or_404(id)
     only_team_available(activity.team)
     only_team_admin(activity.team, current_user)
-    form = CreateActivityForm()
+    form = CreateActivityForm(activity=activity)
     if request.method == 'GET':
         #填充数据
         form.name.data = activity.name
@@ -220,7 +224,7 @@ def activity_join_contact(id):
     if activity.past:
         flash('活动已过期，不能报名')
         return redirect(url_for('.activity', id=activity.id))
-    form = ActivityContactsForm(solutions=activity.solutions)
+    form = ActivityContactsForm(solutions=activity.solutions.all())
     if request.method == 'GET':#如果POST回传错误，也会执行继续添加联系人
         for i in range(count):
             form.contacts.append_entry()
@@ -243,7 +247,7 @@ def activity_join_edit(id):
     if activity.past:
         flash('活动已结束，不能修改')
         return redirect(url_for('.activity', id=join.activity_id))
-    form = ActivityContactsForm(solutions=activity.solutions)
+    form = ActivityContactsForm(solutions=activity.solutions.all())
     if request.method == 'GET':#如果POST回传错误，也会执行继续添加联系人
         for i in range(join.count):
             form.contacts.append_entry()
@@ -276,31 +280,49 @@ def activity_confirm(id):
     #订单详细信息
     join = JoinActivity.query.get_or_404(id)
     team = request.args.get('team', 0, type=int)
+    qrcode = ""
+    if join.registration == RegistrationWay.TEAM:
+        qrcode = TeamJoinActivity.get_qrcode(join.team_id, join.activity_id)
     """form = CrownSloganForm()#注释掉的众筹信息
     if form.validate_on_submit():
         join.crowd_funding_text = form.slogan.data
         db.session.add(join)
         return redirect(url_for('team.crowd_funding_index', id=join.id))"""
-    return render_template('activity_confirm.html', join=join, team=team)
+    return render_template('activity_confirm.html', join=join, team=team, qrcode=qrcode)
 
 
 @team.route('/activity/join/cancel/<int:id>')
 @login_required
 def activity_cancel(id):
     join = JoinActivity.query.get_or_404(id)
+    if join.registration == RegistrationWay.TEAM:
+        #团体报名的取消
+        if TeamJoinActivity.get_member_count(join.team_id, join.activity_id)!=1:
+            flash('已经有会员报名了该活动，所以您不能取消该活动')
+            abort(403)
+        else:
+            #没有活动报名，同时删除TeamJoinActivity类
+            db.session.delete(TeamJoinActivity.get_id(join.team_id, join.activity_id))
     db.session.delete(join)
     flash('您已取消参与该活动')
     return redirect(url_for('index'))
 
 
+#查看报名明细---主活动+报名活动的团队管理员查看本团队报名情况
 @team.route('/activity/join/details/<int:id>')
 @login_required
 def activity_join_details(id):
     activity = Activity.query.get_or_404(id)
-    if not (activity.team.is_admin(current_user) or current_user.is_admin):
-        abort(403)
-    details = Activity.get_registration_details(activity.id)
-    return render_template('activity_registration_details.html', contacts=details)
+    page = request.args.get('page', 1, type=int)
+    team_id = request.args.get('team_id', 0, type=int)
+    if team_id:
+        team = Team.query.get_or_404(team_id)
+        only_team_admin(team, current_user)
+    else:
+        only_team_admin(activity.team, current_user)
+    details = Activity.get_registration_details(activity.id, team_id=team_id)
+    return render_template('activity_registration_details.html',
+                           contacts=details)
 
 
 @team.route('/activity/join/volunteer/<int:id>', methods=['GET', 'POST'])
@@ -308,7 +330,8 @@ def activity_join_details(id):
 def activity_join_volunteer(id):
     activity = Activity.query.get_or_404(id)
     form = ActivityVolunteerJoinForm(activity.solutions.all())
-    form.phone = current_user.phone
+    if request.method == 'GET':
+        form.real_phone.data = current_user.phone
     if form.validate_on_submit():
         join = activity.join_volunteer(form)
         flash('报名成功')
@@ -321,6 +344,9 @@ def activity_join_volunteer(id):
 def activity_join_team(id):
     activity = Activity.query.get_or_404(id)
     form = ActivityTeamJoinForm(activity.solutions.all())
+    if request.method == 'GET':
+        form.real_phone.data = current_user.phone
+        form.team_price.data = activity.price
     if form.validate_on_submit():
         join = activity.join_team(form)
         flash('团队报名成功')
@@ -333,16 +359,14 @@ def activity_index_team(id):
     team_id = request.args.get('team_id', 0, type=int)
     if not team_id:
         abort(404)
-    activity = Activity.query.get_or_404(id)
-    team = Team.query.get_or_404(team_id)
-    team_content = activity.get_team_content(team.id)
+    join = TeamJoinActivity.get_item(team_id, id)
+    if not join:
+        abort(404)
     if request.method == 'POST':
         count = request.form['count']
         return redirect(url_for('.activity_join_contact', id=id, count=count, team_id=team_id))
     return render_template('activity_team_join.html',
-                           activity=activity,
-                           team=team,
-                           team_content=team_content)
+                           join=join)
 
 
 @team.route('/activities/team_join/<int:id>')

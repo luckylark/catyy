@@ -1,5 +1,8 @@
 from PIL import Image
-
+import qrcode
+from flask import current_app, send_from_directory, url_for
+from .string_tools import get_rnd_filename_w_ext
+import os
 
 def resize(image, path, width=200):
     img = Image.open(image)
@@ -40,5 +43,28 @@ def cut(image, path, scale=0.6):
         img = img.crop((0, 0, w, h))
     img.save(path)
 
+
+def qrcode_img(url):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=1
+    )
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image()
+    base_path = os.path.join(current_app.static_folder, 'images', 'qrcode')
+    filename = get_rnd_filename_w_ext('test.png')
+    img.save(os.path.join(base_path, filename))
+    return filename
+
+
+def qrcode_url(filename):
+    return url_for('static', filename='images/qrcode/' + filename)
+
+
+def paste_qrcode(url, path):
+    pass
 
 

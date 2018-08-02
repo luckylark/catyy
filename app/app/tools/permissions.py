@@ -5,8 +5,8 @@ from flask_login import current_user
 
 #团队权限问题
 def only_team_admin(team, user):
-    if not team.is_admin(user):
-        flash('当前操作只有团队管理员可以使用')
+    if not (team.is_admin(user) or user.is_admin):
+        flash('当前操作只有团队管理员或网站管理员可以使用')
         abort(403)
 
 

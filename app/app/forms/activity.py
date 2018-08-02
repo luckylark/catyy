@@ -8,7 +8,7 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import Length, DataRequired, Email, Regexp, NumberRange
 from ..extentions import coverPost
 from ..models.outdoorType import OutdoorType
-from ..models.activity import registration_way, volunteer_type
+from ..models.activity import registration_way, volunteer_type, Activity
 from datetime import datetime, date
 from ..models.tools import province
 
@@ -32,15 +32,15 @@ class CreateActivityForm(Form):
                                    validators=[DataRequired('必填字段'), NumberRange(min=1, max=5, message='数字只能在1-5之间')])
     landscape_index = IntegerField('风景指数（请填写数字1-5）', default='5', render_kw={'min': '1', 'max': '5'},
                                    validators=[DataRequired('必填字段'), NumberRange(min=1, max=5, message='数字只能在1-5之间')])
-    #introduce = CKEditorField('活动介绍', validators=[DataRequired('必填字段')])
     introduce = TextAreaField('活动介绍', [DataRequired('必填字段')])
     registration_way = MultiCheckboxField('报名方式', [DataRequired('必填项')], coerce=int)
     submit = SubmitField('发布活动')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,activity=None, *args, **kwargs):
         super(CreateActivityForm, self).__init__(*args, **kwargs)
         self.travel_type.choices = [(item.id, item.name) for item in OutdoorType.show_list()]
         self.registration_way.choices = [(k, registration_way[k]) for k in registration_way]
+        self.activity = activity
 
     def validate_end_date(self, field):
         if field.data < self.start_date.data:
@@ -49,6 +49,13 @@ class CreateActivityForm(Form):
     def validate_start_date(self, field):
         if field.data < date.today():
             raise ValidationError('活动日期必须在今天之后')
+
+    def validate_name(self, field):
+        if self.activity and self.activity.name == field.data:
+            return True
+        if Activity.query.filter_by(name=field.data).count():
+            raise ValidationError('您使用的活动名和站内其他活动重名啦！请修改一下活动名~')
+
 
 
 class ActivitySolutionForm(Form):
@@ -83,7 +90,7 @@ class ActivitySearchForm(Form):
 
 
 class ActivityJoinForm(Form):
-    count = IntegerField('人数', default=1, validators=[DataRequired()])
+    count = IntegerField('人数', default=1, validators=[DataRequired('必填项')])
     phone = StringField('联系电话', [DataRequired('必填项'), Length(min=7, max=18, message='格式不对')])
     submit = SubmitField('添加出行人详细信息')
 
@@ -117,7 +124,7 @@ class ActivityVolunteerJoinForm(Form):
     province = SelectField('选择您所在的省份', coerce=int, choices=list(enumerate(province)))
     real_name = StringField('真实姓名', [DataRequired('必填项'), Length(min=2, max=10, message='仅限10字以内')])
     identity = StringField('身份证号', [DataRequired('必填项'), Length(min=15, max=18, message='身份证格式不对')])
-    real_phone = StringField('联系电话', validators=[DataRequired(), Length(1, 15, message='格式不对')])
+    real_phone = StringField('联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')])
     gender = SelectField('性别', choices=[(0, '男'), (1, '女')], coerce=int)
     age = IntegerField('年龄', [NumberRange(max=120, message='请输入正确的年龄')])
     comment = TextAreaField('备注（最多可以输入100字）', [Length(max=100, message='仅限100字以内')],
@@ -134,14 +141,14 @@ class ActivityVolunteerJoinForm(Form):
 
 
 class ActivityTeamJoinForm(Form):
-    real_phone = StringField('确认联系电话', validators=[DataRequired(), Length(1, 15, message='格式不对')])
+    real_phone = StringField('确认联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')])
     solution = SelectField('活动方案', coerce=int)
+    team_price = IntegerField('团队报名的活动价格（包含路费等其他资费，价格可能和活动价格不一致）',[DataRequired('必填项')])
     team_content = TextAreaField('队长有话说（最多可以输入500字）',
                                  [Length(max=500, message='仅限500字以内')])
     province = SelectField('选择您所在的省份', coerce=int, choices=list(enumerate(province)))
     real_name = StringField('真实姓名', [DataRequired('必填项'), Length(min=2, max=10, message='仅限10字以内')])
     identity = StringField('身份证号', [DataRequired('必填项'), Length(min=15, max=18, message='身份证格式不对')])
-    real_phone = StringField('联系电话', validators=[DataRequired(), Length(1, 15, message='格式不对')])
     gender = SelectField('性别', choices=[(0, '男'), (1, '女')], coerce=int)
     age = IntegerField('年龄', [NumberRange(max=120, message='请输入正确的年龄')])
     comment = TextAreaField('备注（最多可以输入100字）', [Length(max=100, message='仅限100字以内')],

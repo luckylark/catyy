@@ -23,7 +23,8 @@ def top_nav():
                   View('团队', 'team.teams_search_home'),
                   View('申请俱乐部', 'team.create_team'),
                   View('我的主页', 'user.profile_me'),
-                  View('我的俱乐部', 'team.team_me')
+                  View('我的俱乐部', 'team.team_me'),
+                  View('致赞助商的一封信', 'invest')
                   )
 
 

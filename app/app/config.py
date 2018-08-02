@@ -15,6 +15,7 @@ class Config:
     PAGECOUNT_TEAM = 20
     PAGECOUNT_ACTIVITY = 20
     PAGECOUNT_POST = 20
+    PAGECOUNT_COMMON = 20
 
     @staticmethod
     def init_app(app):
