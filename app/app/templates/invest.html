@@ -3,7 +3,7 @@
 {% block head %}
 {{ super() }}
 {% endblock %}
-{% block title %}小猫游园户外资源平台{% endblock %}
+{% block title %}致赞助商的一封信{% endblock %}
 
 
 {% block page_content %}
@@ -101,7 +101,7 @@
         <p class="highlight">电话联系：13525021239；13937392999</p>
 
     </div>
-    <div class="panel panel-default top-space">
+    <div id="submit-demand" class="panel panel-default top-space">
         <div class="panel-heading">
             <h3 class="panel-title">
                 您把需求告诉我，剩下的事情由我来做……
@@ -111,6 +111,7 @@
             {{ wtf.quick_form(form) }}
         </div>
     </div>
+    <div class="fix-position"><a href="#submit-demand"><span class="glyphicon glyphicon-pencil"> 提交需求</span> </a> </div>
 </div>
 </div>
 {% endblock %}

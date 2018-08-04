@@ -10,9 +10,14 @@
     padding: 0;
 }
 .activity-list-horizontal li {
-    width:31%;
     margin: 5px;
-    float: left;
+}
+
+@media (min-width: 768px) {
+    .activity-list-horizontal li {
+        width:31%;
+        float: left;
+    }
 }
 .activity-details {
     line-height: 1.8em;

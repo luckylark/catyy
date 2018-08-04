@@ -1,3 +1,21 @@
+a:hover {
+    text-decoration: none;
+}
+.fix-position {
+    position: fixed;
+    right: 10px;
+    bottom: 30px;
+    font-size:20px;
+    border: solid 1px lightseagreen;
+    border-radius: 10px;
+    padding:7px 13px;
+    background-color: lightseagreen;
+
+}
+.fix-position a {
+    color:whitesmoke;
+}
+
 /*户外分类*/
 .outdoor {
     width:100%;
@@ -11,12 +29,17 @@
 
 }
 .outdoor-item .title {
-    font-size:30px;
+    font-siza:16px;
     font-weight: bold;
     color:white;
     position:absolute;
     top:35%;
     left:35%;
+}
+@media (min-width: 768px) {
+    .outdoor-item .title {
+        font-size:30px;
+    }
 }
 /*文字*/
 .text-border {

@@ -10,6 +10,7 @@ from .activity import Activity
 from .outdoorType import OutdoorType
 from flask import current_app
 from sqlalchemy.sql.expression import and_
+from ..tools.photo import qrcode_url
 
 
 """
@@ -253,6 +254,10 @@ class TeamJoinActivity(db.Model):
     phone = db.Column(db.String(15))
     team_content = db.Column(db.String(500))
     qrcode = db.Column(db.String(128))
+
+    @property
+    def qrcode_url(self):
+        return qrcode_url(self.qrcode)
 
     @staticmethod
     def get_item(team_id, activity_id):

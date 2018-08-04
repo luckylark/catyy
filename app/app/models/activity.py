@@ -11,6 +11,7 @@ from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql import func
 from flask import current_app, flash, session, url_for
 import re
+from ..tools.photo import qrcode_url
 
 
 
@@ -100,6 +101,10 @@ class Activity(db.Model):
     #admin-property
     top = db.Column(db.Boolean, default=False) #全站置顶
     top_team = db.Column(db.Boolean, default=False) #团内内置顶
+
+    @property
+    def qrcode_url(self):
+        return qrcode_url(self.qrcode)
 
     # --------------------------活动类型---------------------------
     types = db.relationship('OutdoorType', secondary=activity_types, backref=db.backref('activities', lazy='dynamic'))
