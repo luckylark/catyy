@@ -22,3 +22,23 @@
     </li>
     </ul>
 {% endmacro %}
+
+{% macro render_share(item) %}
+    <button class="fix-position" data-toggle="modal" data-target="#shareImg">
+        <span class="glyphicon glyphicon-picture"></span> 分享为图片
+    </button>
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="shareImg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">分享带二维码的封面图片</h4>
+                </div>
+                <div class="modal-body">
+                    <img src="{{ item.qrcode_url }}" title="保存图片并分享给朋友" class="img-responsive" />
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+{% endmacro %}

@@ -4,6 +4,7 @@
 {% import "macros/_user_panel.html" as user_macros %}
 {% import "macros/_user_avatar.html" as avatar_macros %}
 {% import "macros/_team_details_cube.html" as team_macros with context %}
+{% import "macros/_tools.html" as tools %}
 {% block title %}{{ join.activity.name }}{% endblock %}
 {% block head %}
 {{ super() }}
@@ -45,6 +46,8 @@
             {% if join.team_content %}
             <div class="well">{{ join.team_content }}</div>
             {% endif %}
+        {# 分享 #}
+            {{ tools.render_share(join) }}
         </div>
     </div>
 

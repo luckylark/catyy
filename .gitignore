@@ -72,3 +72,11 @@ env.bak/
 venv.bak/
 app/venv/
 app/migrations
+app/app/static/images/avatar_team/
+app/app/static/images/avatar_user/
+app/app/static/images/cover_post/
+app/app/static/images/cover_team/
+app/app/static/images/cover_user/
+app/app/static/images/outdoor_type/
+app/app/static/images/qrcode/
+app/app/static/images/upload/

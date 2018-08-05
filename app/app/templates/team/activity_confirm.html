@@ -14,7 +14,7 @@
             <p>活动已挂到您的团队首页，点击<a href="{{ url_for('team.activity_index_team',id=join.activity_id,team_id=join.team_id) }}">
                 这里</a>查看您自己的活动首页 </p>
             <p>下图是属于您的活动图片，保存并分享图片，朋友可以通过识别二维码进入活动</p>
-            <img src="{{ url_for('static',filename= 'images/qrcode/'+ qrcode) }}"/>
+            <img src="{{ url_for('static',filename= 'images/qrcode/'+ qrcode) }}" class="img-responsive"/>
         </div>
     {% endif %}
 

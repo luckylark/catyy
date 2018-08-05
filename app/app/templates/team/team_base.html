@@ -37,9 +37,9 @@
 
     <div class="profile-bar">
         {% if team.is_member(current_user) %}
-            <a href="#" class="btn btn-primary">退出俱乐部</a>
+            <a href="{{ url_for('team.quit', id=team.id) }}" class="btn btn-primary">退出俱乐部</a>
         {% else %}
-            <a href="{{ url_for('team.join', id=current_user.id) }}" class="btn btn-primary">加入俱乐部</a>
+            <a href="{{ url_for('team.join', id=team.id) }}" class="btn btn-primary">加入俱乐部</a>
         {% endif %}
         <a href="{{ url_for('team.team_index', id=team.id) }}" >活动:
         <span class="badge"> {{ team.activity_count }}</span></a> |

@@ -3,6 +3,7 @@
 {% import "macros/_star_picker.html" as macros %}
 {% import "macros/_user_panel.html" as user_macros %}
 {% import "macros/_user_avatar.html" as avatar_macros %}
+{% import "macros/_tools.html" as tools %}
 {% block title %}{{ activity.name }}{% endblock %}
 {% block head %}
 {{ super() }}
@@ -83,6 +84,8 @@
                 </div>
             <div class="well signup">
                         <div class="post-btn">
+                        {# 分享 #}
+                        {{ tools.render_share(activity) }}
                             <span class="price">
                             {{ activity.price }}</span>
                             {% if activity.past %}

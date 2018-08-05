@@ -10,7 +10,7 @@ from .activity import Activity
 from .outdoorType import OutdoorType
 from flask import current_app
 from sqlalchemy.sql.expression import and_
-from ..tools.photo import qrcode_url
+from ..tools.photo import qrcode_url_string, qrcode_cover
 
 
 """
@@ -150,18 +150,31 @@ class Team(db.Model):
 
     @staticmethod
     def join_team(user_id, team_id, is_admin=False):
-        if Team.exist_id(team_id) and (not TeamUser.query.filter(team_id=team_id, user_id=user_id).count()):
+        if Team.exist_id(team_id) and (not Team.is_member_static(user_id, team_id)):
             relation = TeamUser(team_id=team_id, user_id=user_id, is_admin=is_admin)
             db.session.add(relation)
+            return True
+        return False
 
+    @staticmethod
+    def quit_team(user_id, team_id):
+        relation = TeamUser.query.filter_by(team_id=team_id, user_id=user_id).first()
+        if relation and (not relation.is_admin):
+            db.session.delete(relation)
+            return True
+        return False
+
+    @staticmethod
+    def is_member_static(user_id, team_id):
+        return TeamUser.query.filter_by(team_id=team_id, user_id=user_id).count()
 
     def is_member(self, user):
         if user.is_anonymous:
             return False
-        return user.is_authenticated and  self.team_members.filter_by(user_id=user.id).count()
+        return user.is_authenticated and self.team_members.filter_by(user_id=user.id).count()
 
     def is_leader(self, user):
-        return user.is_authenticated and  user.id == self.leader_id
+        return user.is_authenticated and user.id == self.leader_id
 
     # -------------------------------各种获取团队的方法---分页-----------------------------------------------
     @staticmethod
@@ -257,7 +270,7 @@ class TeamJoinActivity(db.Model):
 
     @property
     def qrcode_url(self):
-        return qrcode_url(self.qrcode)
+        return qrcode_url_string(self.qrcode)
 
     @staticmethod
     def get_item(team_id, activity_id):

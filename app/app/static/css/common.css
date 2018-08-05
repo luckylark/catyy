@@ -10,12 +10,19 @@ a:hover {
     border-radius: 10px;
     padding:7px 13px;
     background-color: lightseagreen;
+    color:whitesmoke;
 
 }
 .fix-position a {
     color:whitesmoke;
 }
-
+.share {
+    font-size:20px;
+    border: solid 1px lightseagreen;
+    border-radius: 10px;
+    padding:7px 13px;
+    background-color: lightseagreen;
+}
 /*户外分类*/
 .outdoor {
     width:100%;

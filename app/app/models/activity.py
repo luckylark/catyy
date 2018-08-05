@@ -11,7 +11,7 @@ from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql import func
 from flask import current_app, flash, session, url_for
 import re
-from ..tools.photo import qrcode_url
+from ..tools.photo import qrcode_url_string, qrcode_cover, qrcode_img
 
 
 
@@ -104,7 +104,14 @@ class Activity(db.Model):
 
     @property
     def qrcode_url(self):
-        return qrcode_url(self.qrcode)
+        if not self.qrcode:
+            if self.cover:
+                img = qrcode_cover(url_for('team.activity', id=self.id, _external=True), coverPost.path(self.cover))
+            else:
+                img = qrcode_img(url_for('team.activity', id=self.id, _external=True))
+            self.qrcode = img
+            db.session.add(self)
+        return qrcode_url_string(self.qrcode)
 
     # --------------------------活动类型---------------------------
     types = db.relationship('OutdoorType', secondary=activity_types, backref=db.backref('activities', lazy='dynamic'))
@@ -357,8 +364,11 @@ class Activity(db.Model):
             age=form.age.data)
         db.session.add(contact)#----创建团队报名活动辅助类
         #生成二维码
-        from ..tools.photo import qrcode_img
-        qrcode = qrcode_img(url_for('team.activity_index_team', id=join_info.activity_id, team_id=join_info.team_id, _external=True))
+        if join_info.activity.cover:
+            qrcode = qrcode_cover(url_for('team.activity_index_team', id=join_info.activity_id, team_id=join_info.team_id, _external=True),
+                                  coverPost.path(join_info.activity.cover))
+        else:
+            qrcode = qrcode_img(url_for('team.activity_index_team', id=join_info.activity_id, team_id=join_info.team_id, _external=True))
         tool = TeamJoinActivity(activity_id=self.id,
                                 team_id = join_info.team_id,
                                 team_content= form.team_content.data,

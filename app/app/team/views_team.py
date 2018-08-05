@@ -162,10 +162,21 @@ def team_list(id):
 @team.route('/join/<int:id>')
 @login_required
 def join(id):
-    club = Team.query.get_or_404(id)
-    club.join(current_user._get_current_object())
-    flash('您已经是%s的队员啦' % club.name)
-    return redirect(url_for('.team_index', id=club.id))
+    if Team.join_team(current_user.id, id):
+        flash('成功入会~')
+    else:
+        flash('操作失败，该团队不存在，或者您已经加入该团队')
+    return redirect(url_for('.team_index', id=id))
+
+
+@team.route('/quit/<int:id>')
+@login_required
+def quit(id):
+    if Team.quit_team(current_user.id, id):
+        flash('成功脱团！')
+    else:
+        flash('您还没有入团....或者团队管理员不允许脱团！')
+    return redirect(url_for('.team_index', id=id))
 
 
 @team.route('/members/<int:id>')

@@ -55,9 +55,10 @@ def get_qr():
 
 def get_qrcode_filename():
     base_path = os.path.join(current_app.static_folder, 'images', 'qrcode')
-    filename = get_rnd_filename_w_ext('test.png')
+    filename = get_rnd_filename_w_ext('test.jpg')
     filepath = os.path.join(base_path, filename)
     return filepath, filename
+
 
 #接收URL字符串，保存为二维码，并返回生成的随机文件名
 #所有二维码图片保存在/static/images/qrcode目录
@@ -67,14 +68,14 @@ def qrcode_img(url):
     qr.make(fit=True)
     img = qr.make_image()
     filepath, filename = get_qrcode_filename()
-    img.save(filepath)
+    img.save(filepath, quanlity=60)
     return filename
 
 
-
 #根据文件名，返回二维码图片的URL链接
-def qrcode_url(filename):
-    return url_for('static', filename='images/qrcode/' + filename)
+def qrcode_url_string(filename):
+    if filename:
+        return url_for('static', filename='images/qrcode/' + filename)
 
 
 #将二维码粘贴在path路径下的图片的右下角
@@ -85,13 +86,13 @@ def qrcode_cover(url, path):
     qr.add_data(url)
     qr.make(fit=True)
     qrcode = qr.make_image()
-    qr_w, qr_h = qrcode.size()
-    height = qr_h * 3
+    qr_w, qr_h = qrcode.size
+    height = qr_h * 2
     width = int(cover_w*height/cover_h)
     cover = cover.resize((width, height)) #resize返回新图片
     cover.paste(qrcode, (width-qr_w-10, height-qr_h-10)) #paste在原图操作
     filepath, filename = get_qrcode_filename()
-    cover.save(filepath)
+    cover.save(filepath, quanlity=60)
     return filename
 
 

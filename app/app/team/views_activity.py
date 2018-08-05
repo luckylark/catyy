@@ -27,7 +27,7 @@ from ..forms.activity import (
     ActivityVolunteerJoinForm,
     ActivityTeamJoinForm)
 from ..tools.string_tools import get_md5_filename_w_ext, trans_html
-from ..tools.photo import cut, qrcode_img
+from ..tools.photo import cut, qrcode_img, qrcode_cover
 from ..extentions import coverPost, db
 import datetime
 from ..tools.permissions import only_team_admin, only_team_available, only_self, only_user_id
@@ -76,10 +76,6 @@ def create_activity(id):
         activity = fill_activity(activity, form, True, group)
         db.session.add(activity)
         db.session.commit()
-        #添加二维码
-        qrcode = qrcode_img(url_for('team.activity',id=activity.id, _external=True))
-        activity.qrcode = qrcode
-        db.session.add(activity)
         flash('活动发布成功，您可以选择添加多个活动方案')
         return redirect(url_for('.activity_add_sln', id = activity.id))
     return render_template('activity_add.html', form=form)
