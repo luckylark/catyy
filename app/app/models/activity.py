@@ -108,7 +108,7 @@ class Activity(db.Model):
             if self.cover:
                 img = qrcode_cover(url_for('team.activity', id=self.id, _external=True), coverPost.path(self.cover))
             else:
-                img = qrcode_img(url_for('team.activity', id=self.id, _external=True))
+                img = qrcode_cover(url_for('team.activity', id=self.id, _external=True), coverPost.path('default.jpg'))
             self.qrcode = img
             db.session.add(self)
         return qrcode_url_string(self.qrcode)
@@ -368,7 +368,8 @@ class Activity(db.Model):
             qrcode = qrcode_cover(url_for('team.activity_index_team', id=join_info.activity_id, team_id=join_info.team_id, _external=True),
                                   coverPost.path(join_info.activity.cover))
         else:
-            qrcode = qrcode_img(url_for('team.activity_index_team', id=join_info.activity_id, team_id=join_info.team_id, _external=True))
+            qrcode = qrcode_cover(url_for('team.activity_index_team', id=join_info.activity_id, team_id=join_info.team_id, _external=True),
+                                  coverPost.path('default.jpg'))
         tool = TeamJoinActivity(activity_id=self.id,
                                 team_id = join_info.team_id,
                                 team_content= form.team_content.data,

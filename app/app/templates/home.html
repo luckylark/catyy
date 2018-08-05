@@ -25,7 +25,7 @@
         {% for item in carousel_items %}
             <div class="item {% if loop.index == 1 %}active{% endif %}">
                 <a href="{{ url_for('team.activity', id=item.id) }}">
-                    <img src="{{ item.cover_url }}" alt="{{ item.name }}" />
+                    <img src="{{ item.cover_url }}" alt="{{ item.name }}" class="img-carousel" />
                 </a>
             </div>
         {% endfor %}
@@ -83,6 +83,7 @@
     </div>
 </div>
 
+{# 招商 #}
 <div class="fix-position">
     <a href="{{ url_for('invest') }}" title="致赞助商的一封信"><span class="glyphicon glyphicon-envelope"> 招商</span> </a>
 </div>

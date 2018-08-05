@@ -23,6 +23,11 @@ a:hover {
     padding:7px 13px;
     background-color: lightseagreen;
 }
+.img-carousel {
+    width:100%;
+    max-height: 600px;
+    overflow: hidden;
+}
 /*户外分类*/
 .outdoor {
     width:100%;

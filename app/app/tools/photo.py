@@ -90,7 +90,7 @@ def qrcode_cover(url, path):
     height = qr_h * 2
     width = int(cover_w*height/cover_h)
     cover = cover.resize((width, height)) #resize返回新图片
-    cover.paste(qrcode, (width-qr_w-10, height-qr_h-10)) #paste在原图操作
+    cover.paste(qrcode, (width-qr_w-30, height-qr_h-30)) #paste在原图操作
     filepath, filename = get_qrcode_filename()
     cover.save(filepath, quanlity=60)
     return filename
