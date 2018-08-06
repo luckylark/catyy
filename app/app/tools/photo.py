@@ -1,8 +1,9 @@
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 import qrcode
 from flask import current_app, send_from_directory, url_for
 from .string_tools import get_rnd_filename_w_ext
 import os
+import random
 
 def resize(image, path, width=200):
     img = Image.open(image)
@@ -95,6 +96,30 @@ def qrcode_cover(url, path):
     cover.save(filepath, quanlity=60)
     return filename
 
+
+#验证码
+def gene_verification_code():
+    if current_app.config.get('DEBUG'):
+        font_path = r'C:\Windows\Fonts\Arial.ttf'
+    else:
+        font_path = r'/urs/share/fonts/truetype/Arial.ttf'
+    import string
+    img = Image.new('RGBA', (70, 36), 'white')
+    draw = ImageDraw.Draw(img)
+    source = list(string.ascii_lowercase)
+    for number in range(0,10):
+        source.append(str(number))
+    code = ''.join(random.sample(source, 4))
+    font = ImageFont.truetype(font_path, 22)
+    draw.text((10,5), code, fill='red', font=font)
+    for x in range(0, 70, 5):
+        for y in range(0, 36, 5):
+            draw.point((x,y), fill=rndColor())
+    return img
+
+
+def rndColor():
+    return (random.randint(64, 255), random.randint(64, 255), random.randint(64, 255))
 
 
 

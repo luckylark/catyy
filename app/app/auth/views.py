@@ -4,11 +4,12 @@ login()
 logout()
 """
 from . import auth
-from ..forms.login import LoginForm, RegisterForm, ChangePasswordForm
+from ..forms.login import LoginForm, RegisterForm, ChangePasswordForm, ForgetPasswordForm, ValidationEmailForm
 from flask import render_template, flash, redirect, request, url_for
 from flask_login import login_user, logout_user, current_user, login_required
 from ..models.user import User
 from .. import db
+from ..extentions import send_msg
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -18,8 +19,10 @@ def login():
     :return:跳转or错误信息
     """
     form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first_or_404()
+    form_forget = ValidationEmailForm()
+    if form.submit.data and form.validate_on_submit():
+        user = User.query.filter_by(phone=form.account.data).first() or User.query.filter_by(username=form.account.data).first() \
+               or User.query.filter_by(email=form.account.data).first()
         if user:
             if user.verify_password(form.password.data):
                 if not user.lock:
@@ -30,8 +33,18 @@ def login():
             else:
                 flash('密码输入错误，请重试')
         else:
-            flash('邮箱不存在，请注册')
-    return render_template('login.html', form=form)
+            flash('手机号/用户名/邮箱不存在，请注册')
+    elif form_forget.goto_email.data and form_forget.validate_on_submit():
+        #发送邮件
+        to = [form_forget.email.data]
+        title = '【小猫游园】忘记密码'
+        template = 'forget_pwd'
+        user = User.query.filter_by(email=form_forget.email.data).first()
+        user.password = 'catyynet'
+        db.session.add(user)
+        send_msg(to=to, title=title, template=template)
+        return redirect(url_for('auth.login'))
+    return render_template('login.html', form=form, form2=form_forget)
 
 
 @auth.route('/logout')
@@ -50,7 +63,7 @@ def logout():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        user = User(email=form.email.data, username=form.username.data, password=form.password.data)
+        user = User(phone=form.phone.data, username=form.username.data, password=form.password.data, email=form.email.data)
         db.session.add(user)
         db.session.commit()
         user.follow(user)  # 关注自己
@@ -71,6 +84,22 @@ def change_password():
         return redirect(url_for('user.profile', id=current_user.id))
     return render_template('change_password.html', form=form)
 
+
+@auth.route('/forget_password', methods=['GET', 'POST'])
+def forget_password():
+    form = ForgetPasswordForm()
+    if form.validate_on_submit():
+        token = request.args.get('token')
+        username = User.get_username(token)
+        if username:
+            user = User.query.filter_by(username=username).first()
+            user.password = form.password.data
+            db.session.add(user)
+            flash('密码重置成功,请重新登陆')
+        else:
+            flash('重置失败，请重试')
+        return redirect(url_for('auth.login', id=current_user.id))
+    return render_template('forget_password.html', form=form)
 
 
 

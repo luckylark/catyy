@@ -46,9 +46,10 @@
 {# 选择活动分类 ----全布局#}
 
     <h1 class="banner banner-long text-center text-border top-space">找活动</h1>
-    {% set urlpoint = 'team.activities_search_with_outdoor' %}
-    {% include 'include/_outdoors_type_list.html' %}
-
+    <div class="top-space">
+        {% set urlpoint = 'team.activities_search_with_outdoor' %}
+        {% include 'include/_outdoors_type_list.html' %}
+    </div>
 {# 景区 ---全布局#}
      {# <h1 class="banner banner-long text-center text-border">景区</h1>
      <div>这里是待填充的景区模块</div> #}

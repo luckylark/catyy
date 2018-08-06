@@ -2,7 +2,7 @@ from flask_wtf import Form
 from wtforms import StringField, TextAreaField, RadioField, SubmitField, ValidationError, SelectMultipleField,\
     FieldList, FormField, HiddenField, SelectField
 from ..tools.field_widget import MultiCheckboxField
-from wtforms.fields.html5 import DateField, IntegerField
+from wtforms.fields.html5 import DateField, IntegerField, EmailField
 from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import Length, DataRequired, Email, Regexp, NumberRange

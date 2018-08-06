@@ -12,6 +12,7 @@ from .team import Team
 from flask import current_app
 from .activity import JoinActivity
 import re
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 class Follow(db.Model):
     """
@@ -138,6 +139,23 @@ class User(db.Model, UserMixin):
     @staticmethod
     def get_username_by_id(user_id):
         return db.session.query(User.username).filter(User.id==user_id).scalar()
+
+    @staticmethod
+    def get_users(page=1):
+        return User.query.order_by(User.timestamp.desc()).paginate(page, current_app.config['PAGECOUNT_USER'], False)
+
+    def generate_username_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'username': self.username})
+
+    @staticmethod
+    def get_username(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        return data.get('username')
 
     #--------------关注----------------------
     #我关注的人

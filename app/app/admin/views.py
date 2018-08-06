@@ -8,6 +8,7 @@ from ..tools.string_tools import get_md5_filename
 from ..decorators import admin_required
 from ..models.team import Team
 from ..models.demand import Demand
+from ..models.user import User
 
 
 @admin.route('/index')
@@ -24,6 +25,14 @@ def demands():
     page = request.args.get('page', 1, type=int)
     pagination  = Demand.get_pager(page)
     return render_template('demands.html', pagination=pagination, demands=pagination.items)
+
+
+@admin.route('/users')
+@admin_required
+def users():
+    page = request.args.get('page', 1, type=int)
+    pagination = User.get_users(page)
+    return render_template('admin_users.html', pagination=pagination, users=pagination.items)
 
 
 

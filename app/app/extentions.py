@@ -1,4 +1,4 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, render_template
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -7,12 +7,15 @@ from flask_uploads import UploadSet, IMAGES
 from flask_ckeditor import CKEditor
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Separator, Subgroup, Link
+from flask_mail import Mail, Message
+from threading import Thread
 
 
 bootstrap = Bootstrap()
 moment = Moment()
 db = SQLAlchemy()
 ckeditor = CKEditor()
+mail = Mail()
 
 nav = Nav()
 @nav.navigation()
@@ -41,4 +44,18 @@ login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 login_manager.login_message = '您需要登陆访问该资源哦'
 
+
+def send_msg(to, title, template, **kwargs):
+    from manage import app
+    msg = Message(title, sender='小猫游园<catyynet@163.com>', recipients=to)
+    msg.body = render_template(template+'.txt', **kwargs)
+    msg.html = render_template(template+'.html', **kwargs)
+    thr = Thread(target=send_sync_msg, args=[app, msg])
+    thr.start()
+    return thr
+
+
+def send_sync_msg(app, msg):
+    with app.app_context():
+        mail.send(msg)
 

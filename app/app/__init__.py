@@ -10,7 +10,8 @@ from .extentions import (
     coverUser,
     commonImage,
     ckeditor,
-    nav
+    nav,
+    mail
 )
 from flask_uploads import patch_request_class, configure_uploads
 from .config import config
@@ -38,6 +39,7 @@ def create_app(config_name):
     login_manager.init_app(app)
     ckeditor.init_app(app)
     nav.init_app(app)
+    mail.init_app(app)
     #image upload config
     configure_uploads(app, (avatarUser, avatarTeam, coverPost, imgTeam, coverUser, commonImage))
     patch_request_class(app, 5*1024*1024)
@@ -96,7 +98,6 @@ def create_app(config_name):
         return render_template('invest.html', form=form)
 
     # -----------------ckeditor图片上传-----------
-
     @app.route('/ckupload/', methods=['POST'])
     def ckupload():
         from flask import request, make_response

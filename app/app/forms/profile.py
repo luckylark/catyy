@@ -30,3 +30,7 @@ class EditProfileForm(Form):
         if self.username.data != current_user.username and User.query.filter_by(username=field.data).first():
             raise ValidationError('该用户名已注册，你可以换个其他的用户名')
 
+    def validate_phone(self, field):
+        if self.phone.data != current_user.phone and User.query.filter_by(phone=field.data).first():
+            raise ValidationError('该电话已注册，你可以换个其他的电话')
+

@@ -24,9 +24,8 @@ a:hover {
     background-color: lightseagreen;
 }
 .img-carousel {
-    width:100%;
+    min-width:100%;
     max-height: 600px;
-    overflow: hidden;
 }
 /*户外分类*/
 .outdoor {
@@ -64,7 +63,7 @@ a:hover {
 .banner {
     height: 120px;
     line-height: 120px;
-    color:#ff0;/*统一替换标题颜色*/
+    color:whitesmoke;/*统一替换标题颜色*/
     font-weight: bold;
     letter-spacing:0.5em;
 }
@@ -122,6 +121,10 @@ main {
 .top-space {
     margin-top: 50px;
 }
+.top-space-20 {
+    margin-top: 20px;
+}
+
 pre {
     white-space: pre-wrap!important;
     word-wrap: break-word!important;

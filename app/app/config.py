@@ -31,6 +31,11 @@ class Config:
     UPLOADED_COMMONIMAGE_DEST = path.join(path.dirname(__file__), 'static', 'images')
     CKEDITOR_FILE_UPLOADER = '/ckupload/'
 
+    MAIL_SERVER = 'smtp.163.com'
+    MAIL_PORT = 25
+    MAIL_USERNAME = 'catyynet@163.com'
+    MAIL_PASSWORD = os.environ.get('MAIL_PWD')
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
