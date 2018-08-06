@@ -10,7 +10,7 @@
     padding: 0;
 }
 .activity-list-horizontal li {
-    margin: 5px;
+    margin: 10px;
 }
 
 @media (min-width: 768px) {
@@ -31,7 +31,7 @@
     line-height: 30px;
 }
 .team_cube_simple li {
-    width:19%;
+    width:100px;
 }
 .team_cube_simple a h4 {
     color:olivedrab;

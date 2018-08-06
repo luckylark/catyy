@@ -154,7 +154,7 @@ class Activity(db.Model):
     #------------------获取各种活动集合--------------------------
     @staticmethod
     def get_activities_latest(count=5):
-        return Activity.query.order_by('activities.timestamp DESC').limit(count).all()
+        return Activity.query.order_by(Activity.timestamp.desc()).limit(count).all()
 
     @staticmethod
     def get_activities_search(keyword, outdoor, days, sort, page=1):
@@ -373,7 +373,7 @@ class Activity(db.Model):
         tool = TeamJoinActivity(activity_id=self.id,
                                 team_id = join_info.team_id,
                                 team_content= form.team_content.data,
-                                team_price = form.team_price.data,
+                                team_price = max(form.team_price.data, self.price),
                                 phone = form.real_phone.data,
                                 qrcode=qrcode)
         db.session.add(tool)

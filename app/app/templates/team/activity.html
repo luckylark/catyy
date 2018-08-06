@@ -103,8 +103,9 @@
                                     {% if activity.register(Registration_Way.PERSION)  %}
                                         <a href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-warning">个人报名</a>
                                     {% endif %}
-                                    {% if activity.register(Registration_Way.TEAM) and current_user.is_leader  %}
-                                        <a href="{{ url_for('team.activity_join_team', id= activity.id) }}" class="btn btn-info">团队报名</a>
+                                    {% if activity.register(Registration_Way.TEAM) %}
+                                        <a href="#team_join" class="btn btn-info" data-toggle="modal" data-target="#team_join">
+                                            团队报名</a>
                                     {% endif %}
                                     {% if activity.register(Registration_Way.VOLUNTEER)  %}
                                         <a href="{{ url_for('team.activity_join_volunteer', id= activity.id) }}" class="btn btn-success">志愿者报名</a>
@@ -176,4 +177,23 @@
 </div>
 </div>
 </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="team_join" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">关于团队报名</h4>
+                </div>
+                <div class="modal-body">
+                    <p>选择团队报名：是以您的团队进行报名，填写您的个人信息成功报名后，会生成专属于您团队的报名页面，
+                        拥有专属的二维码图片，
+                    同时团队报名的活动也会出现在您的团队首页。
+                    团队成员可以在该页面进行报名，您可以在活动页面看到报名情况。</p>
+                    <a href="{{ url_for('team.activity_join_team', id= activity.id) }}" class="btn btn-info" >报名</a>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
 {% endblock %}

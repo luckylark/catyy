@@ -1,6 +1,45 @@
-a:hover {
-    text-decoration: none;
+.card-shadow {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding:15px;
+    margin-bottom: 10px;
+    text-align: center;
 }
+.card-shadow div.box {
+    margin:10px;
+}
+.card-shadow h3 {
+    color:#737373;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+.card-shadow-text {
+    text-align: left;
+}
+.card-shadow .left {
+    width:30%;
+    display: inline-block;
+    margin-right: 5%;
+}
+.card-shadow .right {
+    width:60%;
+    display: inline-block;
+}
+/*宝丽来效果的框！！！*/
+.polaroid {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin-bottom: 20px;
+}
+.polaroid a:hover {
+    opacity: 0.7;
+}
+
+.polaroid-text {
+  padding: 10px 20px;
+}
+.card-shadow a {
+    display: inline-block;
+}
+
 .fix-position {
     position: fixed;
     right: 10px;
@@ -121,6 +160,9 @@ main {
 .top-space {
     margin-top: 50px;
 }
+.bottom-space {
+    margin-bottom: 50px;
+}
 .top-space-20 {
     margin-top: 20px;
 }
@@ -204,10 +246,6 @@ pre {
 }
 .nav-box a {
     color:whitesmoke;
-}
-.copyright {
-    height: 100px;
-    line-height: 100px;
 }
 .invest {
 

@@ -3,7 +3,6 @@ from wtforms import StringField, TextAreaField, RadioField, SubmitField, Validat
     FieldList, FormField, HiddenField, SelectField
 from ..tools.field_widget import MultiCheckboxField
 from wtforms.fields.html5 import DateField, IntegerField, EmailField
-from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import Length, DataRequired, Email, Regexp, NumberRange
 from ..extentions import coverPost
@@ -16,7 +15,7 @@ from ..models.tools import province
 class CreateActivityForm(Form):
     name = StringField('活动标题', render_kw={'placeholder': '填写活动标题（100字以内）'},
                         validators=[DataRequired('必填字段'), Length(1, 100)])
-    cover = FileField('活动封面', validators=[FileAllowed(coverPost, '请上传图片格式')])
+    cover = FileField('活动封面（建议上传宽高比2:1的封面以获得最佳浏览效果）', validators=[FileAllowed(coverPost, '请上传图片格式')])
     travel_type = MultiCheckboxField('使用了自定义字段的活动类型', coerce=int, validators=[DataRequired('请至少选择一个活动类型')])
     start_date = DateField('活动开始日期', validators=[DataRequired('必填字段')])
     end_date = DateField('活动结束日期', validators=[DataRequired('必填字段')])  # 自动计算活动天数
@@ -32,7 +31,7 @@ class CreateActivityForm(Form):
                                    validators=[DataRequired('必填字段'), NumberRange(min=1, max=5, message='数字只能在1-5之间')])
     landscape_index = IntegerField('风景指数（请填写数字1-5）', default='5', render_kw={'min': '1', 'max': '5'},
                                    validators=[DataRequired('必填字段'), NumberRange(min=1, max=5, message='数字只能在1-5之间')])
-    introduce = TextAreaField('活动介绍', [DataRequired('必填字段')])
+    introduce = TextAreaField('活动介绍(上传图片请先压缩到1M以下大小）', [DataRequired('必填字段')])
     registration_way = MultiCheckboxField('报名方式', [DataRequired('必填项')], coerce=int)
     submit = SubmitField('发布活动')
 
@@ -143,7 +142,8 @@ class ActivityVolunteerJoinForm(Form):
 class ActivityTeamJoinForm(Form):
     real_phone = StringField('确认联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')])
     solution = SelectField('活动方案', coerce=int)
-    team_price = IntegerField('团队报名的活动价格（包含路费等其他资费，价格可能和活动价格不一致）',[DataRequired('必填项')])
+    team_price = IntegerField('团队报名的活动价格（包含路费等其他资费，价格可能和活动价格不一致）',[DataRequired('必填项')],
+                              render_kw={'placeholder': '如果您的价格比原活动价格低，系统会使用原活动价格'})
     team_content = TextAreaField('队长有话说（最多可以输入500字）',
                                  [Length(max=500, message='仅限500字以内')])
     province = SelectField('选择您所在的省份', coerce=int, choices=list(enumerate(province)))

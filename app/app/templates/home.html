@@ -2,6 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "macros/_activity_list.html" as act_list %}
 {% import "macros/_team_details_cube.html" as team_macros %}
+{% import "macros/_activity_list.html" as act_macros with context %}
 {% block head %}
 {{ super() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/homepage.css') }}" />
@@ -50,39 +51,33 @@
         {% set urlpoint = 'team.activities_search_with_outdoor' %}
         {% include 'include/_outdoors_type_list.html' %}
     </div>
+{# 属于南太行的最近的4个活动 #}
+   <div class="row top-space bottom-space">
+         <div class="banner-home">最新活动</div>
+         <div class="row">
+             {% for activity in activities %}
+                <div class="col-sm-3">
+                {{ act_macros.render_activity(activity) }}
+                </div>
+             {% endfor %}
+         </div>
+     </div>
+     {# 活跃俱乐部 #}
+     <div class="row top-space">
+         {# 属于南太行的最近的4个活动 #}
+         <div class="banner-home  bottom-space">活跃俱乐部</div>
+         <div class="row">
+             {{ team_macros.render_team_list_simple(teams) }}
+         </div>
+     </div>
+     </div>
+ </div>
 {# 景区 ---全布局#}
      {# <h1 class="banner banner-long text-center text-border">景区</h1>
      <div>这里是待填充的景区模块</div> #}
 
 {# 最新活动最新帖子 团队 论坛地接模块  --- 布局1-6-4-1#}
-     <div class="row top-space">
-         {# 左侧主内容区 #}
-         <div class="col-sm-7">
-             <div class="catyy-panel panel panel-default">
-                 <div class="panel-heading">
-                     <h1 class="panel-title banner-small">最新活动</h1>
-                 </div>
-                <div class="panel-body">
-                    {% include "include/_activity_list.html" %}
-                </div>
 
-             </div>
-         </div>
-         {# 右侧栏 #}
-         <div class="col-sm-5">
-            <div class="catyy-panel panel panel-default">
-                <div class="panel-heading">
-                     <h1 class="panel-title banner-small">活跃俱乐部</h1>
-                 </div>
-                <div class="panel-body">
-                    {{ team_macros.render_team_list_simple(teams) }}
-                </div>
-            </div>
-         </div>
-     </div>
-
-    </div>
-</div>
 
 {# 招商 #}
 <div class="fix-position">

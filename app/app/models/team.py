@@ -64,7 +64,7 @@ class Team(db.Model):
 
     @property
     def avatar_url(self):
-        filename = self.avatar if self.avatar else 'default.jpg'
+        filename = self.avatar if self.avatar else 'default-team.jpg'
         return avatarTeam.url(filename=filename)
 
     @property

@@ -1,12 +1,11 @@
 {% import "macros/_team_avatar.html" as macros %}
 {% macro render_team_details_cube(team) %}
-<div class="well card-square">
-    <div class="row">
-        <div class="col-sm-3">
+<div class="card-shadow">
+        <div class="left">
             {{ macros.render_team_avatar(team) }}
         </div>
 
-        <div class="col-sm-9">
+        <div class="right card-shadow-text">
             <p><a class="card-square-title" href="{{ url_for('team.team_index', id=team.id) }}"> {{ team.name }}</a></p>
             <p class="card-square-body">{{ team.description }}</p>
             <a href="{{ url_for('team.team_index', id=team.id) }}" >活动:
@@ -16,14 +15,10 @@
             <span class="card-square-details">{{ moment(team.timestamp).fromNow() }}成立</span>
         </div>
     </div>
-    <div class="row team-cube-show">
-
-    </div>
-</div>
 {% endmacro %}
 
 {% macro render_team_vertical(team) %}
-        <div class="well card-square">
+        <div class="card-shadow text-center">
             {{ macros.render_team_avatar(team) }}
 
             <p><a class="highlight" href="{{ url_for('team.team_index', id=team.id) }}"> {{ team.name }}</a></p>

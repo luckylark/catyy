@@ -36,7 +36,7 @@ def resize_fix_width(image, path, width=200):
     img.save(path)
 
 
-def cut(image, path, scale=0.6):
+def cut(image, path, scale=0.5):
     img = Image.open(image)
     w, h = img.size
     if h/w > scale:

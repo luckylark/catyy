@@ -128,7 +128,7 @@ class User(db.Model, UserMixin):
     #avatar & cover
     @property
     def avatar_url(self):
-        filename = self.avatar if self.avatar else 'default.jpg'
+        filename = self.avatar if self.avatar else 'default-user.jpg'
         return avatarUser.url(filename)
 
     @property

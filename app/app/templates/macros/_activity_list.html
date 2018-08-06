@@ -45,16 +45,16 @@
 {% macro render_activity_list_horizontal(activities) %}
 <ul class="list-unstyled activity-list-horizontal">
     {% for activity in activities %}
-        <li class="thumbnail">
+        <li class="polaroid">
         <a href="{{  url_for('team.activity', id=activity.id) }}">
-            <img src="{{ activity.cover_url }}" class="img-responsive height-limit"/>
-            <h3 class="activity-item card-square-title">{{ activity.name }}</h3>
-
+            <img src="{{ activity.cover_url }}" class="img-responsive"/>
         </a>
-        <p><span class="highlight" >{{ moment(activity.start_date).format('L') }}</span>
+        <div class="polaroid-text">
+            <h3 class="activity-item card-square-title">{{ activity.name }}</h3>
+            <span class="highlight" >{{ moment(activity.start_date).format('L') }}</span>
             从<span class="highlight" >{{ activity.rally_site }}</span>出发，
                 为期<span class="highlight" >{{ activity.days }}</span>天，价格
-            <span class="highlight" >{{ activity.price }}</span>元</p>
+            <span class="highlight" >{{ activity.price }}</span>元</div>
         </li>
         {% if not loop.index % 3  %}
             <div class="clearfix"></div>
@@ -62,6 +62,20 @@
     {% endfor %}
 </ul>
     <div class="clearfix"></div>
+{% endmacro %}
+
+{% macro render_activity(activity) %}
+        <div class="polaroid">
+        <a href="{{  url_for('team.activity', id=activity.id) }}">
+            <img src="{{ activity.cover_url }}" class="img-responsive"/>
+        </a>
+        <div class="polaroid-text">
+            <h3 class="activity-item card-square-title">{{ activity.name }}</h3>
+            <span class="highlight" >{{ moment(activity.start_date).format('L') }}</span>
+            从<span class="highlight" >{{ activity.rally_site }}</span>出发，
+                为期<span class="highlight" >{{ activity.days }}</span>天，价格
+            <span class="highlight" >{{ activity.price }}</span>元</div>
+        </div>
 {% endmacro %}
 
 {% macro render_activitys_team(activities, team_id) %}

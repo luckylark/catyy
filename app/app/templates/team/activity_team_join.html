@@ -13,51 +13,32 @@
 {% endblock %}
 
 {% block page_content %}
+    {{ tools.render_share(join) }}
     <div class="row top-space">
     {# 团队信息+报名栏 #}
     <div class="col-sm-offset-1 col-sm-3">
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">团队名片</h3>
-        </div>
-        <div class="panel-body">
-            {{ team_macros.render_team_vertical(join.team) }}
-        </div>
-    </div>
-    <ul class="list-group">
-        <li class="list-group-item active">联系方式</li>
-        <li class="list-group-item">
-            <span class="highlight">队长</span>
-            <a href="{{ url_for('user.profile',id=join.team.leader_id) }}">{{ join.team.leader.username }}</a>
-        </li>
-        <li class="list-group-item">
-            <span class="highlight">联系电话</span>
-            {{ join.phone }}
-        </li>
-    </ul>
+            {{ team_macros.render_team_details_cube(join.team) }}
 
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">队长有话说</h3>
-        </div>
-        <div class="panel-body">
-            <span class="price">
-            {{ join.team_price }}</span>
-            {% if join.team_content %}
-            <div class="well">{{ join.team_content }}</div>
-            {% endif %}
-        {# 分享 #}
-            {{ tools.render_share(join) }}
-        </div>
-    </div>
-
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">以团队形式报名</h3>
-        </div>
-        <div class="panel-body">
-            <div class="well signup">
-                        <div class="post-btn">
+        <div class="card-shadow card-shadow-text">
+            <div class="box">
+                <span class="price">
+                {{ join.team_price }}</span>
+            </div>
+            <div class="box">
+                <span class="highlight">队长</span>
+                <a href="{{ url_for('user.profile',id=join.team.leader_id) }}">{{ join.team.leader.username }}</a>
+            </div>
+            <div class="box">
+                <span class="highlight">联系电话</span>
+                {{ join.phone }}
+            </div>
+            <div class="box">
+                {% if join.team_content %}
+                    <span class="highlight">队长有话说</span><br/>
+                {{ join.team_content }}
+                {% endif %}
+            </div>
+            <div class="post-btn">
                             {% if join.activity.past %}
                                 <a href="#" class="btn btn-default disabled">活动已结束</a>
                             {% elif join.activity.joined(current_user) %}
@@ -78,10 +59,7 @@
                                  {% endif %}
                             {% endif %}
                         </div>
-
-                    </div>
         </div>
-    </div>
 
     </div>
     {# 右侧活动详情#}

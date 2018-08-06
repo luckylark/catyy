@@ -1,6 +1,6 @@
 from flask_wtf import Form
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Email,ValidationError, Length, Regexp, EqualTo
+from wtforms.validators import DataRequired, Email,ValidationError, Length, Regexp, EqualTo, Optional
 from ..models.user import User
 from wtforms.fields.html5 import EmailField
 
@@ -23,8 +23,8 @@ class ValidationEmailForm(Form):
 class RegisterForm(Form):
     username = StringField('用户名', validators=[DataRequired('请填写用户名'), Length(1, 64)],
                            render_kw={'placeholder':'必填，可以用用户名、手机号、邮箱登陆'})
-    phone = StringField('手机号（选填）', validators=[Length(1, 15, '请填写正确格式的手机号')], render_kw={'placeholder': '选填，用于忘记密码'})
-    email = EmailField('邮箱（选填）', validators=[Email('请正确填写邮箱')], render_kw={'placeholder': '选填，手机或邮箱可用于忘记密码，建议填写一个'})
+    phone = StringField('手机号（选填）', validators=[Optional(), Length(0, 15, '请填写正确格式的手机号')], render_kw={'placeholder': '选填，用于忘记密码重置密码，建议填写'})
+    email = EmailField('邮箱（选填）', validators=[Optional(),Email('请正确填写邮箱')], render_kw={'placeholder': '选填'})
     password = PasswordField('密码', validators=[DataRequired('请填写密码'), EqualTo('confirmPassword', message='密码不一致')])
     confirmPassword = PasswordField('再次输入密码', validators=[DataRequired('请确认密码')])
     submit = SubmitField('注册')

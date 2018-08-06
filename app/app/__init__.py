@@ -17,6 +17,7 @@ from flask_uploads import patch_request_class, configure_uploads
 from .config import config
 from flask import Flask, redirect, url_for, render_template, flash
 from flask_login import current_user
+from .tools.photo import resize
 
 
 def create_app(config_name):
@@ -69,7 +70,7 @@ def create_app(config_name):
         collection = OutdoorType.show_list()
         activities = Activity.get_activities_latest()
         from .models.team import Team
-        teams = Team.query.limit(20).all()
+        teams = Team.query.limit(10).all()
         return render_template('home.html',
                                carousel_items = carousel_items,
                                collection=collection,
@@ -120,7 +121,9 @@ def create_app(config_name):
             elif not os.access(dirname, os.W_OK):
                 error = 'ERROR_DIR_NOT_WRITEABLE'
             if not error:
-                fileobj.save(filepath)
+                #fileobj.save(filepath)
+                #不限制上传大小，但是图片必须在1200像素以下
+                resize(fileobj, filepath, 1200)
                 url = url_for('static', filename='%s/%s' % ('images/upload/', rnd_name))
         else:
             error = 'post error'
@@ -143,5 +146,9 @@ def create_app(config_name):
     @app.errorhandler(403)
     def internal_server_error(e):
         return render_template('403.html'), 403
+
+    @app.errorhandler(413)
+    def internal_server_error(e):
+        return render_template('413.html'), 413
 
     return  app

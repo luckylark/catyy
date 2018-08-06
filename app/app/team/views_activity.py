@@ -26,8 +26,8 @@ from ..forms.activity import (
     ActivitySolutionForm,
     ActivityVolunteerJoinForm,
     ActivityTeamJoinForm)
-from ..tools.string_tools import get_md5_filename_w_ext, trans_html
-from ..tools.photo import cut, qrcode_img, qrcode_cover
+from ..tools.string_tools import get_md5_filename_w_ext, trans_html, get_rnd_filename_w_ext
+from ..tools.photo import cut, qrcode_img, qrcode_cover, resize
 from ..extentions import coverPost, db
 import datetime
 from ..tools.permissions import only_team_admin, only_team_available, only_self, only_user_id
@@ -45,7 +45,7 @@ def fill_activity(activity, form, new=False, club=None):
     activity.name = form.name.data
     activity.start_date = form.start_date.data
     activity.end_date = form.end_date.data
-    activity.days = (activity.end_date - activity.start_date).days
+    activity.days = (activity.end_date - activity.start_date).days + 1
     activity.rally_site = form.rally_site.data
     activity.destination = form.destination.data
     activity.price = form.price.data
@@ -58,8 +58,8 @@ def fill_activity(activity, form, new=False, club=None):
     activity.introduce = trans_html(form.introduce.data)
     cover = form.cover.data
     if cover:
-        filename = get_md5_filename_w_ext(current_user.username, cover.filename)
-        cut(cover, coverPost.path(filename))
+        filename = get_rnd_filename_w_ext(cover.filename)
+        resize(cover, coverPost.path(filename), width=1200)
         activity.cover = filename
     return activity
 
@@ -338,6 +338,9 @@ def activity_join_volunteer(id):
 @team.route('/activity/join/team/<int:id>', methods=['GET', 'POST'])
 @login_required
 def activity_join_team(id):
+    if not current_user.is_leader:
+        flash('先创建团队，才能在报名的时候选择团队报名哦~')
+        return redirect(url_for('team.create_team'))
     activity = Activity.query.get_or_404(id)
     form = ActivityTeamJoinForm(activity.solutions.all())
     if request.method == 'GET':

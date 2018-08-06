@@ -76,7 +76,8 @@
             {% endfor %}
             {% if not join.state %}
             <li class="list-group-item">
-                    <a href="#" class="btn btn-success">确认无误，去付款({{ join.price }}元）</a> |
+                    <a href="#" class="btn btn-success" data-toggle="modal" data-target="#pay">
+                        确认无误，去付款({{ join.price }}元）</a> |
                     <a href="{{ url_for('team.activity_join_edit',id=join.id) }}" class="btn btn-default">信息有误，去修改</a> |
                     <a href="{{ url_for('team.activity_cancel',id=join.id) }}" class="btn btn-default delete">取消报名</a>
             </li>
@@ -103,6 +104,19 @@
     #}
     </div>
     </div>
-
+<!-- 模态框（Modal） -->
+    <div class="modal fade" id="pay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">支付功能还在努力开发中</h4>
+                </div>
+                <div class="modal-body">
+                    <p>支付功能暂时不可用，您可以先微信添加管理员13937392999进行付款，我们会在网站后台为您标记为已付款</p>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
 
 {% endblock %}
