@@ -14,6 +14,48 @@ from random import seed, randint, sample
 from sqlalchemy.exc import IntegrityError
 
 
+def clear_test_user():
+    users = User.query.all()
+    for user in users:
+        if user.verify_password('123'):
+            db.session.delete(user)
+        db.session.commit()
+
+
+def show_test_user():
+    users = User.query.all()
+    for user in users:
+        if user.verify_password('123'):
+            from flask import flash
+            flash(user.username)
+
+
+def add_club():
+    from .models.activity import volunteer_type
+    for item in volunteer_type:
+        #创建用户
+        user = User.query.filter_by(username=volunteer_type[item])
+        if user:
+            continue
+        user = User()
+        user.username = volunteer_type[item]
+        user.password = 'lihonglin92999'
+        db.session.add(user)
+        db.session.commit()
+        #创建团队
+        team = Team.query.filter_by(name=volunteer_type[item]).first()
+        if not team:
+            team = Team()
+            team.name = volunteer_type[item]
+            team.leader_id = user.id
+            team.created_by = user.id
+            team.approved = True
+            db.session.add(team)
+            db.session.commit()
+            #加入队长
+            team.join(user, is_admin=True)
+
+
 def gene_users(count=100):
     from random import seed, randint
     from sqlalchemy.exc import IntegrityError

@@ -28,7 +28,7 @@
             </div>
         {# 右侧活动明细框 #}
             <div class="col-sm-5">
-                <div class="activity-details well">
+                <div class="activity-details card-shadow card-shadow-text">
                 <div class=" post-team">
                     <a href="{{ url_for('team.team_index', id=activity.belong_to_team) }}" class="team-icon">
                         <span>{{ activity.team.name }}</span>
@@ -82,7 +82,7 @@
 
                  </div>
                 </div>
-            <div class="well signup">
+            <div class="card-shadow card-shadow-text signup">
                         <div class="post-btn">
                         {# 分享 #}
                         {{ tools.render_share(activity) }}

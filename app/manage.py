@@ -29,13 +29,10 @@ def createdb():
     admin = User()
     admin.username = 'admin'
     admin.email = 'lucky_lark@163.com'
-    admin.password = 'lihonglin92999'
+    admin.password = '123456'
     admin.is_admin = True
     db.session.add(admin)
     db.session.commit()
-    #create fake user
-    from app.forgery import gene_users
-    gene_users()
 
 
 @manager.command

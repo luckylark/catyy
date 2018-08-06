@@ -153,7 +153,7 @@ class Activity(db.Model):
 
     #------------------获取各种活动集合--------------------------
     @staticmethod
-    def get_activities_latest(count=5):
+    def get_activities_latest(count=4):
         return Activity.query.order_by(Activity.timestamp.desc()).limit(count).all()
 
     @staticmethod

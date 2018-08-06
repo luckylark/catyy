@@ -40,9 +40,10 @@ def login():
         title = '【小猫游园】忘记密码'
         template = 'forget_pwd'
         user = User.query.filter_by(email=form_forget.email.data).first()
-        user.password = 'catyynet'
+        pwd = User.get_rnd_password()
+        user.password = pwd
         db.session.add(user)
-        send_msg(to=to, title=title, template=template)
+        send_msg(to=to, title=title, template=template, pwd=pwd)
         return redirect(url_for('auth.login'))
     return render_template('login.html', form=form, form2=form_forget)
 

@@ -7,5 +7,11 @@
 {% endblock %}
 
 {% block admin_content %}
-请在右侧工具栏选择要管理的项目
+    <p>请在右侧工具栏选择要管理的项目</p>
+    <p>>以下提供一些网站基本维护功能</p>
+
+    <a href="{{ url_for('admin.show_test_user') }}" class="btn btn-default">显示测试用户</a>
+    <a href="{{ url_for('admin.clear_test_user') }}" class="btn btn-default">清除测试用户</a>
+    <a href="{{ url_for('admin.gene_volunteer') }}" class="btn btn-default">生成志愿者团队</a>
+
 {% endblock %}

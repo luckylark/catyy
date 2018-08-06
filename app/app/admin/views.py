@@ -35,4 +35,28 @@ def users():
     return render_template('admin_users.html', pagination=pagination, users=pagination.items)
 
 
+@admin.route('/clear-test')
+@admin_required
+def clear_test_user():
+    from ..forgery import clear_test_user
+    clear_test_user()
+    return redirect(url_for('admin.users'))
+
+
+@admin.route('/show-test')
+@admin_required
+def show_test_user():
+    from ..forgery import show_test_user
+    show_test_user()
+    return redirect(url_for('admin.index'))
+
+
+@admin.route('/gene_volunteer')
+@admin_required
+def gene_volunteer():
+    from ..forgery import add_club
+    add_club()
+    return redirect(url_for('admin.index'))
+
+
 

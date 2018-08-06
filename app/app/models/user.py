@@ -13,6 +13,7 @@ from flask import current_app
 from .activity import JoinActivity
 import re
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import random
 
 class Follow(db.Model):
     """
@@ -144,6 +145,7 @@ class User(db.Model, UserMixin):
     def get_users(page=1):
         return User.query.order_by(User.timestamp.desc()).paginate(page, current_app.config['PAGECOUNT_USER'], False)
 
+    #忘记密码----------------
     def generate_username_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'username': self.username})
@@ -156,6 +158,12 @@ class User(db.Model, UserMixin):
         except:
             return False
         return data.get('username')
+
+    @staticmethod
+    def get_rnd_password():
+        seed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-"
+        rnd = ''.join(random.sample(seed, 5))
+        return 'catyynet' + rnd
 
     #--------------关注----------------------
     #我关注的人
