@@ -156,6 +156,7 @@ class Team(db.Model):
             return True
         return False
 
+
     @staticmethod
     def quit_team(user_id, team_id):
         relation = TeamUser.query.filter_by(team_id=team_id, user_id=user_id).first()
@@ -169,8 +170,6 @@ class Team(db.Model):
         return TeamUser.query.filter_by(team_id=team_id, user_id=user_id).count()
 
     def is_member(self, user):
-        if user.is_anonymous:
-            return False
         return user.is_authenticated and self.team_members.filter_by(user_id=user.id).count()
 
     def is_leader(self, user):

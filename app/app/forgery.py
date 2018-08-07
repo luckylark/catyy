@@ -34,7 +34,7 @@ def add_club():
     from .models.activity import volunteer_type
     for item in volunteer_type:
         #创建用户
-        user = User.query.filter_by(username=volunteer_type[item])
+        user = User.query.filter_by(username=volunteer_type[item]).first()
         if user:
             continue
         user = User()
@@ -49,6 +49,7 @@ def add_club():
             team.name = volunteer_type[item]
             team.leader_id = user.id
             team.created_by = user.id
+            team.classify = 1
             team.approved = True
             db.session.add(team)
             db.session.commit()

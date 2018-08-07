@@ -64,7 +64,9 @@ def logout():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        user = User(phone=form.phone.data, username=form.username.data, password=form.password.data, email=form.email.data)
+        user = User(username=form.username.data, password=form.password.data)
+        user.email = form.email.data or None
+        user.phone = form.phone.data or None
         db.session.add(user)
         db.session.commit()
         user.follow(user)  # 关注自己

@@ -272,7 +272,7 @@ class Activity(db.Model):
                 phone=contact['phone'],
                 gender=contact['gender'],
                 age=contact['age']))
-        #加入活动
+        #加入活动所在团队
         join_info.activity.team.join(current_user)
         db.session.commit()
         return join_info
@@ -299,6 +299,7 @@ class Activity(db.Model):
 
     #志愿者报名
     def join_volunteer(self, form):
+        from .team import Team
         #创建Join数据
         join_info = JoinActivity()
         join_info.user_id = current_user.id
@@ -323,6 +324,7 @@ class Activity(db.Model):
                 gender=form.gender.data,
                 age=form.age.data)
         db.session.add(contact)
+        #加入活动所在团队
         join_info.activity.team.join(current_user)
         db.session.commit()
         # 更新个人信息
@@ -334,6 +336,8 @@ class Activity(db.Model):
             current_user.volunteer = current_user.volunteer | join_info.volunteer
             db.session.add(current_user)
         #TODO 拉入响应的志愿者团队
+        team = Team.query.filter_by(name=volunteer_type[join_info.volunteer]).first()
+        team.join(current_user)
         return join_info
 
     #仅队长报名-团队
@@ -354,6 +358,7 @@ class Activity(db.Model):
         join_info.province = form.province.data
         db.session.add(join_info)
         db.session.commit()
+        join_info.activity.team.join(current_user)
         # --创建出行人信息--
         contact = ActivityContact(
             join_id=join_info.id,
@@ -521,6 +526,7 @@ class ActivityContact(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     join_id = db.Column(db.Integer, db.ForeignKey('join_activities.id'))
+    contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'))
     name = db.Column(db.String(10), nullable=False)
     identity = db.Column(db.String(18), nullable=False)
     phone = db.Column(db.String(15))
@@ -537,18 +543,6 @@ class ActivityContact(db.Model):
     def identity_show(self):
         reg = re.compile(r'(\d\d\d)(\d*)(\d\d\d)')
         return reg.sub(r'\1*****\3', self.identity)
-
-
-class CrowdFunding(db.Model):
-    __tablename__ = 'crowd_funding_details'
-
-    #支付成功后添加数据库记录
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    join_id = db.Column(db.Integer, db.ForeignKey('join_activities.id'))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
-    money = db.Column(db.Integer) #支持金额
-    text = db.Column(db.String(500)) #支持宣言
 
 
 class FollowActivity(db.Model):
@@ -595,23 +589,16 @@ class ReviewActivity(db.Model):
         db.session.add(self)
 
 
-#-------------fake-----to be deleted
-def gene_join():
-    from .user import User
-    users = User.query.all()
-    from random import randint
-    activities = Activity.query.all()
-    count = len(activities)
-    for user in users:
-        activity = activities[randint(0, count-1)]
-        join = JoinActivity()
-        join.user_id = user.id
-        join.activity_id = activity.id
-        join.count = 1
-        join.state = 1
-        db.session.add(join)
-    db.session.commit()
 
+class CrowdFunding(db.Model):
+    __tablename__ = 'crowd_funding_details'
 
+    #支付成功后添加数据库记录
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    join_id = db.Column(db.Integer, db.ForeignKey('join_activities.id'))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+    money = db.Column(db.Integer) #支持金额
+    text = db.Column(db.String(500)) #支持宣言
 
 

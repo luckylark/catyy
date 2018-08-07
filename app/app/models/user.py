@@ -267,6 +267,18 @@ class User(db.Model, UserMixin):
         return self.joins_activity.filter(JoinActivity.state==False).count()
 
 
+class Contact(db.Model):
+    __tablename__ = 'contacts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    name = db.Column(db.String(10), nullable=False)
+    identity = db.Column(db.String(18), nullable=False)
+    phone = db.Column(db.String(15))
+    gender = db.Column(db.SmallInteger)  # 性别：0-男-1-女
+    age = db.Column(db.SmallInteger)
+
+
 
 
 
