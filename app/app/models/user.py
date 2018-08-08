@@ -14,6 +14,7 @@ from .activity import JoinActivity
 import re
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import random
+from .tools import province
 
 class Follow(db.Model):
     """
@@ -89,10 +90,12 @@ class User(db.Model, UserMixin):
 
     #info:real identity
     name = db.Column(db.String(64))
-    id_number = db.Column(db.String(18))
+    id_number = db.Column(db.String(18)) #TODO 删除
     phone = db.Column(db.String(15))
     address = db.Column(db.String(64))
 
+    #常用出行人
+    contacts = db.relationship('Contact', lazy='dynamic')
     #----------------信息脱敏---------------------
     @property
     def phone_show(self):
@@ -277,6 +280,22 @@ class Contact(db.Model):
     phone = db.Column(db.String(15))
     gender = db.Column(db.SmallInteger)  # 性别：0-男-1-女
     age = db.Column(db.SmallInteger)
+    province = db.Column(db.SmallInteger, default=0)  # province_list 的 index, 默认0-河南省
+
+    @property
+    def phone_show(self):
+        reg = re.compile(r'(\d\d\d)(.*)(\d\d\d)')
+        return reg.sub(r'\1*****\3', self.phone)
+
+    @property
+    def identity_show(self):
+        reg = re.compile(r'(\d\d\d)(\d*)(\d\d\d)')
+        return reg.sub(r'\1*****\3', self.identity)
+
+    @property
+    def province_show(self):
+        return province[self.province]
+
 
 
 

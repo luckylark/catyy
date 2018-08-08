@@ -59,4 +59,12 @@ def gene_volunteer():
     return redirect(url_for('admin.index'))
 
 
+@admin.route('/move_contact')
+@admin_required
+def move_contact():
+    from ..forgery import move_contact
+    move_contact()
+    return redirect(url_for('admin.index'))
+
+
 

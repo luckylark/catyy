@@ -1,3 +1,4 @@
+
 .card-shadow {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     padding:15px;
@@ -180,6 +181,18 @@ pre {
     padding: 20px;
 }
 /*form表单*/
+input.inline-input, select.inline-input {
+    width:150px;
+    display:inline-block;
+}
+.no-padding-top {
+    padding-top:0;
+    margin-top:0;
+}
+
+form {
+    margin:0 20px;
+}
 .radio-list-inline, .radio-list-inline ul {
     list-style: none;
     padding:0;
@@ -188,6 +201,22 @@ pre {
     float: left;
     margin-right: 2em;
 }
+.info-box {
+    border:solid 1px darkorange;
+    border-radius: 25px;
+    padding:30px;
+    margin:40px auto;
+}
+.info-box h3 {
+    padding:10px;
+    margin-top:-55px;
+    margin-left:20px;
+    background: white;
+    width: 7em;
+    color: darkorange;
+    text-align: center;
+}
+
 /*细节*/
 .highlight {
     color: dodgerblue;

@@ -212,7 +212,7 @@ class Team(db.Model):
 
     def get_activities_joined(self):
         #TODO 分页
-        return [item.activity for item in self.activities_joined.order_by(TeamJoinActivity.timestamp.desc()).all()]
+        return [(item.id, item.activity) for item in self.activities_joined.order_by(TeamJoinActivity.timestamp.desc()).all()]
 
     @property
     def activity_count(self):
@@ -266,6 +266,7 @@ class TeamJoinActivity(db.Model):
     phone = db.Column(db.String(15))
     team_content = db.Column(db.String(500))
     qrcode = db.Column(db.String(128))
+    solution = db.Column(db.SmallInteger)
 
     @property
     def qrcode_url(self):

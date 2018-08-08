@@ -16,6 +16,8 @@ from ..tools.permissions import only_team_admin, only_team_available
 """
 创建和修改团队
 """
+
+
 @team.route('/create_team', methods=['GET', 'POST'])
 @login_required
 def create_team():
@@ -89,6 +91,8 @@ def assign_club(club, form):
 """
 团队首页
 """
+
+
 @team.route('/team/<int:id>')
 def team_index(id):
     club = Team.query.get_or_404(id)
@@ -106,6 +110,8 @@ def team_me():
 """
 团队列表
 """
+
+
 @team.route('/search', methods=['GET', 'POST'])
 def teams_search():
     form = TeamSearchForm()
@@ -141,24 +147,25 @@ def teams_search_home():
     return redirect(url_for('.teams_search'))
 
 
+#TODO 弃用
 @team.route('/select_outdoor')
 def select_outdoor():
     collection = OutdoorType.show_list()
     return render_template('select_type.html', collection = collection)
 
 
+#TODO 弃用
 @team.route('/list/<int:id>')
 def team_list(id):
     t = OutdoorType.query.get_or_404(id)
     collection = t.teams
     return render_template('type_list.html', t = t, collection = collection)
 
-
-
-
 """
-加入+会员
+加入退出+会员
 """
+
+
 @team.route('/join/<int:id>')
 @login_required
 def join(id):

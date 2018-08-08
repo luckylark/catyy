@@ -20,8 +20,13 @@
     }
 }
 .activity-details {
+    font-size: 18px;
     line-height: 1.8em;
-    font-size: 20px;
+}
+.activity-details .left, .activity-details .right {
+    width:45%;
+    margin: 5px 10px;
+    display: inline-block;
 }
 
 /*team-detail*/

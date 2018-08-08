@@ -13,14 +13,13 @@ from ..models.activity import (
     volunteer_type)
 from ..models.team import Team, TeamJoinActivity
 from ..models.outdoorType import OutdoorType
-from ..models.user import User
+from ..models.user import User, Contact
 from flask_login import login_required, current_user
 from ..forms.activity import (
     CreateActivityForm,
-    ActivityJoinForm,
     ActivityContactsForm,
     ActivityAskForm,
-    CrownSloganForm,
+    ContactForm,
     CrownSupportForm,
     ActivitySearchForm,
     ActivitySolutionForm,
@@ -171,7 +170,10 @@ def activity(id):
         return redirect(url_for('team.activity', id=id))
     return render_template('activity.html', activity=activity, form=form, solutions=solutions)
 
-#---------------------关注------------------------------------------
+"""
+关注取消关注-关注活动列表
+"""
+#TODO 取消关注
 @team.route('/activity/follow/<int:id>')
 def follow(id):
     activity = Activity.query.get_or_404(id)
@@ -194,82 +196,107 @@ def activities_follow(id=0):
 """
 
 
+#个人志愿者团队成员报名
 @team.route('/activity/join/<int:id>', methods=['GET', 'POST'])
 @login_required
 def activity_join(id):
-    form = ActivityJoinForm()
-    if request.method == 'GET' and current_user.phone:
-        session['phone'] = current_user.phone
-        form.phone.data = current_user.phone
-    if form.validate_on_submit():
-        #处理联系电话
-        if not current_user.phone or (session.get('phone') != form.phone.data):
-            current_user.phone = form.phone.data
-            db.session.add(current_user)
-        return redirect(url_for('team.activity_join_contact', id=id, count=form.count.data))
-    return render_template('activity_join.html', form=form)
-
-
-@team.route('/activity/join_next/<int:id>', methods=['GET', 'POST'])
-@login_required
-def activity_join_contact(id):
-    count = int(request.args['count'])
     team_id = request.args.get('team_id', 0, type=int)
-    #TODO 添加count 没有的逻辑  需要解决不能验证的问题 正则表达式
+    volunteer = request.args.get('volunteer', 0, type=int)
     activity = Activity.query.get_or_404(id)
-    if activity.past:
-        flash('活动已过期，不能报名')
-        return redirect(url_for('.activity', id=activity.id))
-    form = ActivityContactsForm(solutions=activity.solutions.all())
-    if request.method == 'GET':#如果POST回传错误，也会执行继续添加联系人
-        for i in range(count):
-            form.contacts.append_entry()
-    if form.validate_on_submit():
-        contacts = form.contacts.data
+    if volunteer:
+        form = ActivityVolunteerJoinForm(solutions=activity.solutions.all()) #针对志愿者生成单选出行人表单
+    else:
+        form = ActivityContactsForm(solutions=activity.solutions.all())
+    contact_form = ContactForm()
+    if form.submit.data and form.validate():
+        #报名
+        contacts = form.contact_source.data
         sln = form.solution.data
         comment = form.comment.data
-        province = form.province.data
-        join = activity.join_person(contacts, sln, comment, province, team_id)
+        join = activity.sign_up(contacts, sln, comment, team_id, volunteer=volunteer)
         return redirect(url_for('team.activity_confirm', id=join.id))
-    return render_template('activity_contact.html', form=form, count=range(count))
+    if contact_form.add.data and contact_form.validate():
+        #添加出行人
+        contact = Contact(
+            user_id = current_user.id,
+            name = contact_form.real_name.data,
+            identity = contact_form.identity.data,
+            phone = contact_form.phone.data,
+            gender = contact_form.gender.data,
+            province = contact_form.province.data,
+            age = contact_form.age.data
+        )
+        db.session.add(contact)
+        return redirect(url_for('.activity_join',id=id, team_id=team_id, volunteer=volunteer))
+    return render_template('activity_join.html', form=form, contact_form=contact_form)
 
 
+#编辑报名信息
 @team.route('/activity/join/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def activity_join_edit(id):
     join = JoinActivity.query.get_or_404(id)
-    only_user_id(join.user_id)
+    only_user_id(join.user_id) #仅当前用户可访问
     activity = join.activity
     if activity.past:
         flash('活动已结束，不能修改')
         return redirect(url_for('.activity', id=join.activity_id))
-    form = ActivityContactsForm(solutions=activity.solutions.all())
+    form = ActivityVolunteerJoinForm(solutions=activity.solutions.all()) \
+        if join.registration == RegistrationWay.VOLUNTEER else ActivityContactsForm(solutions=activity.solutions.all())
+    contact_form = ContactForm()
     if request.method == 'GET':#如果POST回传错误，也会执行继续添加联系人
-        for i in range(join.count):
-            form.contacts.append_entry()
         form.solution.data = join.solution
         form.comment.data = join.comment
-        form.province.data = join.province
-        for i in range(len(join.contacts.all())):
-            form.contacts[i].real_name.data=join.contacts[i].name
-            form.contacts[i].identity.data = join.contacts[i].identity
-            form.contacts[i].gender.data = join.contacts[i].gender
-            form.contacts[i].age.data = join.contacts[i].age
-            form.contacts[i].phone.data = join.contacts[i].phone
+        form.contact_source.data = join.contacts[0].contact_id \
+            if join.registration == RegistrationWay.VOLUNTEER else [item.contact_id for item in join.contacts]
     if form.validate_on_submit():
-        contacts = form.contacts.data
+        contacts = form.contact_source.data
         sln = form.solution.data
         comment = form.comment.data
-        province = form.province.data
-        if activity.past:
-            flash('活动已过期')
-            return
-        join = activity.join_person_edit(contacts, sln, comment, province, join)
+        join = activity.join_edit(contacts, sln, comment, join)
         flash('修改成功')
         return redirect(url_for('team.activity_confirm', id=join.id))
-    return render_template('activity_contact.html', form=form)
+    return render_template('activity_join.html', form=form, contact_form=contact_form)
 
 
+#修改团队报名信息
+@team.route('/activity/join_team/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def activity_team_join_edit(id):
+    join = TeamJoinActivity.query.get_or_404(id)
+    only_team_admin(join.team, current_user)
+    form = ActivityTeamJoinForm(join.activity.solutions.all())
+    if request.method == 'GET':
+        form.phone.data = join.phone
+        form.price.data = join.team_price
+        form.solution.data = join.solution
+        form.team_content.data = join.team_content
+    if form.validate_on_submit():
+        join.phone = form.phone.data
+        join.team_price = form.price.data
+        join.team_content = form.team_content.data
+        join.solution = form.solution.data
+        db.session.add(join)
+        flash('修改成功')
+        return redirect(url_for('.activity_index_team', id=join.id))
+    return render_template('activity_join_team.html', form=form)
+
+
+#取消团队报名
+@team.route('/activity/join_team/cancel/<int:id>')
+@login_required
+def activity_team_join_cancel(id):
+    join = TeamJoinActivity.query.get_or_404(id)
+    only_team_admin(join.team, current_user)
+    if TeamJoinActivity.get_member_count(join.team_id, join.activity_id):
+        flash('已经有会员报名了该活动，您不能取消该活动')
+        abort(403)
+    db.session.delete(join)
+    flash('取消团队报名')
+    return redirect(url_for('index'))
+
+
+#确认订单
 @team.route('/activity/join_confirm/<int:id>', methods=['GET', 'POST'])
 @login_required
 def activity_confirm(id):
@@ -287,20 +314,16 @@ def activity_confirm(id):
     return render_template('activity_confirm.html', join=join, team=team, qrcode=qrcode)
 
 
+#取消报名
 @team.route('/activity/join/cancel/<int:id>')
 @login_required
 def activity_cancel(id):
     join = JoinActivity.query.get_or_404(id)
-    if join.registration == RegistrationWay.TEAM:
-        #团体报名的取消
-        if TeamJoinActivity.get_member_count(join.team_id, join.activity_id)!=1:
-            flash('已经有会员报名了该活动，所以您不能取消该活动')
-            abort(403)
-        else:
-            #没有活动报名，同时删除TeamJoinActivity类
-            db.session.delete(TeamJoinActivity.get_id(join.team_id, join.activity_id))
-    db.session.delete(join)
-    flash('您已取消参与该活动')
+    if join.state:
+        flash('您已经付款，请联系领队取消活动')
+    else:
+        db.session.delete(join)
+        flash('您已取消参与该活动')
     return redirect(url_for('index'))
 
 
@@ -321,53 +344,40 @@ def activity_join_details(id):
                            contacts=details)
 
 
-@team.route('/activity/join/volunteer/<int:id>', methods=['GET', 'POST'])
-@login_required
-def activity_join_volunteer(id):
-    activity = Activity.query.get_or_404(id)
-    form = ActivityVolunteerJoinForm(activity.solutions.all())
-    if request.method == 'GET':
-        form.real_phone.data = current_user.phone
-    if form.validate_on_submit():
-        join = activity.join_volunteer(form)
-        flash('报名成功')
-        return redirect(url_for('.activity_confirm', id=join.id))
-    return render_template('activity_join_volunteer.html', form=form)
-
-
+#团队报名
 @team.route('/activity/join/team/<int:id>', methods=['GET', 'POST'])
 @login_required
 def activity_join_team(id):
+    #没有团队的会员点入
     if not current_user.is_leader:
         flash('先创建团队，才能在报名的时候选择团队报名哦~')
         return redirect(url_for('team.create_team'))
     activity = Activity.query.get_or_404(id)
     form = ActivityTeamJoinForm(activity.solutions.all())
     if request.method == 'GET':
-        form.real_phone.data = current_user.phone
-        form.team_price.data = activity.price
+        form.phone.data = current_user.phone
+        form.price.data = activity.price
     if form.validate_on_submit():
-        join = activity.join_team(form)
+        team_id = current_user.leader_team.id
+        join = activity.join_team(team_id,
+                                  form.phone.data,
+                                  form.solution.data if form.solution.data else None,
+                                  form.price.data,
+                                  form.team_content.data)
         flash('团队报名成功')
-        return redirect(url_for('.activity_confirm', id=join.id, team=1))
+        return redirect(url_for('.activity_index_team', id=join.id))
     return render_template('activity_join_team.html', form=form)
 
 
-@team.route('/activity/team_join/<int:id>', methods=['GET','POST'])
+#团队报名的活动主页
+@team.route('/activity/team_join/<int:id>', methods=['GET', 'POST'])
 def activity_index_team(id):
-    team_id = request.args.get('team_id', 0, type=int)
-    if not team_id:
-        abort(404)
-    join = TeamJoinActivity.get_item(team_id, id)
-    if not join:
-        abort(404)
-    if request.method == 'POST':
-        count = request.form['count']
-        return redirect(url_for('.activity_join_contact', id=id, count=count, team_id=team_id))
+    join = TeamJoinActivity.query.get_or_404(id)
     return render_template('activity_team_join.html',
                            join=join)
 
 
+#团队报名的活动列表
 @team.route('/activities/team_join/<int:id>')
 def activitys_team_join(id):
     team = Team.query.get_or_404(id)
@@ -376,40 +386,12 @@ def activitys_team_join(id):
                            activities=activities,
                            team=team)
 
-"""
-暂时不用的众筹页面
-"""
-
-@team.route('/crowd_funding/index/<int:id>')
-def crowd_funding_index(id):     #TODO 众筹分享页面
-    join = JoinActivity.query.get_or_404(id)
-    percentage = int(join.crowd_funding_amount / join.price * 100) if int(join.crowd_funding_amount / join.price) < 1 else 100
-    return render_template('crowd_funding_index.html', join=join, percentage=percentage)
-
-
-@login_required
-@team.route('/crowd_funding/support/<int:id>', methods=['GET', 'POST'])
-def crowd_funding_support(id):
-    join = JoinActivity.query.get_or_404(id)
-    form = CrownSupportForm()
-    if form.validate_on_submit():
-        #TODO 付款成功再添加数据记录
-        support = CrowdFunding()
-        support.user_id = current_user.id
-        support.join = join
-        support.text = form.text.data
-        support.money = form.money.data
-        support.join.crowd_funding_number += 1
-        support.join.crowd_funding_amount += support.money
-        db.session.add(support)
-        flash('支持成功，谢谢您的支持')
-        return redirect(url_for('team.crowd_funding_index', id=join.id))
-    return render_template('crowd_funding_support.html', form=form, join=join)
-
 '''
 取得各种活动列表
 '''
 
+
+#团队活动
 @team.route('/activities/team/<int:id>')
 def activities_team(id):
     team = Team.query.get_or_404(id)
@@ -417,6 +399,7 @@ def activities_team(id):
     return render_template('activities_team.html', activities=activities, team=team)
 
 
+#活动搜索
 @team.route('/activites/search', methods=['GET', 'POST'])
 def activities_search():
     form = ActivitySearchForm()
@@ -452,7 +435,7 @@ def activities_search_home():
     return redirect(url_for('.activities_search'))
 
 
-
+#主页活动分类点入的
 @team.route('/activities/search/<int:id>')
 def activities_search_with_outdoor(id):
     if OutdoorType.query.filter_by(id=id).count:
@@ -464,6 +447,38 @@ def activities_search_with_outdoor(id):
         return redirect(url_for('.activities_search'))
     else:
         flash('您选择的活动分类不存在')
+
+
+
+"""
+暂时不用的众筹页面
+"""
+
+@team.route('/crowd_funding/index/<int:id>')
+def crowd_funding_index(id):     #TODO 众筹分享页面
+    join = JoinActivity.query.get_or_404(id)
+    percentage = int(join.crowd_funding_amount / join.price * 100) if int(join.crowd_funding_amount / join.price) < 1 else 100
+    return render_template('crowd_funding_index.html', join=join, percentage=percentage)
+
+
+@login_required
+@team.route('/crowd_funding/support/<int:id>', methods=['GET', 'POST'])
+def crowd_funding_support(id):
+    join = JoinActivity.query.get_or_404(id)
+    form = CrownSupportForm()
+    if form.validate_on_submit():
+        #TODO 付款成功再添加数据记录
+        support = CrowdFunding()
+        support.user_id = current_user.id
+        support.join = join
+        support.text = form.text.data
+        support.money = form.money.data
+        support.join.crowd_funding_number += 1
+        support.join.crowd_funding_amount += support.money
+        db.session.add(support)
+        flash('支持成功，谢谢您的支持')
+        return redirect(url_for('team.crowd_funding_index', id=join.id))
+    return render_template('crowd_funding_support.html', form=form, join=join)
 
 
 

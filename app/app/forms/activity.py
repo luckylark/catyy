@@ -4,12 +4,13 @@ from wtforms import StringField, TextAreaField, RadioField, SubmitField, Validat
 from ..tools.field_widget import MultiCheckboxField
 from wtforms.fields.html5 import DateField, IntegerField, EmailField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms.validators import Length, DataRequired, Email, Regexp, NumberRange
+from wtforms.validators import Length, DataRequired, Email, Regexp, NumberRange, Optional
 from ..extentions import coverPost
 from ..models.outdoorType import OutdoorType
 from ..models.activity import registration_way, volunteer_type, Activity
 from datetime import datetime, date
 from ..models.tools import province
+from flask_login import current_user
 
 
 class CreateActivityForm(Form):
@@ -88,71 +89,59 @@ class ActivitySearchForm(Form):
 """
 
 
-class ActivityJoinForm(Form):
-    count = IntegerField('人数', default=1, validators=[DataRequired('必填项')])
-    phone = StringField('联系电话', [DataRequired('必填项'), Length(min=7, max=18, message='格式不对')])
-    submit = SubmitField('添加出行人详细信息')
-
-
+#常用联系人
 class ContactForm(Form):
-    real_name = StringField('真实姓名', [DataRequired('必填项'), Length(min=2, max=10, message='仅限10字以内')], render_kw={'class': 'form-control'})
-    identity = StringField('身份证号', [DataRequired('必填项'), Length(min=15, max=18, message='身份证格式不对')], render_kw={'class': 'form-control'})
-    phone = StringField('联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')], render_kw={'class': 'form-control'})
-    gender = SelectField('性别', choices=[(0, '男'), (1, '女')], coerce=int, render_kw={'class': 'form-control'})
-    age = IntegerField('年龄', [NumberRange(max=120, message='请输入正确的年龄')], render_kw={'class': 'form-control'})
-
-
-class ActivityContactsForm(Form):
-    solution = SelectField('活动方案', coerce=int, render_kw={'class': 'form-control'})
-    province = SelectField('选择您所在的省份', coerce=int, choices=list(enumerate(province)), render_kw={'class': 'form-control'})
-    comment = TextAreaField('备注（最多可以输入100字）', [Length(max=100, message='仅限100字以内')], render_kw={'class': 'form-control'})
-    contacts = FieldList(FormField(ContactForm), render_kw={'class': 'form-control'})
-    submit = SubmitField('确认出行人信息', render_kw={'class': 'btn btn-success'})
-
-    def __init__(self, solutions, *args, ** kwargs):
-        super(ActivityContactsForm, self).__init__(*args, **kwargs)
-        if solutions:
-            self.solution.choices = [(item.id, item.name) for item in solutions]
-        else:
-            self.solution.choices = [(0, '该活动没有多个活动方案')]
-
-
-class ActivityVolunteerJoinForm(Form):
-    volunteer = SelectField('志愿者类型', coerce=int)
-    solution = SelectField('活动方案', coerce=int)
-    province = SelectField('选择您所在的省份', coerce=int, choices=list(enumerate(province)))
-    real_name = StringField('真实姓名', [DataRequired('必填项'), Length(min=2, max=10, message='仅限10字以内')])
-    identity = StringField('身份证号', [DataRequired('必填项'), Length(min=15, max=18, message='身份证格式不对')])
-    real_phone = StringField('联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')])
+    real_name = StringField('真实姓名', [Optional(), DataRequired('必填项'), Length(min=2, max=10, message='仅限10字以内')])
+    identity = StringField('身份证号', [Optional(), DataRequired('必填项'), Length(min=15, max=18, message='身份证格式不对')])
+    phone = StringField('联系电话', validators=[Optional(), DataRequired('必填项'), Length(1, 15, message='格式不对')])
     gender = SelectField('性别', choices=[(0, '男'), (1, '女')], coerce=int)
-    age = IntegerField('年龄', [NumberRange(max=120, message='请输入正确的年龄')])
+    age = IntegerField('年龄', [Optional(), NumberRange(max=120, message='请输入正确的年龄')])
+    province = SelectField('选择您所在的省份', coerce=int, choices=list(enumerate(province)))
+    add = SubmitField('添加出行人')
+
+
+#活动报名基类表单
+class ActivityJoinBaseForm(Form):
+    solution = SelectField('活动方案', coerce=int, render_kw={'class': 'form-control'})
     comment = TextAreaField('备注（最多可以输入100字）', [Length(max=100, message='仅限100字以内')],
                             render_kw={'class': 'form-control'})
-    submit = SubmitField('报名活动')
+    # contacts = FieldList(FormField(ContactForm), render_kw={'class': 'form-control'})
+    submit = SubmitField('报名', render_kw={'class': 'btn btn-success'})
 
-    def __init__(self, solutions, *args, ** kwargs):
-        super(ActivityVolunteerJoinForm, self).__init__(*args, **kwargs)
+    def __init__(self, solutions, *args, **kwargs):
+        super(ActivityJoinBaseForm, self).__init__(*args, **kwargs)
         if solutions:
             self.solution.choices = [(item.id, item.name) for item in solutions]
         else:
             self.solution.choices = [(0, '该活动没有多个活动方案')]
-        self.volunteer.choices = [(item, volunteer_type[item]) for item in volunteer_type]
 
 
+#个人报名+团队内个人报名表单（队长报名一样）
+class ActivityContactsForm(ActivityJoinBaseForm):
+    contact_source = MultiCheckboxField('常用联系人', [DataRequired('请选择出行人')],  coerce=int)
+
+    def __init__(self, solutions, *args, ** kwargs):
+        super(ActivityContactsForm, self).__init__(solutions, *args, **kwargs)
+        self.contact_source.choices = [(c.id, c.name) for c in current_user.contacts]
+
+
+#志愿者报名表单-只能自己报名
+class ActivityVolunteerJoinForm(ActivityJoinBaseForm):
+    contact_source = RadioField('常用联系人', [DataRequired('请选择出行人')], coerce=int)
+
+    def __init__(self, solutions, *args, ** kwargs):
+        super(ActivityVolunteerJoinForm, self).__init__(solutions, *args, **kwargs)
+        self.contact_source.choices = [(c.id, c.name) for c in current_user.contacts]
+
+
+#团队报名表单
 class ActivityTeamJoinForm(Form):
-    real_phone = StringField('确认联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')])
+    phone = StringField('确认联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')])
     solution = SelectField('活动方案', coerce=int)
-    team_price = IntegerField('团队报名的活动价格（包含路费等其他资费，价格可能和活动价格不一致）',[DataRequired('必填项')],
+    price = IntegerField('团队报名的活动价格（包含路费等其他资费，价格可能和活动价格不一致）',[DataRequired('必填项')],
                               render_kw={'placeholder': '如果您的价格比原活动价格低，系统会使用原活动价格'})
     team_content = TextAreaField('队长有话说（最多可以输入500字）',
                                  [Length(max=500, message='仅限500字以内')])
-    province = SelectField('选择您所在的省份', coerce=int, choices=list(enumerate(province)))
-    real_name = StringField('真实姓名', [DataRequired('必填项'), Length(min=2, max=10, message='仅限10字以内')])
-    identity = StringField('身份证号', [DataRequired('必填项'), Length(min=15, max=18, message='身份证格式不对')])
-    gender = SelectField('性别', choices=[(0, '男'), (1, '女')], coerce=int)
-    age = IntegerField('年龄', [NumberRange(max=120, message='请输入正确的年龄')])
-    comment = TextAreaField('备注（最多可以输入100字）', [Length(max=100, message='仅限100字以内')],
-                            render_kw={'class': 'form-control'})
     submit = SubmitField('团队报名')
 
     def __init__(self, solutions, *args, ** kwargs):

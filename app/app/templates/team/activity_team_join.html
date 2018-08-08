@@ -51,19 +51,24 @@
                                 {% if join.activity.full %}
                                     <a href="#" class="btn btn-default">参与人数已达上限，不能报名了哦</a>
                                 {% else %}
-                                    <span>出行人数：</span>
-                                    <form action="" method="post">
-                                        <input type="number" name="count"/>
-                                        <button type="submit">报名</button>
-                                    </form>
+                                    <a href="{{ url_for('team.activity_join', id=join.activity.id, team_id=join.team_id) }}" class="btn btn-success">
+                                        个人报名</a>
                                  {% endif %}
+                            {% endif %}
+                            {% if current_user.is_authenticated and join.team.is_admin(current_user) %}
+                                <a href="{{ url_for('team.activity_join_details', id= join.activity_id, team_id=join.team_id) }}"
+                                   class="btn btn-default">查看报名情况</a>
+                                <a href="{{ url_for('team.activity_team_join_edit', id= join.id) }}"
+                                   class="btn btn-default">修改报名信息</a>
+                                <a href="{{ url_for('team.activity_team_join_cancel', id= join.id) }}"
+                                   class="btn btn-default">取消团队报名</a>
                             {% endif %}
                         </div>
         </div>
 
     </div>
     {# 右侧活动详情#}
-    <div class="col-sm-7">
+    <div class="col-sm-7 card-shadow card-shadow-text">
         <h1><a href="{{ url_for('team.activity',id=join.activity.id) }}">{{ join.activity.name }}</a> </h1>
         <div class="post" >{{ join.activity.introduce | safe }}</div>
         {% if solutions %}

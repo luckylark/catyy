@@ -12,6 +12,32 @@ from .models.user import User
 from .extentions import db
 from random import seed, randint, sample
 from sqlalchemy.exc import IntegrityError
+from flask import flash
+
+
+def move_contact():
+    from .models.activity import ActivityContact, JoinActivity
+    from .models.user import Contact
+    ac_list = ActivityContact.query.all()
+    for ac in ac_list:
+        #创建联系人
+        if ac.join_id:  #不知道为什么，存在join_id为空的
+            join = JoinActivity.query.get_or_404(ac.join_id)
+            user_id = join.user_id
+            contact = Contact(
+                user_id=user_id,
+                name = ac.name,
+                identity = ac.identity,
+                phone = ac.phone,
+                gender = ac.gender,
+                age = ac.age,
+            )
+            db.session.add(contact)
+            db.session.commit()
+            #更新原始联系人信息
+            ac.contact_id = contact.id
+            db.session.add(ac)
+            db.session.commit()
 
 
 def clear_test_user():

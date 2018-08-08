@@ -36,40 +36,47 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="left">
                         <span class="post-text">强度</span>
                         {{ macros.render_star(activity.intensity_index) }}
                     </div>
-                    <div class="col-sm-6">
+                    <div class="right">
                         <span class="post-text">风景</span>
                         {{ macros.render_star(activity.landscape_index) }}
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="left">
                         <span class="post-text">集合地：</span>{{ activity.rally_site }}
                     </div>
-                    <div class="col-sm-6">
+                    <div class="right">
                         <span class="post-text">目的地：</span>{{ activity.destination }}
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="left">
                         <div><span class="post-text">开始日期：</span>{{ moment(activity.start_date).format('L') }}</div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="right">
                         <div><span class="post-text">结束日期：</span>{{ moment(activity.end_date).format('L') }}</div>
                     </div>
                 </div>
-                <div>
+
+                <div class="row">
+                    <div class="left">
+                        <span class="price">
+                    {{ activity.price }}</span>
+                    </div>
+                    <div class="right">
                       <img src="{{ url_for('static', filename='images/icons/phone.png') }}" title="咨询电话"/>
                       <span>{{ activity.phone }}</span>
+                     </div>
                 </div>
 
                 <div class="post-text">
-                    <div><span class="label label-default">参与人数：{{ activity.paid_member_count }}</span> /
+                    <div><span class="label label-default">参与人数：{{ activity.member_count }}</span> /
                     <span class="label label-default">报名上限：{% if activity.maximum %}{{ activity.maximum }}
                 {% else %}不限人数{% endif %}</span></div>
                      {% if not activity.is_following(current_user) %}
@@ -82,39 +89,52 @@
 
                  </div>
                 </div>
-            <div class="card-shadow card-shadow-text signup">
-                        <div class="post-btn">
-                        {# 分享 #}
-                        {{ tools.render_share(activity) }}
-                            <span class="price">
-                            {{ activity.price }}</span>
+            {# ---------报名-------- #}
+
                             {% if activity.past %}
+                            <div class="card-shadow card-shadow-text signup">
                                 <a href="#" class="btn btn-default disabled">活动已结束</a>
+                            </div>
                             {% elif activity.joined(current_user) %}
+                                <div class="card-shadow card-shadow-text signup">
                                 {% if activity.paid(current_user) %}
                                     <a href="#" class="btn btn-default disabled">您已报名</a>
                                  {% else %}
                                     <a href="{{ url_for('team.activity_confirm', id=activity.unpaid_id) }}" class="btn btn-success">您已报名,去付款</a>
                                  {% endif %}
+                                </div>
                             {% else %}
                                 {% if activity.full %}
-                                    <a href="#" class="btn btn-default">参与人数已达上限，不能报名了哦</a>
+                                    <div class="card-shadow card-shadow-text signup">
+                                        <a href="#" class="btn btn-default">参与人数已达上限，不能报名了哦</a>
+                                    </div>
                                 {% else %}
+                                    {# 报名 #}
+                                    <div class="card-shadow card-shadow-text signup">
                                     {% if activity.register(Registration_Way.PERSION)  %}
-                                        <a href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-warning">个人报名</a>
+                                        <a id="person_join" href="{{ url_for('team.activity_join', id=activity.id) }}" class="btn btn-warning">个人报名</a>
                                     {% endif %}
                                     {% if activity.register(Registration_Way.TEAM) %}
                                         <a href="#team_join" class="btn btn-info" data-toggle="modal" data-target="#team_join">
                                             团队报名</a>
                                     {% endif %}
+                                    </div>
+
                                     {% if activity.register(Registration_Way.VOLUNTEER)  %}
-                                        <a href="{{ url_for('team.activity_join_volunteer', id= activity.id) }}" class="btn btn-success">志愿者报名</a>
+                                        <div class="card-shadow card-shadow-text signup">
+                                        <span class="highlight">选择志愿者类型：</span>
+                                        <select name="volunteer_type" id="volunteer_type" class="form-control inline-input">
+                                            {% for k in VolunteerType %}
+                                                <option value="{{ k }}">{{ VolunteerType[k] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <a id="volunteer_join" href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-success">志愿者报名</a>
+                                        </div>
                                     {% endif %}
+                                    </div>
                                  {% endif %}
                             {% endif %}
-                        </div>
 
-                </div>
             {% if not activity.past and activity.team.is_admin(current_user) %}
             <div class="well">
                     <h4>管理活动</h4>
@@ -178,7 +198,9 @@
 </div>
 </div>
 
-    <!-- 模态框（Modal） -->
+    {# 模态分享 #}
+    {{ tools.render_share(activity) }}
+    <!-- 团队报名的模态框（Modal） -->
     <div class="modal fade" id="team_join" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -196,4 +218,16 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
+
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+    <script>
+        $(function(){
+        $("#volunteer_join").click(function(event){
+            var volunteer = $("#volunteer_type").val();
+            $("#volunteer_join").attr("href",$("#volunteer_join").attr("href") +"?volunteer="+volunteer);
+        });
+    });
+    </script>
 {% endblock %}

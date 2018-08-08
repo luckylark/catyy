@@ -8,16 +8,6 @@
         <div class="page-header">
         <h3>确认出行信息</h3>
     </div>
-    {# 团队报名 #}
-    {% if team %}
-        <div class="well">
-            <p>活动已挂到您的团队首页，点击<a href="{{ url_for('team.activity_index_team',id=join.activity_id,team_id=join.team_id) }}">
-                这里</a>查看您自己的活动首页 </p>
-            <p>下图是属于您的活动图片，保存并分享图片，朋友可以通过识别二维码进入活动</p>
-            <img src="{{ url_for('static',filename= 'images/qrcode/'+ qrcode) }}" class="img-responsive"/>
-        </div>
-    {% endif %}
-
 
     <div class="panel panel-primary">
         <div class="panel-heading">
@@ -59,19 +49,15 @@
                 {{ join.user.username }}
             </li>
             <li class="list-group-item">
-                <span class="highlight">省份</span>
-                {{ Province[join.province] }}
-            </li>
-            <li class="list-group-item">
                 <span class="highlight">备注</span>
                 {{ join.comment }}
             </li>
             <li class="list-group-item">
                 <span class="highlight">出行人信息(出于个人信息安全考虑，私密信息已在服务器做脱敏处理)</span>
             </li>
-            {% for contact in join.contacts %}
+            {% for c in join.contacts %}
                 <li class="list-group-item">
-                {{ contact.name }}-{{ contact.identity_show }}-{{ contact.age }}-{{ contact.phone_show }}
+                {{ c.contact.name }}-{{ c.contact.identity_show }}-{{ c.contact.age }}-{{ c.contact.phone }}-{{ c.contact.province_show }}
                 </li>
             {% endfor %}
             {% if not join.state %}

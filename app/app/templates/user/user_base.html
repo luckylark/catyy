@@ -59,14 +59,12 @@
 
             {% endblock %}
         </div>
+        {# 右侧栏 #}
         <div class="col-sm-3">
-            {# 团队活动列表组 #}
-         <ul class="list-group">
-            {% if user.leader_team %}
-            <li class="list-group-item">
-            <h3>我的俱乐部</h3>
+        {% if user.leader_team %}
+        <h3 class="no-padding-top">我的俱乐部</h3>
                 {% if user.leader_team.available %}
-                    {{ team_macros.render_team_vertical(user.leader_team) }}
+                    {{ team_macros.render_team_details_cube(user.leader_team) }}
                 {% elif user.leader_team.disabled %}
                     <p>您的俱乐部已被封号，请和管理员联系</p>
                 {% elif user.leader_team.unapproved_cause %}
@@ -75,9 +73,21 @@
                         请点击<a href="{{ url_for('team.modify_team',id=user.leader_team.id) }}">
                             这里</a>修改俱乐部申请信息 </p>
                  {% endif %}
-
+         {% endif %}
+        {# 管理块 #}
+        {% if current_user == user %}
+        <div class="list-group">
+            <a class="list-group-item active" href="#">个人设置</a>
+            <a class="list-group-item" href="{{ url_for('user.modify_avatar') }}" >修改头像</a>
+            <a class="list-group-item" href="{{ url_for('user.edit_profile') }}">编辑个人资料</a>
+            <a class="list-group-item" href="{{ url_for('auth.change_password') }}">修改密码</a>
+        </div>
+        {% endif %}
+            {# 团队活动列表组 #}
+         <ul class="list-group">
+            <li class="list-group-item active">
+                团队与活动</a>
             </li>
-            {% endif %}
             <li class="list-group-item">
                 <a href="{{ url_for('user.profile_details', id=user.id) }}">个人资料</a>
             </li>
@@ -105,15 +115,7 @@
 
          </ul>
 
-        {# 管理块 #}
-        {% if current_user == user %}
-        <div class="list-group top-space">
-            <a class="list-group-item active" href="#">个人设置</a>
-            <a class="list-group-item" href="{{ url_for('user.modify_avatar') }}" >修改头像</a>
-            <a class="list-group-item" href="{{ url_for('user.edit_profile') }}">编辑个人资料</a>
-            <a class="list-group-item" href="{{ url_for('auth.change_password') }}">修改密码</a>
-        </div>
-        {% endif %}
+
         </div>
     </div>
 
