@@ -67,4 +67,12 @@ def move_contact():
     return redirect(url_for('admin.index'))
 
 
+@admin.route('/show_contact')
+@admin_required
+def show_contact():
+    from ..models.user import Contact
+    contacts = Contact.query.all()
+    return render_template('show_contact.html', contacts=contacts)
+
+
 
