@@ -14,6 +14,7 @@
 {% block page_content %}
     <div class="row">
     <div class="col-sm-offset-1 col-sm-10">
+
         <div class="activity">
         <h1 class="activity-title">{{ activity.name }}</h1>
 
@@ -131,7 +132,6 @@
                                         <a id="volunteer_join" href="{{ url_for('team.activity_join', id= activity.id) }}" class="btn btn-success">志愿者报名</a>
                                         </div>
                                     {% endif %}
-                                    </div>
                                  {% endif %}
                             {% endif %}
 
@@ -194,7 +194,6 @@
             </div>
         </div>
 
-</div>
 </div>
 </div>
 
