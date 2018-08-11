@@ -114,3 +114,12 @@ def un_top(id):
         db.session.add(activity)
         flash('取消置顶成功')
     return redirect(url_for('.activities'))
+
+
+@admin.route('/activity/delete<int:id>')
+@admin_required
+def delete_activity(id):
+    activity = Activity.query.get_or_404(id)
+    db.session.delete(activity)
+    flash('活动删除成功')
+    return redirect(url_for('.activities'))

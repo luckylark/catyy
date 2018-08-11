@@ -66,8 +66,8 @@ alipay = AliPay(
     appid='2018080360933015',
     app_notify_url=None,  # 默认回调url
     sign_type="RSA2",
-    alipay_public_key_path=os.path.join('home', 'deploy', 'alipay_public_key'),
-    app_private_key_path=os.path.join('home', 'deploy', 'app_secret_key'),
+    alipay_public_key_path=r'/home/deploy/alipay_public_key',
+    app_private_key_path=r'/home/deploy/app_secret_key',
     debug=False
 )
 
