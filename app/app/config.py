@@ -17,6 +17,10 @@ class Config:
     PAGECOUNT_POST = 20
     PAGECOUNT_COMMON = 20
 
+    #pay
+    APP_ID = '2016091800540443'
+    ALIPAY_URL = 'https://openapi.alipay.com/gateway.do'
+
     @staticmethod
     def init_app(app):
         pass

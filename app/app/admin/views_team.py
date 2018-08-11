@@ -7,6 +7,7 @@ from ..extentions import commonImage, db
 from ..tools.string_tools import get_md5_filename
 from ..decorators import admin_required
 from ..models.team import Team
+from ..models.activity import Activity
 from ..forms.admin import ApproveTeamForm
 
 
@@ -15,7 +16,6 @@ from ..forms.admin import ApproveTeamForm
 """
 
 
-@login_required
 @admin.route('/team/<int:id>', methods=['GET', 'POST'])
 @admin_required
 def team(id):
@@ -35,7 +35,6 @@ def team(id):
 """
 
 
-@login_required
 @admin.route('/teams_unapproved')
 @admin_required
 def unapprove_team_list():
@@ -43,7 +42,6 @@ def unapprove_team_list():
     return render_template('team_approve.html', teams=teams)
 
 
-@login_required
 @admin.route('/team_approve/<int:id>')
 @admin_required
 def approve_team(id):
@@ -57,7 +55,6 @@ def approve_team(id):
 """
 
 
-@login_required
 @admin.route('/team_lock/<int:id>')
 @admin_required
 def lock_team(id):
@@ -67,7 +64,6 @@ def lock_team(id):
     return redirect(url_for('.locked_team_list'))
 
 
-@login_required
 @admin.route('/team_unlock/<int:id>')
 @admin_required
 def unlock_team(id):
@@ -77,9 +73,44 @@ def unlock_team(id):
     return redirect(url_for('.locked_team_list'))
 
 
-@login_required
 @admin.route('/teams_locked')
 @admin_required
 def locked_team_list():
     teams = Team.get_teams_disabled()
     return render_template('team_disable.html', teams=teams)
+
+"""
+置顶活动
+"""
+
+
+@admin.route('/activities')
+@admin_required
+def activities():
+    page = request.args.get('page', 1, type=int)
+    pagination = Activity.get_activities(page)
+    return render_template('top_activities.html',
+                           pagination=pagination,
+                           activities=pagination.items)
+
+
+@admin.route('/activity/top<int:id>')
+@admin_required
+def top(id):
+    activity = Activity.query.get_or_404(id)
+    if not activity.top:
+        activity.top = True
+        db.session.add(activity)
+        flash('置顶成功')
+    return redirect(url_for('.activities'))
+
+
+@admin.route('/activity/un_top<int:id>')
+@admin_required
+def un_top(id):
+    activity = Activity.query.get_or_404(id)
+    if activity.top:
+        activity.top = False
+        db.session.add(activity)
+        flash('取消置顶成功')
+    return redirect(url_for('.activities'))

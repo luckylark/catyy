@@ -98,6 +98,7 @@ class Activity(db.Model):
     view_count = db.Column(db.Integer, default=0)
     registration = db.Column(db.SmallInteger, default=1) #默认仅接受个人报名
     qrcode = db.Column(db.String(128)) #二维码
+    team_join_info = db.Column(db.Text)
     #admin-property
     top = db.Column(db.Boolean, default=False) #全站置顶
     top_team = db.Column(db.Boolean, default=False) #团内内置顶
@@ -112,6 +113,14 @@ class Activity(db.Model):
             self.qrcode = img
             db.session.add(self)
         return qrcode_url_string(self.qrcode)
+
+    # 重新生成二维码
+    def gene_qrcode(self):
+        if self.cover:
+            img = qrcode_cover(url_for('team.activity', id=self.id, _external=True), coverPost.path(self.cover))
+        else:
+            img = qrcode_cover(url_for('team.activity', id=self.id, _external=True), coverPost.path('default.jpg'))
+        return img
 
     # --------------------------活动类型---------------------------
     types = db.relationship('OutdoorType', secondary=activity_types, backref=db.backref('activities', lazy='dynamic'))
@@ -151,10 +160,17 @@ class Activity(db.Model):
             return self.paid_member_count >= self.maximum
         return False
 
-    #------------------获取各种活动集合--------------------------
+    # ------------------获取各种活动集合--------------------------
+
     @staticmethod
-    def get_activities_latest(count=4):
-        return Activity.query.order_by(Activity.timestamp.desc()).limit(count).all()
+    def get_activities_home_panel():
+        outdoor = OutdoorType.query.filter_by(name='南太行').first()
+        return outdoor.activities.order_by(Activity.timestamp.desc()).limit(4).all()
+
+    @staticmethod
+    def get_activities_home():
+        # TODO 过期的不要
+        return Activity.query.filter_by(top=True).order_by(Activity.timestamp.desc()).limit(5).all()
 
     @staticmethod
     def get_activities_search(keyword, outdoor, days, sort, page=1):
@@ -188,7 +204,14 @@ class Activity(db.Model):
                 activities = activities.order_by(Activity.timestamp.desc())
         return activities.paginate(page, current_app.config['PAGECOUNT_ACTIVITY'], error_out=False)
 
-    #-----------------关注收藏-----------------
+
+    @staticmethod
+    def get_activities(page=1):
+        pagination = Activity.query.order_by(Activity.timestamp.desc()).paginate(page,
+                        current_app.config['PAGECOUNT_ACTIVITY'], error_out=False)
+        return pagination
+
+    # -----------------关注收藏-----------------
     followers = db.relationship('FollowActivity', lazy='dynamic', backref=db.backref('activity', lazy='joined'),
                                 cascade='all, delete-orphan')
 
@@ -235,7 +258,7 @@ class Activity(db.Model):
     def paid(self, user):
         if user.is_anonymous:
             return False
-        return self.joins.filter(and_(JoinActivity.state==True, JoinActivity.user_id==user.id)).count()
+        return JoinActivity.query.filter(JoinActivity.state==True, JoinActivity.user_id==user.id).count()
 
     @property
     def unpaid_id(self, user=current_user):
@@ -251,7 +274,7 @@ class Activity(db.Model):
     def users_joined_paid(self):
         return [join.user for join in self.joins.filter_by(state=1).all()]  # 仅筛选付费用户
 
-    #个人报名
+    # 个人报名
     def sign_up(self, contacts, sln, comment, team_id, volunteer):
         from .team import TeamJoinActivity, Team
         count = len(contacts) if isinstance(contacts, list) else 1  # 报名人数-志愿者
@@ -274,6 +297,7 @@ class Activity(db.Model):
         join_info.comment = comment
         join_info.state = False
         join_info.solution = sln if sln else None
+        join_info.trade_no = datetime.now().strftime('%Y%m%d%H%M%S') + str(current_user.id)
         db.session.add(join_info)
         db.session.commit()
         # --创建出行人信息--这里仅接收contactID
@@ -300,7 +324,7 @@ class Activity(db.Model):
         db.session.commit()
         return join_info
 
-    #编辑
+    # 编辑
     def join_edit(self, contacts, sln, comment, join_info):
         from .team import TeamJoinActivity, Team
         count = len(contacts) if isinstance(contacts, list) else 1  # 报名人数-志愿者
@@ -326,28 +350,27 @@ class Activity(db.Model):
         db.session.commit()
         return join_info
 
-
-    #团队报名-不带个人信息，不加入JoinActivity表
+    # 团队报名-不带个人信息，不加入JoinActivity表
     def join_team(self, team_id, phone, sln, price, team_content):
         from .team import TeamJoinActivity
-        #生成二维码
-        if self.cover:
-            qrcode = qrcode_cover(url_for('team.activity_index_team', id=self.id, team_id=team_id, _external=True),
-                                  coverPost.path(self.cover))
-        else:
-            qrcode = qrcode_cover(url_for('team.activity_index_team', id=self.id, team_id=team_id, _external=True),
-                                  coverPost.path('default.jpg'))
         join = TeamJoinActivity(activity_id=self.id,
                                 team_id = team_id,
                                 team_content= team_content,
                                 team_price = max(price, self.price),
                                 phone = phone,
-                                qrcode=qrcode,
                                 solution = sln)
         db.session.add(join)
         db.session.commit()
+        # 生成二维码
+        if self.cover:
+            qrcode = qrcode_cover(url_for('team.activity_index_team', id=join.id, _external=True),
+                                  coverPost.path(self.cover))
+        else:
+            qrcode = qrcode_cover(url_for('team.activity_index_team', id=join.id, _external=True),
+                                  coverPost.path('default.jpg'))
+        join.qrcode = qrcode
+        db.session.add(join)
         return join
-
 
     def get_team_content(self, team_id):
         from .team import TeamJoinActivity
@@ -355,8 +378,8 @@ class Activity(db.Model):
                          ).filter(TeamJoinActivity.team_id==team_id,TeamJoinActivity.activity_id==self.id).scalar()
         return l[0]
 
-    #获取所有报名信息
-    #TODO 分页----这个分页比较难做
+    # 获取所有报名信息
+    # TODO 分页----这个分页比较难做
     @staticmethod
     def get_registration_details(activity_id, team_id=0):
         from .user import User
@@ -394,13 +417,13 @@ class Activity(db.Model):
             details.append(info)
         return details
 
-    #------------------咨询-----------------
+    # ------------------咨询-----------------
     counsel = db.relationship('ActivityQuestion', lazy='dynamic', backref=db.backref('activity', lazy='joined'))
 
     @property
     def counsel_reverse(self):
         return self.counsel.order_by('activity_questions.timestamp desc').all()
-    #TODO  分页
+    # TODO  分页
 
 
 class ActivitySolution(db.Model):
@@ -448,6 +471,8 @@ class JoinActivity(db.Model):
     count = db.Column(db.Integer, nullable=False) #订单几人
     price = db.Column(db.Integer) #订单总价钱
     state = db.Column(db.Boolean, default=False) #0-未付款 1-已付款
+    trade_no = db.Column(db.String(40)) # 订单账号
+    alipay_no = db.Column(db.String(40)) # 支付宝返回流水号
     registration = db.Column(db.SmallInteger) #报名的三种类型
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id')) #团队报名
     solution = db.Column(db.SmallInteger)
@@ -463,6 +488,10 @@ class JoinActivity(db.Model):
     supports = db.relationship('CrowdFunding', lazy='dynamic', backref=db.backref('join', lazy='joined'))  # queryd对象
     #---出行人---relationship--
     contacts = db.relationship('ActivityContact', lazy='dynamic', backref=db.backref('join', lazy='joined'))
+
+    @staticmethod
+    def get_trade_price(trade_no):
+        return db.session.query(JoinActivity.price).filter(JoinActivity.trade_no == trade_no).scalar()
 
     @property
     def solution_obj(self):

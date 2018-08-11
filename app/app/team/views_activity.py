@@ -55,6 +55,7 @@ def fill_activity(activity, form, new=False, club=None):
     activity.registration = sum(form.registration_way.data)  # 注册方式直接求和
     activity.types = [OutdoorType.query.get(item) for item in form.travel_type.data]
     activity.introduce = trans_html(form.introduce.data)
+    activity.team_join_info = form.team_letter.data
     cover = form.cover.data
     if cover:
         filename = get_rnd_filename_w_ext(cover.filename)
@@ -74,6 +75,8 @@ def create_activity(id):
         activity = Activity()
         activity = fill_activity(activity, form, True, group)
         db.session.add(activity)
+        group.add_vitality(5)  # 添加活跃度
+        db.session.add(group)
         db.session.commit()
         flash('活动发布成功，您可以选择添加多个活动方案')
         return redirect(url_for('.activity_add_sln', id = activity.id))
@@ -196,7 +199,7 @@ def activities_follow(id=0):
 """
 
 
-#个人志愿者团队成员报名
+# 个人/志愿者/团队成员报名
 @team.route('/activity/join/<int:id>', methods=['GET', 'POST'])
 @login_required
 def activity_join(id):
@@ -365,6 +368,10 @@ def activity_join_team(id):
                                   form.price.data,
                                   form.team_content.data)
         flash('团队报名成功')
+        if activity.team_join_info:
+            return render_template('team_letter.html',
+                                   content=activity.team_join_info,
+                                   id=join.id)
         return redirect(url_for('.activity_index_team', id=join.id))
     return render_template('activity_join_team.html', form=form)
 
@@ -375,6 +382,15 @@ def activity_index_team(id):
     join = TeamJoinActivity.query.get_or_404(id)
     return render_template('activity_team_join.html',
                            join=join)
+
+
+@team.route('/activity/gene_qrcode/<int:id>')
+def gene_qrcode(id):
+    activity = Activity.query.get_or_404(id)
+    activity.qrcode = activity.gene_qrcode()
+    db.session.add(activity)
+    flash('已重新生成二维码，请查看')
+    return redirect(url_for('.activity', id=activity.id))
 
 
 #团队报名的活动列表

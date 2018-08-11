@@ -34,6 +34,7 @@ class CreateActivityForm(Form):
                                    validators=[DataRequired('必填字段'), NumberRange(min=1, max=5, message='数字只能在1-5之间')])
     introduce = TextAreaField('活动介绍(上传图片请先压缩到1M以下大小）', [DataRequired('必填字段')])
     registration_way = MultiCheckboxField('报名方式', [DataRequired('必填项')], coerce=int)
+    team_letter = TextAreaField('如果含团队报名，可以在这里输入只有团队领队可以看到的话')
     submit = SubmitField('发布活动')
 
     def __init__(self,activity=None, *args, **kwargs):
@@ -89,7 +90,7 @@ class ActivitySearchForm(Form):
 """
 
 
-#常用联系人
+# 常用联系人
 class ContactForm(Form):
     real_name = StringField('真实姓名', [Optional(), DataRequired('必填项'), Length(min=2, max=10, message='仅限10字以内')])
     identity = StringField('身份证号', [Optional(), DataRequired('必填项'), Length(min=15, max=18, message='身份证格式不对')])
@@ -100,7 +101,7 @@ class ContactForm(Form):
     add = SubmitField('添加出行人')
 
 
-#活动报名基类表单
+# 活动报名基类表单
 class ActivityJoinBaseForm(Form):
     solution = SelectField('活动方案', coerce=int, render_kw={'class': 'form-control'})
     comment = TextAreaField('备注（最多可以输入100字）', [Length(max=100, message='仅限100字以内')],
@@ -116,7 +117,7 @@ class ActivityJoinBaseForm(Form):
             self.solution.choices = [(0, '该活动没有多个活动方案')]
 
 
-#个人报名+团队内个人报名表单（队长报名一样）
+# 个人报名+团队内个人报名表单（队长报名一样）
 class ActivityContactsForm(ActivityJoinBaseForm):
     contact_source = MultiCheckboxField('常用联系人', [DataRequired('请选择出行人')],  coerce=int)
 
@@ -125,7 +126,7 @@ class ActivityContactsForm(ActivityJoinBaseForm):
         self.contact_source.choices = [(c.id, c.name) for c in current_user.contacts]
 
 
-#志愿者报名表单-只能自己报名
+# 志愿者报名表单-只能自己报名
 class ActivityVolunteerJoinForm(ActivityJoinBaseForm):
     contact_source = RadioField('常用联系人', [DataRequired('请选择出行人')], coerce=int)
 
@@ -134,7 +135,7 @@ class ActivityVolunteerJoinForm(ActivityJoinBaseForm):
         self.contact_source.choices = [(c.id, c.name) for c in current_user.contacts]
 
 
-#团队报名表单
+# 团队报名表单
 class ActivityTeamJoinForm(Form):
     phone = StringField('确认联系电话', validators=[DataRequired('必填项'), Length(1, 15, message='格式不对')])
     solution = SelectField('活动方案', coerce=int)

@@ -15,6 +15,8 @@
             <div class="info-box">
                 <h3>添加出行人</h3>
             <p class="highlight">在联系人列表中勾选要出行的出行人，如果此次出行人不在列表中，可以点击添加出行人添加。</p>
+            <p>如果你需要编辑出行人，请先<a href="{{ url_for('user.modify_contacts') }}">点击这里编辑联系人</a>
+            您也可以在您个人主页选择编辑常用出行人信息</p>
             <div class="form-group">
                 {{ form.contact_source.label }}
                 {{ form.contact_source() }}
@@ -53,39 +55,4 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
-            {# { for contact_form in form.contacts %}
-                <h3>添加第{{ loop.index }}位出行人信息</h3>
-                {{ contact_form.hidden_tag() }}
-                <div class="form-group">
-                    {{ contact_form.real_name.label }}
-                    {{ contact_form.real_name() }}
-                    {{ form_tools.render_error(contact_form.real_name.errors) }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.identity.label }}
-                    {{ contact_form.identity() }}
-                    {{ form_tools.render_error(contact_form.identity.errors) }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.gender.label }}
-                    {{ contact_form.gender() }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.age.label }}
-                    {{ contact_form.age() }}
-                    {{ form_tools.render_error(contact_form.age.errors) }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.phone.label }}
-                    {{ contact_form.phone() }}
-                    {{ form_tools.render_error(contact_form.phone.errors) }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.province.label }}
-                    {{ contact_form.province() }}
-                </div>
-                 <div class="separator"> </div>
-            {% endfor %}
-         #}
-
 {% endblock %}

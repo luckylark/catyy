@@ -23,7 +23,7 @@ def index():
 @admin_required
 def demands():
     page = request.args.get('page', 1, type=int)
-    pagination  = Demand.get_pager(page)
+    pagination = Demand.get_pager(page)
     return render_template('demands.html', pagination=pagination, demands=pagination.items)
 
 
@@ -35,6 +35,16 @@ def users():
     return render_template('admin_users.html', pagination=pagination, users=pagination.items)
 
 
+@admin.route('/team_vitality')
+@admin_required
+def team_vitality():
+    Team.query.update({Team.vitality : 1})
+    flash(Team.query.first().vitality)
+    return render_template('admin_index.html')
+
+
+"""
+已经不用的辅助功能
 @admin.route('/clear-test')
 @admin_required
 def clear_test_user():
@@ -65,7 +75,7 @@ def move_contact():
     from ..forgery import move_contact
     move_contact()
     return redirect(url_for('admin.index'))
-
+"""
 
 @admin.route('/show_contact')
 @admin_required

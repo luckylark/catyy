@@ -8,9 +8,10 @@ from datetime import datetime
 from .outdoorType import team_types
 from .activity import Activity
 from .outdoorType import OutdoorType
-from flask import current_app
+from flask import current_app, url_for
 from sqlalchemy.sql.expression import and_
 from ..tools.photo import qrcode_url_string, qrcode_cover
+from ..extentions import coverPost
 
 
 """
@@ -40,6 +41,7 @@ class Team(db.Model):
     classify = db.Column(db.SmallInteger, default=0)  # 团队分类
     phone = db.Column(db.String(15))  # 团队必须有联系方式
     phone_show = db.Column(db.Boolean, default=True) #联系电话是否显示在首页
+    vitality = db.Column(db.Integer, default=0)  # 活跃度
 
     #property:admin
     approved = db.Column(db.Boolean, default=False) #首次申请俱乐部 需要审批
@@ -86,6 +88,9 @@ class Team(db.Model):
         return self.approved and (not self.disabled)
 
     #----------admin--------
+    def add_vitality(self, vitality=1):
+        self.vitality += vitality
+
     def approve(self):
         self.approved = True
         db.session.add(self)
@@ -146,6 +151,7 @@ class Team(db.Model):
     def join(self, user, is_admin=False):
         if not self.is_member(user):
             relation = TeamUser(team=self, user=user, is_admin=is_admin)
+            self.add_vitality()
             db.session.add(relation)
 
     @staticmethod
@@ -303,6 +309,13 @@ class TeamJoinActivity(db.Model):
     @staticmethod
     def get_qrcode(team_id, activity_id):
         return db.session.query(TeamJoinActivity.qrcode).filter(TeamJoinActivity.team_id==team_id, TeamJoinActivity.activity_id==activity_id).scalar()
+
+    def gene_qrcode(self):
+        if self.cover:
+            img = qrcode_cover(url_for('team.activity_index_team', id=self.id, _external=True), coverPost.path(self.cover))
+        else:
+            img = qrcode_cover(url_for('team.activity_index_team', id=self.id, _external=True), coverPost.path('default.jpg'))
+        return img
 
 
 

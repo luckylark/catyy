@@ -54,6 +54,8 @@ def create_app(config_name):
     app.register_blueprint(admin)
     from .team import team
     app.register_blueprint(team)
+    from .pay import pay
+    app.register_blueprint(pay)
 
     @app.context_processor
     def inject_vars():
@@ -66,9 +68,9 @@ def create_app(config_name):
     def index():
         from .models.activity import Activity
         from .models.outdoorType import OutdoorType
-        carousel_items = Activity.query.order_by(Activity.timestamp.desc()).limit(5).all()
+        carousel_items = Activity.get_activities_home()
         collection = OutdoorType.show_list()
-        activities = Activity.get_activities_latest()
+        activities = Activity.get_activities_home_panel()
         from .models.team import Team
         teams = Team.query.limit(10).all()
         return render_template('home.html',
@@ -151,4 +153,4 @@ def create_app(config_name):
     def internal_server_error(e):
         return render_template('413.html'), 413
 
-    return  app
+    return app

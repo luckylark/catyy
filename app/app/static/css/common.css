@@ -289,3 +289,14 @@ form {
 .invest h1 {
     text-align: center;
 }
+/*          成功失败------------------*/
+.success, .fail {
+    height: 64px;
+    background: url(../images/icons/success.png) no-repeat left;
+    font-size: 30px;
+    vertical-align: middle;
+    padding-left: 70px;
+}
+.fail {
+    background: url(../images/icons/fail.png) no-repeat left;
+}

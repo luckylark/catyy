@@ -1,4 +1,4 @@
-from flask import Flask, url_for, render_template
+from flask import Flask, url_for, render_template, current_app
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -9,6 +9,8 @@ from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Separator, Subgroup, Link
 from flask_mail import Mail, Message
 from threading import Thread
+from alipay import AliPay
+import os
 
 
 bootstrap = Bootstrap()
@@ -58,4 +60,14 @@ def send_msg(to, title, template, **kwargs):
 def send_sync_msg(app, msg):
     with app.app_context():
         mail.send(msg)
+
+
+alipay = AliPay(
+    appid='2018080360933015',
+    app_notify_url=None,  # 默认回调url
+    sign_type="RSA2",
+    alipay_public_key_path=os.path.join('home', 'deploy', 'alipay_public_key'),
+    app_private_key_path=os.path.join('home', 'deploy', 'app_secret_key'),
+    debug=False
+)
 

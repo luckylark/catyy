@@ -24,8 +24,8 @@
     line-height: 1.8em;
 }
 .activity-details .left, .activity-details .right {
-    width:45%;
-    margin: 5px 10px;
+    width:42%;
+    margin: 5px 2%;
     display: inline-block;
 }
 
@@ -41,7 +41,7 @@
 .team_cube_simple a h4 {
     color:olivedrab;
     font-size:12px;
-    witdh:100%;
+    width:100%;
     white-space: nowrap;
     overflow:hidden;
     text-overflow: ellipsis;

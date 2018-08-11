@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}确认出行信息{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+    <div class="col-sm-offset-2 col-sm-8">
+        <div class="page-header">
+            <h1>活动主办方致您的一封信</h1>
+        </div>
+        <div class="top-space">
+            <a class="top-space" href="{{ url_for('.activity_index_team', id=id) }}">点击这里进入属于您的活动主页</a>
+        </div>
+        <div class="top-space">{{ content }}</div>
+    </div>
+    </div>
+
+{% endblock %}
