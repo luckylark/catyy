@@ -10,10 +10,17 @@ from app.models.user import User
 from app.models.outdoorType import OutdoorType
 from app.models.team import Team, TeamUser
 from app.models.activity import Activity
+import logging
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    filemode='a',)
+logger = logging.getLogger('')
 
 
 @manager.shell
