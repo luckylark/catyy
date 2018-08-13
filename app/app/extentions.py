@@ -19,6 +19,7 @@ db = SQLAlchemy()
 ckeditor = CKEditor()
 mail = Mail()
 
+"""
 nav = Nav()
 @nav.navigation()
 def top_nav():
@@ -31,7 +32,7 @@ def top_nav():
                   View('我的俱乐部', 'team.team_me'),
                   View('致赞助商的一封信', 'invest')
                   )
-
+"""
 
 #头像上传
 avatarUser = UploadSet('avatarUser', IMAGES)
