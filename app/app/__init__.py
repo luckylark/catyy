@@ -44,7 +44,7 @@ def create_app(config_name):
     mail.init_app(app)
     # image upload config
     configure_uploads(app, (avatarUser, avatarTeam, coverPost, imgTeam, coverUser, commonImage))
-    patch_request_class(app, 10*1024*1024)
+    patch_request_class(app, 20*1024*1024)
 
     #register blueprint
     from .auth import auth
