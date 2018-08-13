@@ -21,6 +21,8 @@ mail = Mail()
 
 
 nav = Nav()
+
+
 @nav.navigation()
 def top_nav():
     return Navbar('小猫游园',
@@ -69,6 +71,7 @@ def send_sync_msg(app, msg):
 """
 #alipay_public_key_path=r'/home/deploy/alipay_public_key',
 #app_private_key_path=r'/home/deploy/app_secret_key',
+""""""
 
 alipay = AliPay(
     appid='2018080360933015',
