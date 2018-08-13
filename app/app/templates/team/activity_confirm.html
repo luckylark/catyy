@@ -62,7 +62,9 @@
             {% endfor %}
             {% if not join.state %}
             <li class="list-group-item">
-                    <a href="{{ url_for('pay.start_alipay',id=join.id) }}" class="btn btn-success">
+            {# <a href="{{ url_for('pay.start_alipay',id=join.id) }}" class="btn btn-success">
+                        确认无误，去付款({{ join.price }}元）</a> | #}
+                    <a href="#" class="btn btn-success">
                         确认无误，去付款({{ join.price }}元）</a> |
                     <a href="{{ url_for('team.activity_join_edit',id=join.id) }}" class="btn btn-default">信息有误，去修改</a> |
                     <a href="{{ url_for('team.activity_cancel',id=join.id) }}" class="btn btn-default delete">取消报名</a>

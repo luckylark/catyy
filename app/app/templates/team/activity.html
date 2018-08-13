@@ -70,6 +70,10 @@
                     <div class="left">
                         <span class="price">
                     {{ activity.price }}</span>
+                        {% if activity.child_price %}
+                        <span class="child_price">
+                        <span class="highlight">儿童价</span> {{ activity.child_price }}</span>
+                        {% endif %}
                     </div>
                     <div class="right">
                       <img src="{{ url_for('static', filename='images/icons/phone.png') }}" title="咨询电话"/>

@@ -62,8 +62,7 @@ def send_sync_msg(app, msg):
         mail.send(msg)
 
 
-alipay = ""
-
+alipay=""
 #alipay_public_key_path=r'/home/deploy/alipay_public_key',
 #app_private_key_path=r'/home/deploy/app_secret_key',
 """

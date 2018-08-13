@@ -269,6 +269,7 @@ class TeamJoinActivity(db.Model):
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     team_price = db.Column(db.Integer)
+    child_price = db.Column(db.SmallInteger)
     phone = db.Column(db.String(15))
     team_content = db.Column(db.String(500))
     qrcode = db.Column(db.String(128))
@@ -286,6 +287,11 @@ class TeamJoinActivity(db.Model):
     def get_price(team_id, activity_id):
         return db.session.query(TeamJoinActivity.team_price).filter(TeamJoinActivity.team_id==team_id,
                                                                     TeamJoinActivity.activity_id==activity_id).scalar()
+
+    @staticmethod
+    def get_child_price(team_id, activity_id):
+        return db.session.query(TeamJoinActivity.child_price).filter(TeamJoinActivity.team_id == team_id,
+                                                                    TeamJoinActivity.activity_id == activity_id).scalar()
 
     #TODO 分页
     def members(self):

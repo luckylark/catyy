@@ -23,6 +23,10 @@
             <div class="box">
                 <span class="price">
                 {{ join.team_price }}</span>
+                {% if join.child_price %}
+                <span class="child_price">
+                <span class="highlight">儿童价格</span> {{ join.child_price }}</span>
+                {% endif %}
             </div>
             <div class="box">
                 <span class="highlight">队长</span>

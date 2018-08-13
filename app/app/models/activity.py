@@ -275,10 +275,12 @@ class Activity(db.Model):
         return [join.user for join in self.joins.filter_by(state=1).all()]  # 仅筛选付费用户
 
     # 个人报名
-    def sign_up(self, contacts, sln, comment, team_id, volunteer):
+    def sign_up(self,child_count, contacts, sln, comment, team_id, volunteer):
         from .team import TeamJoinActivity, Team
         count = len(contacts) if isinstance(contacts, list) else 1  # 报名人数-志愿者
-        price = TeamJoinActivity.get_price(team_id, self.id) if team_id else self.price #报名价钱-团队报名
+        price = TeamJoinActivity.get_price(team_id, self.id) if team_id else self.price  #报名价钱-团队报名
+        child_price = TeamJoinActivity.get_child_price(team_id, self.id) if team_id else self.child_price  #报名价钱-团队报名
+        child_price = child_price if child_price else price
         # 创建报名信息
         join_info = JoinActivity()
         #报名的三种方式
@@ -290,7 +292,8 @@ class Activity(db.Model):
             join_info.volunteer = volunteer
         else:
             join_info.registration = RegistrationWay.PERSION
-        join_info.price = price * count
+        join_info.price = child_count * child_price + (count-child_count)*price
+        join_info.child_count = child_count
         join_info.user_id = current_user.id
         join_info.activity_id = self.id
         join_info.count = count
@@ -325,15 +328,18 @@ class Activity(db.Model):
         return join_info
 
     # 编辑
-    def join_edit(self, contacts, sln, comment, join_info):
+    def join_edit(self,child_count, contacts, sln, comment, join_info):
         from .team import TeamJoinActivity, Team
         count = len(contacts) if isinstance(contacts, list) else 1  # 报名人数-志愿者
         price = TeamJoinActivity.get_price(join_info.team_id, self.id) if join_info.team_id else self.price  # 报名价钱-团队报名
-        join_info.price = price * count
+        child_price = TeamJoinActivity.get_child_price(join_info.team_id, self.id) if join_info.team_id else self.child_price  # 报名价钱-团队报名
+        child_price = child_price if child_price else price  # 没有儿童价格，但是给儿童报名的
+        join_info.price = price * (count-child_count) + child_count*child_price
         join_info.count = count
         #修改报名信息
         join_info.solution = sln if sln else None
         join_info.comment = comment
+        join_info.child_count = child_count
         join_info.contacts = []
         # --修改出行人信息--
         if join_info.registration == RegistrationWay.VOLUNTEER:
@@ -351,12 +357,13 @@ class Activity(db.Model):
         return join_info
 
     # 团队报名-不带个人信息，不加入JoinActivity表
-    def join_team(self, team_id, phone, sln, price, team_content):
+    def join_team(self, team_id, phone, sln, price, child_price, team_content):
         from .team import TeamJoinActivity
         join = TeamJoinActivity(activity_id=self.id,
                                 team_id = team_id,
                                 team_content= team_content,
                                 team_price = max(price, self.price),
+                                child_price = max(child_price, self.child_price),
                                 phone = phone,
                                 solution = sln)
         db.session.add(join)
@@ -469,6 +476,7 @@ class JoinActivity(db.Model):
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     count = db.Column(db.Integer, nullable=False) #订单几人
+    child_count = db.Column(db.SmallInteger)  # 其中儿童人数
     price = db.Column(db.Integer) #订单总价钱
     state = db.Column(db.Boolean, default=False) #0-未付款 1-已付款
     trade_no = db.Column(db.String(40)) # 订单账号

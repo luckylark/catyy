@@ -21,6 +21,12 @@
                 {{ form.contact_source.label }}
                 {{ form.contact_source() }}
             </div>
+            {% if form.child_count %}
+                <div class="form-group">
+                {{ form.child_count.label }}
+                {{ form.child_count() }}
+            </div>
+            {% endif %}
             <a href="#team_join" class="btn btn-default" data-toggle="modal" data-target="#add_contact">
                <span class="glyphicon glyphicon-plus"></span> 添加出行人 </a>
             </div>

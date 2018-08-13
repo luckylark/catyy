@@ -6,7 +6,7 @@ from ..models.activity import JoinActivity
 from datetime import datetime
 from flask_login import current_user
 
-
+"""
 # 用户完成支付，GET回调
 @pay.route('/alipay')
 def paid():
@@ -40,3 +40,4 @@ def start_alipay(id):
     )
     alipay_url = current_app.config['ALIPAY_URL'] + "?" + order_string
     return redirect(alipay_url)
+    """

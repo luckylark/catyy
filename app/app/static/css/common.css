@@ -263,6 +263,10 @@ form {
     color:orangered;
     font-weight:bold;
 }
+.child_price {
+    color:orangered;
+    font-weight: bold;
+}
 .separator {
     margin:20px;
     border-bottom:dotted 1px dodgerblue;

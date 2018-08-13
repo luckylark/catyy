@@ -48,6 +48,7 @@ def fill_activity(activity, form, new=False, club=None):
     activity.rally_site = form.rally_site.data
     activity.destination = form.destination.data
     activity.price = form.price.data
+    activity.child_price = form.child_price.data if form.child_price.data else 0
     activity.maximum = form.maximum.data
     activity.intensity_index = form.intensity_index.data
     activity.landscape_index = form.landscape_index.data
@@ -207,7 +208,7 @@ def activity_join(id):
     volunteer = request.args.get('volunteer', 0, type=int)
     activity = Activity.query.get_or_404(id)
     if volunteer:
-        form = ActivityVolunteerJoinForm(solutions=activity.solutions.all()) #针对志愿者生成单选出行人表单
+        form = ActivityVolunteerJoinForm(solutions=activity.solutions.all())  # 针对志愿者生成单选出行人表单
     else:
         form = ActivityContactsForm(solutions=activity.solutions.all())
     contact_form = ContactForm()
@@ -216,7 +217,12 @@ def activity_join(id):
         contacts = form.contact_source.data
         sln = form.solution.data
         comment = form.comment.data
-        join = activity.sign_up(contacts, sln, comment, team_id, volunteer=volunteer)
+        child_count = form.child_count.data if isinstance(form, ActivityContactsForm) and form.child_count.data else 0  #志愿者报名没有儿童
+        count = len(contacts) if isinstance(contacts, list) else 1
+        if child_count > count:
+            child_count = count
+            flash('您填写的儿童人数大于选中人数，已经将儿童人数调整为总人数，如果有误，请修改信息')
+        join = activity.sign_up(child_count, contacts, sln, comment, team_id, volunteer=volunteer)
         return redirect(url_for('team.activity_confirm', id=join.id))
     if contact_form.add.data and contact_form.validate():
         #添加出行人
@@ -250,13 +256,16 @@ def activity_join_edit(id):
     if request.method == 'GET':#如果POST回传错误，也会执行继续添加联系人
         form.solution.data = join.solution
         form.comment.data = join.comment
+        if isinstance(form, ActivityContactsForm):
+            form.child_count.data = join.child_count
         form.contact_source.data = join.contacts[0].contact_id \
             if join.registration == RegistrationWay.VOLUNTEER else [item.contact_id for item in join.contacts]
     if form.validate_on_submit():
         contacts = form.contact_source.data
         sln = form.solution.data
         comment = form.comment.data
-        join = activity.join_edit(contacts, sln, comment, join)
+        child_count = form.child_count.data if isinstance(form, ActivityContactsForm) and form.child_count.data else 0  # 志愿者报名没有儿童
+        join = activity.join_edit(child_count, contacts, sln, comment, join)
         flash('修改成功')
         return redirect(url_for('team.activity_confirm', id=join.id))
     return render_template('activity_join.html', form=form, contact_form=contact_form)
@@ -273,10 +282,12 @@ def activity_team_join_edit(id):
         form.phone.data = join.phone
         form.price.data = join.team_price
         form.solution.data = join.solution
+        form.child_price.data = join.child_price
         form.team_content.data = join.team_content
     if form.validate_on_submit():
         join.phone = form.phone.data
         join.team_price = form.price.data
+        join.child_price = form.child_price.data
         join.team_content = form.team_content.data
         join.solution = form.solution.data
         db.session.add(join)
@@ -360,12 +371,14 @@ def activity_join_team(id):
     if request.method == 'GET':
         form.phone.data = current_user.phone
         form.price.data = activity.price
+        form.child_price.data = activity.child_price
     if form.validate_on_submit():
         team_id = current_user.leader_team.id
         join = activity.join_team(team_id,
                                   form.phone.data,
                                   form.solution.data if form.solution.data else None,
                                   form.price.data,
+                                  form.child_price.data,
                                   form.team_content.data)
         flash('团队报名成功')
         if activity.team_join_info:

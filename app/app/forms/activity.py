@@ -27,6 +27,7 @@ class CreateActivityForm(Form):
     destination = StringField('活动目的地', render_kw={'placeholder': '填写活动目的地（20字以内）'},
                            validators=[DataRequired('必填字段'), Length(1, 20)])
     price = IntegerField('活动价格', render_kw={'placeholder': '填写活动价格（仅数字，不加单位）'})
+    child_price = IntegerField('活动儿童价格', [Optional()], render_kw={'placeholder': '填写活动价格（仅数字，不加单位）'})
     #TODO-------------指数选择改成star selector-----
     intensity_index = IntegerField('强度指数（请填写数字1-5）', default='5', render_kw={'min': '1', 'max': '5'},
                                    validators=[DataRequired('必填字段'), NumberRange(min=1, max=5, message='数字只能在1-5之间')])
@@ -120,6 +121,7 @@ class ActivityJoinBaseForm(Form):
 # 个人报名+团队内个人报名表单（队长报名一样）
 class ActivityContactsForm(ActivityJoinBaseForm):
     contact_source = MultiCheckboxField('常用联系人', [DataRequired('请选择出行人')],  coerce=int)
+    child_count = IntegerField('其中儿童人数', default=0)
 
     def __init__(self, solutions, *args, ** kwargs):
         super(ActivityContactsForm, self).__init__(solutions, *args, **kwargs)
@@ -141,6 +143,8 @@ class ActivityTeamJoinForm(Form):
     solution = SelectField('活动方案', coerce=int)
     price = IntegerField('团队报名的活动价格（包含路费等其他资费，价格可能和活动价格不一致）',[DataRequired('必填项')],
                               render_kw={'placeholder': '如果您的价格比原活动价格低，系统会使用原活动价格'})
+    child_price = IntegerField('儿童价格',
+                         render_kw={'placeholder': '如果您的价格比原儿童价格低，系统会使用原价格'})
     team_content = TextAreaField('队长有话说（最多可以输入500字）',
                                  [Length(max=500, message='仅限500字以内')])
     submit = SubmitField('团队报名')
