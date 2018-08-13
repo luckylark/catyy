@@ -40,7 +40,7 @@ def create_app(config_name):
     bootstrap.init_app(app)
     login_manager.init_app(app)
     ckeditor.init_app(app)
-    # nav.init_app(app)
+    nav.init_app(app)
     mail.init_app(app)
     # image upload config
     configure_uploads(app, (avatarUser, avatarTeam, coverPost, imgTeam, coverUser, commonImage))
