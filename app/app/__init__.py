@@ -18,6 +18,7 @@ from .config import config
 from flask import Flask, redirect, url_for, render_template, flash
 from flask_login import current_user
 from .tools.photo import resize
+import logging
 
 
 def create_app(config_name):
@@ -56,6 +57,14 @@ def create_app(config_name):
     app.register_blueprint(team)
     from .pay import pay
     app.register_blueprint(pay)
+
+    # logger
+    handler = logging.FileHandler('flask.log', encoding='UTF-8')
+    handler.setLevel(logging.DEBUG)
+    logging_format = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
+    handler.setFormatter(logging_format)
+    app.logger.addHandler(handler)
 
     @app.context_processor
     def inject_vars():
@@ -143,6 +152,7 @@ def create_app(config_name):
 
     @app.errorhandler(500)
     def internal_server_error(e):
+        app.logger.exception('error 500:%s', e)
         return render_template('500.html'), 500
 
     @app.errorhandler(403)
