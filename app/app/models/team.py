@@ -89,6 +89,8 @@ class Team(db.Model):
 
     #----------admin--------
     def add_vitality(self, vitality=1):
+        if not vitality:
+            vitality=0
         self.vitality += vitality
 
     def approve(self):
