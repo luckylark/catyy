@@ -153,7 +153,7 @@ def create_app(config_name):
     @app.errorhandler(500)
     def internal_server_error(e):
         app.logger.exception('error 500:%s', e)
-        return render_template('500.html'), 500
+        return render_template('500.html', e=e), 500
 
     @app.errorhandler(403)
     def internal_server_error(e):
