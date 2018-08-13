@@ -76,7 +76,7 @@ def create_activity(id):
         activity = Activity()
         activity = fill_activity(activity, form, True, group)
         db.session.add(activity)
-        group.add_vitality(5)  # 添加活跃度
+        #group.add_vitality(5)  # 添加活跃度
         db.session.add(group)
         db.session.commit()
         flash('活动发布成功，您可以选择添加多个活动方案')
