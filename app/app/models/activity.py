@@ -258,7 +258,8 @@ class Activity(db.Model):
     def paid(self, user):
         if user.is_anonymous:
             return False
-        return JoinActivity.query.filter(JoinActivity.state==True, JoinActivity.user_id==user.id).count()
+        return JoinActivity.query.filter(JoinActivity.state==True, JoinActivity.user_id==user.id,
+                                         JoinActivity.activity_id==self.id).count()
 
     @property
     def unpaid_id(self, user=current_user):

@@ -6,7 +6,7 @@ from ..models.activity import JoinActivity
 from datetime import datetime
 from flask_login import current_user
 
-"""
+
 # 用户完成支付，GET回调
 @pay.route('/alipay')
 def paid():
@@ -28,6 +28,7 @@ def paid():
 # 暂时只支持活动付款
 @pay.route('/start_pay/<int:id>')
 def start_alipay(id):
+    from urllib.parse import urlencode
     join = JoinActivity.query.get_or_404(id)
     if not join.trade_no:
         join.trade_no = datetime.now().strftime('%Y%m%d%H%M%S') + str(current_user.id)
@@ -40,4 +41,4 @@ def start_alipay(id):
     )
     alipay_url = current_app.config['ALIPAY_URL'] + "?" + order_string
     return redirect(alipay_url)
-    """
+
