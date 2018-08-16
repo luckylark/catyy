@@ -64,20 +64,21 @@ def send_sync_msg(app, msg):
     with app.app_context():
         mail.send(msg)
 
-
-"""
-    alipay_public_key_path=os.path.join(os.getcwd(), 'app', 'key', 'alipay_public_key'),
-    app_private_key_path=os.path.join(os.getcwd(), 'app', 'key', 'app_secret_key'),
-"""
-#alipay_public_key_path=r'/home/deploy/alipay_public_key',
-#app_private_key_path=r'/home/deploy/app_secret_key',
-""""""
-
-alipay = AliPay(
-    appid='2018080360933015',
-    app_notify_url=None,  # 默认回调url
-    sign_type="RSA2",
-    alipay_public_key_path=r'/home/deploy/alipay_public_key',
-    app_private_key_path=r'/home/deploy/app_secret_key',
-    debug=False
-)
+if os.getenv('FLASK_CONFIG') == 'production':
+    alipay = AliPay(
+        appid='2018080360933015',
+        app_notify_url=None,  # 默认回调url
+        sign_type="RSA2",
+        alipay_public_key_path=r'/home/deploy/alipay_public_key',
+        app_private_key_path=r'/home/deploy/app_secret_key',
+        debug=False
+    )
+else:
+    alipay = AliPay(
+        appid='2016091800540443',
+        app_notify_url=None,  # 默认回调url
+        sign_type="RSA2",
+        alipay_public_key_path=os.path.join(os.getcwd(), 'app', 'key', 'alipay_public_key'),
+        app_private_key_path=os.path.join(os.getcwd(), 'app', 'key', 'app_secret_key'),
+        debug=True
+    )

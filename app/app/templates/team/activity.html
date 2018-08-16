@@ -224,6 +224,21 @@
         </div><!-- /.modal -->
     </div>
 
+    <!-- 倒到南太行的模态框（Modal） -->
+    <div class="modal fade" id="nth" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">公告</h4>
+                </div>
+                <div class="modal-body">
+                    <p>该活动请联系新乡市南太行旅游有限公司</p>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
 {% endblock %}
 {% block scripts %}
 {{ super() }}
@@ -233,6 +248,7 @@
             var volunteer = $("#volunteer_type").val();
             $("#volunteer_join").attr("href",$("#volunteer_join").attr("href") +"?volunteer="+volunteer);
         });
+        $('#nth').modal()
     });
     </script>
 {% endblock %}
