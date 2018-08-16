@@ -225,6 +225,7 @@
     </div>
 
     <!-- 倒到南太行的模态框（Modal） -->
+
     <div class="modal fade" id="nth" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -233,7 +234,11 @@
                     <h4 class="modal-title" id="myModalLabel">公告</h4>
                 </div>
                 <div class="modal-body">
-                    <p>该活动请联系新乡市南太行旅游有限公司</p>
+                    {% if activity.id==1 %}
+                    <p>详情请咨询新乡市南太行旅游有限公司</p>
+                    {% elif not activity.past %}
+                    <p>由于天气原因，该活动已取消</p>
+                    {% endif %}
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
