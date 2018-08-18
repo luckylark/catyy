@@ -235,8 +235,8 @@
                 </div>
                 <div class="modal-body">
                     {% if activity.id==1 %}
-                    <p>详情请咨询新乡市南太行旅游有限公司</p>
-                    {% elif not activity.past %}
+                    <p>详情请咨询新乡南太行旅游有限公司</p>
+                    {% elif activity.id==16 or activity.id==17 %}
                     <p>由于天气原因，该活动已取消</p>
                     {% endif %}
                 </div>
@@ -247,6 +247,7 @@
 {% endblock %}
 {% block scripts %}
 {{ super() }}
+    {% if activity.id==1 or activity.id==16 or activity.id==17 %}
     <script>
         $(function(){
         $("#volunteer_join").click(function(event){
@@ -256,4 +257,5 @@
         $('#nth').modal()
     });
     </script>
+    {% endif %}
 {% endblock %}
