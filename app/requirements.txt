@@ -33,7 +33,7 @@ Markdown==2.6.8
 MarkupSafe==0.23
 olefile==0.44
 openpyxl==2.5.2
-paramiko==2.4.1
+paramiko==2.10.1
 Pillow==4.0.0
 pipenv==2018.6.25
 pyasn1==0.4.3
